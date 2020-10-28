@@ -72,7 +72,7 @@ def elaborate_dataset_for_score(interleaving_dataset):
     return interleaving_dataset
 
 
-def generate_new_data(data_to_add_stats, user_id_max):
+def generate_new_data(data_to_add_stats, user_id_max, click_per_query_max):
     print('Generating random click_per_userId for primary dataset')
     clicks_list = list()
     new_data = pd.DataFrame(columns=['queryId', 'click_per_userId'])
@@ -87,7 +87,7 @@ def generate_new_data(data_to_add_stats, user_id_max):
             clicks_list.append(data_to_add_stats.loc[index, 'new_interactions_to_add'] - sum(clicks_list))
             data_to_append = {'queryId': [data_to_add_stats.loc[index, 'queryId']] * len(clicks_list),
                               'click_per_userId': clicks_list,
-                              'click_per_query': [data_to_add_stats.loc[index, 'click_per_query']] * len(clicks_list)}
+                              'click_per_query': [click_per_query_max] * len(clicks_list)}
             new_data = new_data.append(pd.DataFrame(data_to_append))
             clicks_list.clear()
 

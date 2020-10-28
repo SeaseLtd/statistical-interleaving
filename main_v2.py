@@ -3,6 +3,7 @@ import utils
 import numpy as np
 import pandas as pd
 
+
 def create_primary_dataset(adore_beauty_dataset):
     primary_data = adore_beauty_dataset.copy()
     primary_data['click_per_query_primary'] = adore_beauty_dataset['click_per_query'].max()
@@ -13,7 +14,8 @@ def create_primary_dataset(adore_beauty_dataset):
     primary_data.drop(columns=['click_per_query', 'new_interactions_to_add'], inplace=True)
     primary_data.rename(columns={'click_per_query_primary': 'click_per_query'}, inplace=True)
 
-    new_data = utils.generate_new_data(data_to_add, adore_beauty_dataset['userId'].max())
+    new_data = utils.generate_new_data(data_to_add, adore_beauty_dataset['userId'].max(),
+                                       adore_beauty_dataset['click_per_query'].max())
     primary_data = primary_data.append(new_data, ignore_index=True)
 
     primary_data = primary_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
