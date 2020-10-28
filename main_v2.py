@@ -17,6 +17,7 @@ def create_primary_dataset(adore_beauty_dataset):
     primary_data = primary_data.append(new_data, ignore_index=True)
 
     primary_data = primary_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
+    primary_data = primary_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_model_A': 'int64', 'click_per_userId': 'int64', 'userId': 'int16'})
 
     print('Nan stats:')
     print(primary_data.isnull().sum())
@@ -29,13 +30,36 @@ def create_variation_dataset(primary_data, click_per_query_adore):
     variation_data = pd.DataFrame(columns=['userId', 'click_per_userId', 'queryId', 'click_per_query',
                                            'click_per_model_A'])
 
-    variation_data_frame = primary_data.copy()
-    variation_data_frame.drop(columns=['click_per_query'], inplace=True)
-    variation_data_frame = pd.merge(variation_data_frame, click_per_query_adore, left_on='queryId', right_index=True, how='inner')
+    temp_variation_data_frame = primary_data.copy()
+    temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
+    interactions_added_per_pass = []
+    while click_per_query_adore['click_per_query'].values.sum() > 0:
+        queryId_to_users = temp_variation_data_frame.groupby(['queryId']).sample() #Allow or disallow sampling of the same row more than once.
+        #temp_variation_data_frame.groupby(['queryId']).get_group(43)['userId'].size
+        #selectedUserIds = temp_variation_data_frame.groupby(['queryId']).['userId'].sample(
+        #    random_state=1).iloc[0]
+        click_per_query_adore['selectedUserId'] = np.where(click_per_query_adore['click_per_query'] > 0, temp_variation_data_frame.groupby(['queryId']).get_group(click_per_query_adore.index)['userId'].sample(random_state=1).iloc[0], 0)
+        temp_variation_data_frame = pd.merge(temp_variation_data_frame, click_per_query_adore, left_on='queryId', right_index=True, how='inner')
+        temp_variation_data_frame['is_selected_for_variation'] = temp_variation_data_frame['userId'] - temp_variation_data_frame['selectedUserId'] + 1
+        interactions_added_single_pass = temp_variation_data_frame.loc[temp_variation_data_frame['is_selected_for_variation'] == 1]
+        interactions_added_single_pass.set_index('queryId', inplace=True)
 
-    while click_per_query_adore['click_per_query'].sum > 0:
-        c = 1
-        #click_per_query_adore['selectedUserId'] = //se click_per_query_adore['click_per_query']>0 : scelgo un userId a caso else 0
+        click_per_query_adore['click_per_query'] = click_per_query_adore['click_per_query'] - interactions_added_single_pass['click_per_userId']
+
+        overflown_queries = click_per_query_adore.loc[click_per_query_adore['click_per_query'] < 0]
+        interactions_added_single_pass = pd.merge(interactions_added_single_pass, overflown_queries, left_on='queryId', right_index=True, how='outer')
+        interactions_added_single_pass['click_per_model_A'] = np.where(interactions_added_single_pass['click_per_query_y'] < 0,(interactions_added_single_pass['click_per_model_A'] * interactions_added_single_pass['click_per_query_x'])/interactions_added_single_pass['click_per_userId'],interactions_added_single_pass['click_per_model_A'])
+        interactions_added_single_pass['click_per_userId'] = np.where(interactions_added_single_pass['click_per_query_y'] < 0,interactions_added_single_pass['click_per_query_x'],interactions_added_single_pass['click_per_userId'])
+        interactions_added_per_pass.append(interactions_added_single_pass)
+        #update and reset initial pass data structures
+        temp_variation_data_frame = temp_variation_data_frame.loc[temp_variation_data_frame['is_selected_for_variation'] != 1]
+        temp_variation_data_frame = pd.merge(temp_variation_data_frame, click_per_query_adore, left_on='queryId',
+                                        right_index=True, how='right')
+        temp_variation_data_frame.rename(columns={'click_per_query_y': 'click_per_query'}, inplace=True)
+        temp_variation_data_frame.drop(columns=['click_per_query_x','selectedUserId_x','selectedUserId_y', 'is_selected_for_variation'], inplace=True)
+        click_per_query_adore.drop(columns=['selectedUserId'], inplace=True)
+    variation_data_frame = pd.concat(interactions_added_per_pass, ignore_index=True, sort=True)
+    #put correct typing
 
     for index in click_per_query_adore.index:
         click_sum = 0

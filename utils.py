@@ -38,6 +38,8 @@ def create_adore_dataset():
     print('Nan stats:')
     print(raw_data.isnull().sum())
 
+    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_userId': 'int64', 'userId': 'int16'})
+
     return raw_data
 
 
