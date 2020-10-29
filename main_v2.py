@@ -31,10 +31,9 @@ def create_variation_dataset(primary_data, click_per_query_adore):
     temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
     temp_variation_data_frame = pd.merge(temp_variation_data_frame, click_per_query_adore, left_on='queryId',
                                          right_index=True, how='inner')
-    interactions_added_per_pass = []
+    interactions_added_data_frames = []
     while temp_variation_data_frame['click_per_query'].values.sum() > 0:
         groupedByQueryId = temp_variation_data_frame.groupby(['queryId'])
-        # Allow or disallow sampling of the same row more than once. Probably need to remove what I took each round
         interactions_added_single_pass = groupedByQueryId.sample() #Allow or disallow sampling of the same row more than once.
         interactions_added_single_pass['click_per_query_after_addition'] = interactions_added_single_pass['click_per_query'] - interactions_added_single_pass['click_per_userId']
 
@@ -43,16 +42,18 @@ def create_variation_dataset(primary_data, click_per_query_adore):
         interactions_added_single_pass = interactions_added_single_pass.astype(
             { 'click_per_model_A': 'int64'})
 
-        interactions_added_per_pass.append(interactions_added_single_pass)
+        interactions_added_data_frames.append(interactions_added_single_pass)
         #update and reset initial pass data structures
         temp_variation_data_frame = pd.merge(temp_variation_data_frame, interactions_added_single_pass, left_on='queryId',
-                                        right_on='queryId', how='right', suffixes=('', '_y'))
+                                        right_on='queryId', how='left', suffixes=('', '_y'))
         temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
         temp_variation_data_frame = temp_variation_data_frame[temp_variation_data_frame.columns[~temp_variation_data_frame.columns.str.endswith('_y')]]
         temp_variation_data_frame.rename(columns={'click_per_query_after_addition': 'click_per_query'}, inplace=True)
+        temp_variation_data_frame.drop(interactions_added_single_pass.index,inplace=True)
         temp_variation_data_frame = temp_variation_data_frame.loc[temp_variation_data_frame['click_per_query'] > 0]
+        temp_variation_data_frame.reset_index(drop=True, inplace=True)
 
-    variation_data_frame = pd.concat(interactions_added_per_pass, ignore_index=True, sort=True)
+    variation_data_frame = pd.concat(interactions_added_data_frames, ignore_index=True, sort=True)
     variation_data_frame.drop(columns=['click_per_query_after_addition'], inplace=True)
     variation_data_frame.reset_index(drop=True, inplace=True)
 
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     # print('AFTER DEL')
     # print(h.heap())
 
-    for i in range(0, 100):
+    for i in range(0, 1000):
         print('\n\n***************************** Round ' + str(i) + ' ************************************')
         print('------------- Creating variation dataset --------------')
         start = time.time()
