@@ -38,6 +38,9 @@ def create_adore_dataset():
     print('Nan stats:')
     print(raw_data.isnull().sum())
 
+    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_userId': 'int64',
+                                'userId': 'int16'})
+
     return raw_data
 
 
@@ -72,7 +75,7 @@ def elaborate_dataset_for_score(interleaving_dataset):
     return interleaving_dataset
 
 
-def generate_new_data(data_to_add_stats, user_id_max, click_per_query_max):
+def generate_new_data(data_to_add_stats, click_per_query_max):
     print('Generating random click_per_userId for primary dataset')
     clicks_list = list()
     new_data = pd.DataFrame(columns=['queryId', 'click_per_userId'])
@@ -80,7 +83,7 @@ def generate_new_data(data_to_add_stats, user_id_max, click_per_query_max):
         if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
             # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
             while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1)
+                clicks = np.random.randint(1, 200 + 1)
                 clicks_list.append(clicks)
                 # max_clicks = max_clicks - clicks + 1
             del clicks_list[-1]
@@ -90,8 +93,7 @@ def generate_new_data(data_to_add_stats, user_id_max, click_per_query_max):
                               'click_per_query': [click_per_query_max] * len(clicks_list)}
             new_data = new_data.append(pd.DataFrame(data_to_append))
             clicks_list.clear()
-
-    new_data['userId'] = pd.Series(np.random.randint(0, user_id_max, size=new_data.shape[0]))
+    new_data['userId'] = new_data.groupby('queryId').cumcount() + 1
 
     new_data.reset_index(drop=True, inplace=True)
     print('Populating click_per_model_A')

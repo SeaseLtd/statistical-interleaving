@@ -14,11 +14,13 @@ def create_primary_dataset(adore_beauty_dataset):
     primary_data.drop(columns=['click_per_query', 'new_interactions_to_add'], inplace=True)
     primary_data.rename(columns={'click_per_query_primary': 'click_per_query'}, inplace=True)
 
-    new_data = utils.generate_new_data(data_to_add, adore_beauty_dataset['userId'].max(),
-                                       adore_beauty_dataset['click_per_query'].max())
+    new_data = utils.generate_new_data(data_to_add, adore_beauty_dataset['click_per_query'].max())
     primary_data = primary_data.append(new_data, ignore_index=True)
 
     primary_data = primary_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
+    primary_data = primary_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_model_A': 'int64',
+                                        'click_per_userId': 'int64', 'userId': 'int16'})
+    primary_data['userId'] = primary_data.groupby('queryId').cumcount() + 1
 
     print('Nan stats:')
     print(primary_data.isnull().sum())
@@ -27,49 +29,42 @@ def create_primary_dataset(adore_beauty_dataset):
 
 
 def create_variation_dataset(primary_data, click_per_query_adore):
-    interactions_list = list()
-    variation_data = pd.DataFrame(columns=['userId', 'click_per_userId', 'queryId', 'click_per_query',
-                                           'click_per_model_A'])
+    temp_variation_data_frame = primary_data.copy()
+    temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
+    temp_variation_data_frame = pd.merge(temp_variation_data_frame, click_per_query_adore, left_on='queryId',
+                                         right_index=True, how='inner')
+    interactions_added_data_frames = []
+    while temp_variation_data_frame['click_per_query'].values.sum() > 0:
+        groupedByQueryId = temp_variation_data_frame.groupby(['queryId'])
+        interactions_added_single_pass = groupedByQueryId.sample() #Allow or disallow sampling of the same row more than once.
+        interactions_added_single_pass['click_per_query_after_addition'] = interactions_added_single_pass['click_per_query'] - interactions_added_single_pass['click_per_userId']
 
-    variation_data_frame = primary_data.copy()
-    variation_data_frame.drop(columns=['click_per_query'], inplace=True)
-    variation_data_frame = pd.merge(variation_data_frame, click_per_query_adore, left_on='queryId', right_index=True, how='inner')
+        interactions_added_single_pass['click_per_model_A'] = np.where(
+            interactions_added_single_pass['click_per_query_after_addition'] < 0,
+            (interactions_added_single_pass['click_per_model_A'] * interactions_added_single_pass['click_per_query']) /
+            interactions_added_single_pass['click_per_userId'], interactions_added_single_pass['click_per_model_A'])
+        interactions_added_single_pass['click_per_userId'] = np.where(
+            interactions_added_single_pass['click_per_query_after_addition'] < 0,
+            interactions_added_single_pass['click_per_query'], interactions_added_single_pass['click_per_userId'])
+        interactions_added_single_pass = interactions_added_single_pass.astype({'click_per_model_A': 'int64'})
 
-    while click_per_query_adore['click_per_query'].sum > 0:
-        c = 1
-        #click_per_query_adore['selectedUserId'] = //se click_per_query_adore['click_per_query']>0 : scelgo un userId a caso else 0
+        interactions_added_data_frames.append(interactions_added_single_pass)
+        #update and reset initial pass data structures
+        temp_variation_data_frame = pd.merge(temp_variation_data_frame, interactions_added_single_pass,
+                                             left_on='queryId', right_on='queryId', how='left', suffixes=('', '_y'))
+        temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
+        temp_variation_data_frame = temp_variation_data_frame[temp_variation_data_frame.columns[
+            ~temp_variation_data_frame.columns.str.endswith('_y')]]
+        temp_variation_data_frame.rename(columns={'click_per_query_after_addition': 'click_per_query'}, inplace=True)
+        temp_variation_data_frame.drop(interactions_added_single_pass.index,inplace=True)
+        temp_variation_data_frame = temp_variation_data_frame.loc[temp_variation_data_frame['click_per_query'] > 0]
+        temp_variation_data_frame.reset_index(drop=True, inplace=True)
 
-    for index in click_per_query_adore.index:
-        click_sum = 0
-        total_click_per_query = click_per_query_adore.loc[index, 'click_per_query']
-        while click_sum < total_click_per_query:
-            partial_data = primary_data[primary_data.queryId == click_per_query_adore.loc[index, 'queryId']]
-            interaction_index = np.random.choice(partial_data.index.values, 1)
-            interaction = partial_data.loc[interaction_index]
-            interaction['click_per_query'] = total_click_per_query
-            interactions_list.append(interaction)
+    variation_data_frame = pd.concat(interactions_added_data_frames, ignore_index=True, sort=True)
+    variation_data_frame.drop(columns=['click_per_query_after_addition'], inplace=True)
+    variation_data_frame.reset_index(drop=True, inplace=True)
 
-            click_sum = click_sum + int(interaction['click_per_userId'])
-
-        if click_sum > total_click_per_query:
-            last_elem = interactions_list[-1]
-            click_sum = int(click_sum - last_elem['click_per_userId'])
-            last_elem['click_per_userId'] = last_elem['click_per_query'] - click_sum
-            if int(last_elem['click_per_model_A']) > int(last_elem['click_per_userId']):
-                last_elem['click_per_model_A'] = np.random.randint(0, last_elem['click_per_userId'] + 1)
-            del interactions_list[-1]
-            interactions_list.append(last_elem)
-        variation_data = variation_data.append(interactions_list)
-        interactions_list.clear()
-
-    variation_data.reset_index(drop=True, inplace=True)
-
-    print('Nan stats:')
-    print(variation_data.isnull().sum())
-
-    variation_data = variation_data.astype('int32')
-
-    return variation_data
+    return variation_data_frame
 
 
 if __name__ == '__main__':
@@ -154,7 +149,7 @@ if __name__ == '__main__':
     # print('AFTER DEL')
     # print(h.heap())
 
-    for i in range(0, 100):
+    for i in range(0, 1000):
         print('\n\n***************************** Round ' + str(i) + ' ************************************')
         print('------------- Creating variation dataset --------------')
         start = time.time()
