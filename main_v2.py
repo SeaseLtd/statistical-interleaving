@@ -22,9 +22,6 @@ def create_primary_dataset(adore_beauty_dataset):
                                         'click_per_userId': 'int64', 'userId': 'int16'})
     primary_data['userId'] = primary_data.groupby('queryId').cumcount() + 1
 
-    print('Nan stats:')
-    print(primary_data.isnull().sum())
-
     return primary_data
 
 
@@ -81,6 +78,7 @@ if __name__ == '__main__':
     print('------------- Creating adore dataset ----------------')
     start = time.time()
     adore_dataset = utils.create_adore_dataset()
+    print('Rows: ' + str(len(adore_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
     print('------------- Elaborating adore dataset -------------')
@@ -99,6 +97,7 @@ if __name__ == '__main__':
     print('\n------------- Creating primary dataset --------------')
     start = time.time()
     primary_dataset = create_primary_dataset(adore_dataset)
+    print('Rows: ' + str(len(primary_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
     print('------------- Elaborating primary dataset --------------')
@@ -162,6 +161,7 @@ if __name__ == '__main__':
         start = time.time()
         variation_dataset = create_variation_dataset(primary_dataset, adore_total_click_for_variation)
         end = time.time()
+        print('Rows: ' + str(len(variation_dataset.index)))
         print('Time: ' + str(end - start))
         print('------------- Elaborating variation dataset --------------')
         start = time.time()

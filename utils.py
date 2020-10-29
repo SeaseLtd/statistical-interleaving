@@ -35,9 +35,6 @@ def create_adore_dataset():
     click_per_model_a = pd.Series(clicks_list, index=raw_data.index)
     raw_data['click_per_model_A'] = click_per_model_a
 
-    print('Nan stats:')
-    print(raw_data.isnull().sum())
-
     raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_userId': 'int64',
                                 'userId': 'int16'})
 
@@ -69,9 +66,6 @@ def elaborate_dataset_for_score(interleaving_dataset):
         'total_click_per_model_A']
     interleaving_dataset.rename(columns={'total_click_per_model_A': 'click_per_winning_model'}, inplace=True)
 
-    print('Nan stats:')
-    print(interleaving_dataset.isnull().sum())
-
     return interleaving_dataset
 
 
@@ -83,7 +77,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
         if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
             # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
             while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, 10 + 1)
+                clicks = np.random.randint(1, 5 + 1)
                 clicks_list.append(clicks)
                 # max_clicks = max_clicks - clicks + 1
             del clicks_list[-1]
@@ -143,8 +137,6 @@ def pruning(interleaving_dataset, percentage_dropped_queries):
     percentage_dropped_queries.append(percentage)
     print('Percentage dropped queries: ' + str(percentage))
 
-    print('Nan stats:')
-    print(per_query_model_interactions.isnull().sum())
 
     return per_query_model_interactions
 
@@ -156,9 +148,6 @@ def computing_ab_score(interleaving_dataset):
 
     # Delta score
     delta_ab = (winner_a + 1 / 2 * ties) / (winner_a + winner_b + ties) - 0.5
-
-    print('Nan stats:')
-    print(interleaving_dataset.isnull().sum())
 
     return round(delta_ab, 3)
 
