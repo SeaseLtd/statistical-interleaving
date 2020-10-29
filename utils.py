@@ -77,7 +77,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
         if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
             # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
             while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, 5 + 1)
+                clicks = np.random.randint(1, 15 + 1)
                 clicks_list.append(clicks)
                 # max_clicks = max_clicks - clicks + 1
             del clicks_list[-1]
@@ -91,14 +91,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
 
     new_data.reset_index(drop=True, inplace=True)
     print('Populating click_per_model_A')
-    clicks_per_user_list = list()
-    for index in new_data.index:
-        min_data = 0
-        max_data = new_data['click_per_userId'][index]
-        clicks = np.random.randint(min_data, max_data + 1)
-        clicks_per_user_list.append(int(clicks))
-    click_per_model_a = pd.Series(clicks_per_user_list, index=new_data.index)
-    new_data['click_per_model_A'] = click_per_model_a
+    new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * 0.15, new_data['click_per_userId'] + 1)
 
     return new_data
 
