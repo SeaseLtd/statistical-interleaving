@@ -83,7 +83,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
         if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
             # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
             while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, 200 + 1)
+                clicks = np.random.randint(1, 10 + 1)
                 clicks_list.append(clicks)
                 # max_clicks = max_clicks - clicks + 1
             del clicks_list[-1]
