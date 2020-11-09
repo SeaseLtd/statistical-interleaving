@@ -4,43 +4,6 @@ import numpy as np
 import pandas as pd
 
 
-def create_adore_dataset():
-    print('Reading json file')
-    raw_data = pd.read_json('./dataset_from_adore/query_click_user.json')
-    raw_data = pd.json_normalize(raw_data['parent_buckets'], record_path=['users'], meta=['val', 'count'],
-                                 meta_prefix='query_')
-    raw_data.rename(columns={'val': 'userId', 'count': 'click_per_userId', 'query_val': 'queryId',
-                             'query_count': 'click_per_query'}, inplace=True)
-    raw_data['userId'] = raw_data.groupby('queryId').userId.cumcount() + 1
-
-    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'userId': 'int16'})
-
-    # SOLO PER TEST
-    # raw_data = raw_data.head(3000)
-
-    print('Fixing click per query')
-    sum_clicks = pd.DataFrame(raw_data.groupby('queryId')['click_per_userId'].sum()).reset_index()
-    sum_clicks.rename(columns={'click_per_userId': 'click_per_query'}, inplace=True)
-    raw_data = pd.merge(raw_data, sum_clicks, how='left', on='queryId')
-    raw_data.drop(columns='click_per_query_x', inplace=True)
-    raw_data.rename(columns={'click_per_query_y': 'click_per_query'}, inplace=True)
-
-    print('Populating click_per_model_A')
-    clicks_list = list()
-    for index in raw_data.index:
-        min_data = 0
-        max_data = raw_data['click_per_userId'][index]
-        clicks = np.random.randint(min_data, max_data + 1)
-        clicks_list.append(int(clicks))
-    click_per_model_a = pd.Series(clicks_list, index=raw_data.index)
-    raw_data['click_per_model_A'] = click_per_model_a
-
-    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_userId': 'int64',
-                                'userId': 'int16'})
-
-    return raw_data
-
-
 def elaborate_dataset_for_score(interleaving_dataset):
     print('Computing total_click_per_model_A')
     total_click_per_model_a = pd.DataFrame(interleaving_dataset.groupby(['queryId'])['click_per_model_A'].sum())
@@ -69,7 +32,7 @@ def elaborate_dataset_for_score(interleaving_dataset):
     return interleaving_dataset
 
 
-def generate_new_data(data_to_add_stats, click_per_query_max):
+def generate_new_data(data_to_add_stats, click_per_query_max, winning_model_preference, max_clicks_per_user):
     print('Generating random click_per_userId for primary dataset')
     clicks_list = list()
     new_data = pd.DataFrame(columns=['queryId', 'click_per_userId'])
@@ -77,7 +40,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
         if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
             # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
             while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, 15 + 1)
+                clicks = np.random.randint(1, max_clicks_per_user + 1)
                 clicks_list.append(clicks)
                 # max_clicks = max_clicks - clicks + 1
             del clicks_list[-1]
@@ -91,7 +54,8 @@ def generate_new_data(data_to_add_stats, click_per_query_max):
 
     new_data.reset_index(drop=True, inplace=True)
     print('Populating click_per_model_A')
-    new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * 0.15, new_data['click_per_userId'] + 1)
+    new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * winning_model_preference,
+                                                      new_data['click_per_userId'] + 1)
 
     return new_data
 
@@ -116,6 +80,7 @@ def pruning(interleaving_dataset, percentage_dropped_queries):
     # print('PRUNING')
     # print(h.heap())
     per_query_model_interactions = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
+
     # Remove interactions with significance higher than 5% threshold
     queries_before_drop = per_query_model_interactions.shape[0]
     print('Number of queries before drop: ' + str(queries_before_drop))
@@ -129,7 +94,6 @@ def pruning(interleaving_dataset, percentage_dropped_queries):
     percentage = (queries_before_drop - queries_after_drop) * 100 / queries_before_drop
     percentage_dropped_queries.append(percentage)
     print('Percentage dropped queries: ' + str(percentage))
-
 
     return per_query_model_interactions
 
