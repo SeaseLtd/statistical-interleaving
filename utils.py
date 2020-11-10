@@ -33,29 +33,33 @@ def elaborate_dataset_for_score(interleaving_dataset):
 
 
 def generate_new_data(data_to_add_stats, click_per_query_max, winning_model_preference, max_clicks_per_user):
-    print('Generating random click_per_userId for primary dataset')
-    clicks_list = list()
-    new_data = pd.DataFrame(columns=['queryId', 'click_per_userId'])
-    for index in data_to_add_stats.index:
-        if data_to_add_stats.loc[index, 'new_interactions_to_add'] > 0:
-            # max_clicks = data_to_add_stats.loc[index, 'new_interactions_to_add'] + 1
-            while sum(clicks_list) < data_to_add_stats.loc[index, 'new_interactions_to_add']:
-                clicks = np.random.randint(1, max_clicks_per_user + 1)
-                clicks_list.append(clicks)
-                # max_clicks = max_clicks - clicks + 1
-            del clicks_list[-1]
-            clicks_list.append(data_to_add_stats.loc[index, 'new_interactions_to_add'] - sum(clicks_list))
-            data_to_append = {'queryId': [data_to_add_stats.loc[index, 'queryId']] * len(clicks_list),
-                              'click_per_userId': clicks_list,
-                              'click_per_query': [click_per_query_max] * len(clicks_list)}
-            new_data = new_data.append(pd.DataFrame(data_to_append))
-            clicks_list.clear()
+    interactions_added_data_frames = []
+    while data_to_add_stats['new_interactions_to_add'].values.sum() > 0:
+        interactions_added_single_pass = pd.DataFrame()
+        interactions_added_single_pass['queryId'] = data_to_add_stats['queryId']
+        interactions_added_single_pass['click_per_userId'] = np.random.randint(1, max_clicks_per_user + 1,
+                                                                               size=data_to_add_stats.shape[0])
+        interactions_added_single_pass['click_per_query'] = click_per_query_max
+
+        interactions_added_single_pass[
+            'new_interactions_to_add'] = data_to_add_stats['new_interactions_to_add'] - interactions_added_single_pass[
+            'click_per_userId']
+        data_to_add_stats[
+            'new_interactions_to_add'] = np.where(interactions_added_single_pass['new_interactions_to_add'] < 0, 0,
+                                                  interactions_added_single_pass['new_interactions_to_add'])
+
+        interactions_added_data_frames.append(interactions_added_single_pass[
+                                                  interactions_added_single_pass['new_interactions_to_add'] > 0])
+
+    new_data = pd.concat(interactions_added_data_frames, ignore_index=True, sort=True)
+    new_data.drop(columns={'new_interactions_to_add'}, inplace=True)
     new_data['userId'] = new_data.groupby('queryId').cumcount() + 1
 
-    new_data.reset_index(drop=True, inplace=True)
     print('Populating click_per_model_A')
     new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * winning_model_preference,
                                                       new_data['click_per_userId'] + 1)
+
+    new_data = new_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
 
     return new_data
 
