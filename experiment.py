@@ -74,12 +74,10 @@ def start_experiment(num_variations, model_a_preference, max_clicks_per_user, is
     # print('ADORE AFTER AB')
     # print(h.heap())
 
-    agree_no_pruning = 0
-    agree_with_pruning = 0
-    agree_between_variation = 0
     adore_total_click_for_variation = adore_dataset.drop_duplicates(
         subset=['queryId', 'click_per_query'], keep='last')[['queryId', 'click_per_query']]
     adore_total_click_for_variation.set_index('queryId', inplace=True)
+
     del adore_dataset
     del adore_dataset_for_score
     del adore_dataset_with_pruning
@@ -88,6 +86,9 @@ def start_experiment(num_variations, model_a_preference, max_clicks_per_user, is
     # print('AFTER DEL')
     # print(h.heap())
 
+    agree_no_pruning = 0
+    agree_with_pruning = 0
+    agree_between_variation = 0
     seeds = np.arange(start=0, stop=num_variations)
 
     for i in range(0, num_variations):

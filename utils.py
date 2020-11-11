@@ -34,26 +34,41 @@ def elaborate_dataset_for_score(interleaving_dataset):
 
 def generate_new_data(data_to_add_stats, click_per_query_max, winning_model_preference, max_clicks_per_user):
     interactions_added_data_frames = []
+    # Setting seed for reproducibility
     np.random.seed(0)
     while data_to_add_stats['new_interactions_to_add'].values.sum() > 0:
         interactions_added_single_pass = pd.DataFrame()
         interactions_added_single_pass['queryId'] = data_to_add_stats['queryId']
+        # All the queries have the same total number of clicks.
+        interactions_added_single_pass['click_per_query'] = click_per_query_max
+        # Generate random click_per_userId
         interactions_added_single_pass['click_per_userId'] = np.random.randint(1, max_clicks_per_user + 1,
                                                                                size=data_to_add_stats.shape[0])
-        interactions_added_single_pass['click_per_query'] = click_per_query_max
+        # Computing remaining clicks to add
+        interactions_added_single_pass['new_interactions_to_add'] = data_to_add_stats[
+                                                           'new_interactions_to_add'] - interactions_added_single_pass[
+                                                           'click_per_userId']
+        # If new_interactions_to_add < 0 we are adding to much clicks.
+        # Resize click_per_userId in order to have as much clicks as needed.
+        if (interactions_added_single_pass['new_interactions_to_add'] < 0).any():
+            print()
+        interactions_added_single_pass['click_per_userId'] = np.where(
+            interactions_added_single_pass['new_interactions_to_add'] < 0,
+            data_to_add_stats['new_interactions_to_add'], interactions_added_single_pass['click_per_userId'])
+        interactions_added_single_pass = interactions_added_single_pass.astype({'click_per_userId': 'int64'})
 
-        interactions_added_single_pass[
-            'new_interactions_to_add'] = data_to_add_stats['new_interactions_to_add'] - interactions_added_single_pass[
-            'click_per_userId']
-        data_to_add_stats[
-            'new_interactions_to_add'] = np.where(interactions_added_single_pass['new_interactions_to_add'] < 0, 0,
-                                                  interactions_added_single_pass['new_interactions_to_add'])
+        interactions_added_data_frames.append(interactions_added_single_pass)
 
-        interactions_added_data_frames.append(interactions_added_single_pass[
-                                                  interactions_added_single_pass['new_interactions_to_add'] > 0])
+        # Computing remaining clicks to add
+        data_to_add_stats = data_to_add_stats.copy()
+        data_to_add_stats.update(interactions_added_single_pass['new_interactions_to_add'])
+        # Keep only queries with remaining interactions (clicks) to add.
+        data_to_add_stats = data_to_add_stats.loc[data_to_add_stats['new_interactions_to_add'] > 0]
 
     new_data = pd.concat(interactions_added_data_frames, ignore_index=True, sort=True)
     new_data.drop(columns={'new_interactions_to_add'}, inplace=True)
+
+    print('Populating userId')
     new_data['userId'] = new_data.groupby('queryId').cumcount() + 1
 
     print('Populating click_per_model_A')
@@ -84,6 +99,7 @@ def pruning(interleaving_dataset, percentage_dropped_queries):
     overall_diff = 0.5
     # print('PRUNING')
     # print(h.heap())
+    print('Computing statistical significance')
     per_query_model_interactions = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
 
     # Remove interactions with significance higher than 5% threshold
