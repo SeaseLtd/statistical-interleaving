@@ -84,20 +84,17 @@ def create_variation_dataset(primary_data, click_per_query_adore, seed):
         interactions_added_data_frames.append(interactions_added_single_pass)
 
         # update and reset initial pass data structures
-        temp_variation_data_frame = pd.merge(temp_variation_data_frame, interactions_added_single_pass,
-                                             left_on='queryId', right_on='queryId', how='left', suffixes=('', '_y'))
+        temp_variation_data_frame = pd.merge(temp_variation_data_frame, interactions_added_single_pass[[
+            'queryId', 'click_per_query_after_addition']], on='queryId', how='outer', validate="many_to_one")
         temp_variation_data_frame.drop(columns=['click_per_query'], inplace=True)
-        temp_variation_data_frame = temp_variation_data_frame[temp_variation_data_frame.columns[
-            ~temp_variation_data_frame.columns.str.endswith('_y')]]
         temp_variation_data_frame.rename(columns={'click_per_query_after_addition': 'click_per_query'}, inplace=True)
+
         temp_variation_data_frame.drop(interactions_added_single_pass.index, inplace=True)
         temp_variation_data_frame = temp_variation_data_frame.loc[temp_variation_data_frame['click_per_query'] > 0]
         temp_variation_data_frame.reset_index(drop=True, inplace=True)
 
     variation_data_frame = pd.concat(interactions_added_data_frames, ignore_index=True, sort=True)
-    variation_data_frame.drop(columns=['click_per_query_after_addition'], inplace=True)
-    variation_data_frame.reset_index(drop=True, inplace=True)
-    variation_data_frame.drop(columns=['click_per_query'], inplace=True)
+    variation_data_frame.drop(columns=['click_per_query_after_addition', 'click_per_query'], inplace=True)
     variation_data_frame = pd.merge(variation_data_frame, click_per_query_adore, left_on='queryId', right_index=True,
                                     how='inner')
     variation_data_frame.reset_index(drop=True, inplace=True)
