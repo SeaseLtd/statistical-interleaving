@@ -1,0 +1,27 @@
+{"parent_buckets":[{
+          "val":5968,
+          "count":1,
+          "users":[{
+                "val":"8e11f03c56c94d7b98cef80ef4a80d75eb528f9e2eb917ec1be9f709798b73fb",
+                "count":1},
+            {
+                "val":"2470590ee7ceb7e32fc5fa70644a0a2a80074295bf7db3e1e606bb5e5bb5f8d2",
+                "count":3}]},
+        {
+          "val":5971,
+          "count":1,
+          "users":[{
+                "val":"2470590ee7ceb7e32fc5fa70644a0a2a80074295bf7db3e1e606bb5e5bb5f8d2",
+                "count":1}]},
+        {
+          "val":5989,
+          "count":1,
+          "users":[{
+                "val":"87822d68c93f22b3af89dd0e2d8152686b6212f6e9f11e279693e96dd0148afb",
+                "count":2}]},
+        {
+          "val":5992,
+          "count":1,
+          "users":[{
+                "val":"ffd883b352042b6ee7a15cc95a023175306612eb5d7a287150e02cb25af4ccba",
+                "count":1}]}]}

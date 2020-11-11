@@ -6,11 +6,12 @@ from dataset_creation import create_adore_dataset, create_primary_dataset, creat
 
 def start_experiment(num_variations, model_a_preference, max_clicks_per_user, is_test=False):
     # h = hpy()
+    dataset_path = './dataset_from_adore/query_click_user.json'
     percentage_dropped_queries = []
 
     print('------------- Creating adore dataset ----------------')
     start = time.time()
-    adore_dataset = create_adore_dataset(model_a_preference, is_test)
+    adore_dataset = create_adore_dataset(dataset_path, model_a_preference, is_test)
     print('Rows: ' + str(len(adore_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))

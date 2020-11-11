@@ -3,9 +3,9 @@ import pandas as pd
 import utils
 
 
-def create_adore_dataset(model_a_preference, is_test):
+def create_adore_dataset(dataset_path, model_a_preference, is_test):
     print('Reading json file')
-    raw_data = pd.read_json('./dataset_from_adore/query_click_user.json')
+    raw_data = pd.read_json(dataset_path)
     raw_data = pd.json_normalize(raw_data['parent_buckets'], record_path=['users'], meta=['val', 'count'],
                                  meta_prefix='query_')
     raw_data.rename(columns={'val': 'userId', 'count': 'click_per_userId', 'query_val': 'queryId',
@@ -14,7 +14,7 @@ def create_adore_dataset(model_a_preference, is_test):
     print('Populating userId')
     raw_data['userId'] = raw_data.groupby('queryId').userId.cumcount() + 1
 
-    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'userId': 'int16'})
+    raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'userId': 'int64'})
 
     if is_test:
         raw_data = raw_data.head(3000)
@@ -27,11 +27,12 @@ def create_adore_dataset(model_a_preference, is_test):
     raw_data.rename(columns={'click_per_query_y': 'click_per_query'}, inplace=True)
 
     print('Populating click_per_model_A')
+    np.random.seed(0)
     raw_data['click_per_model_A'] = np.random.randint(raw_data['click_per_userId'] * model_a_preference,
                                                       raw_data['click_per_userId'] + 1)
 
     raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'click_per_userId': 'int64',
-                                'userId': 'int16'})
+                                'userId': 'int64'})
 
     return raw_data
 
@@ -90,6 +91,7 @@ def create_variation_dataset(primary_data, click_per_query_adore, seed):
         interactions_added_single_pass['click_per_userId'] = np.where(
             interactions_added_single_pass['click_per_query_after_addition'] < 0,
             interactions_added_single_pass['click_per_query'], interactions_added_single_pass['click_per_userId'])
+        # QUESTA FASE ABBASSA SEMPRE I CLICK PER MODEL A IN QUANTO APPROSSIMA PER DIFETTO
         interactions_added_single_pass = interactions_added_single_pass.astype({'click_per_model_A': 'int64'})
 
         interactions_added_data_frames.append(interactions_added_single_pass)
