@@ -51,8 +51,6 @@ def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_cli
                                                            'click_per_userId']
         # If new_interactions_to_add < 0 we are adding to much clicks.
         # Resize click_per_userId in order to have as much clicks as needed.
-        if (interactions_added_single_pass['new_interactions_to_add'] < 0).any():
-            print()
         interactions_added_single_pass['click_per_userId'] = np.where(
             interactions_added_single_pass['new_interactions_to_add'] < 0,
             data_to_add_stats['new_interactions_to_add'], interactions_added_single_pass['click_per_userId'])

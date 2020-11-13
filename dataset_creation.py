@@ -17,7 +17,7 @@ def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_per
     raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'userId': 'int64'})
 
     if is_test:
-        raw_data = raw_data.head(3000)
+        raw_data = raw_data.head(5000)
 
     print('Fixing click per query with real dataset values')
     sum_click_per_user_id = pd.DataFrame(raw_data.groupby('queryId')['click_per_userId'].sum()).reset_index()
@@ -93,8 +93,8 @@ def create_variation_dataset(primary_data, click_per_query_adore, seed):
         interactions_added_single_pass['click_per_userId'] = np.where(
             interactions_added_single_pass['click_per_query_after_addition'] < 0,
             interactions_added_single_pass['click_per_query'], interactions_added_single_pass['click_per_userId'])
-        # QUESTA FASE ABBASSA SEMPRE I CLICK PER MODEL A IN QUANTO APPROSSIMA PER DIFETTO
-        interactions_added_single_pass = interactions_added_single_pass.astype({'click_per_model_A': 'int64'})
+        interactions_added_single_pass = interactions_added_single_pass.round({'click_per_model_A': 0}).astype({
+            'click_per_model_A': 'int64'})
 
         interactions_added_data_frames.append(interactions_added_single_pass)
 
