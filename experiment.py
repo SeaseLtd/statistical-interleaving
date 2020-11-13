@@ -10,9 +10,11 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, is_t
     percentage_dropped_queries = []
 
     if model_preference >= 0.5:
+        # We prefer model A
         min_percentage_click_per_user_id = 1 - 0.5 / model_preference
         max_percentage_click_per_user_id = 1
     else:
+        # We prefer model B
         min_percentage_click_per_user_id = 0
         max_percentage_click_per_user_id = 0.5 / (1 - model_preference)
 
