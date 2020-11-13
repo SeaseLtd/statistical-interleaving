@@ -32,7 +32,8 @@ def elaborate_dataset_for_score(interleaving_dataset):
     return interleaving_dataset
 
 
-def generate_new_data(data_to_add_stats, click_per_query_max, winning_model_preference, max_clicks_per_user):
+def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_click_per_user_id,
+                      max_percentage_click_per_user_id, max_clicks_per_user):
     interactions_added_data_frames = []
     # Setting seed for reproducibility
     np.random.seed(0)
@@ -72,8 +73,9 @@ def generate_new_data(data_to_add_stats, click_per_query_max, winning_model_pref
     new_data['userId'] = new_data.groupby('queryId').cumcount() + 1
 
     print('Populating click_per_model_A')
-    new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * winning_model_preference,
-                                                      new_data['click_per_userId'] + 1)
+    new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * min_percentage_click_per_user_id,
+                                                      (new_data['click_per_userId'] * max_percentage_click_per_user_id)
+                                                      + 1)
 
     new_data = new_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
 

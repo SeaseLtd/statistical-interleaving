@@ -6,8 +6,8 @@ from experiment import start_experiment
 
 
 def main(argv):
-    unix_options = "hn:a:m:t"
-    gnu_options = ["help", "number_of_variations=", "model_A_preference=", "max_clicks_per_user=", "is_test"]
+    unix_options = "hn:p:m:t"
+    gnu_options = ["help", "number_of_variations=", "model_preference=", "max_clicks_per_user=", "is_test"]
     args1 = []
 
     try:
@@ -19,11 +19,11 @@ def main(argv):
 
     for currentArgument, currentValue in arguments:
         if currentArgument in ("-h", "--help"):
-            print("'main.py -n <number_of_variations> -a <model_A_preference> -m <max_clicks_per_user> -t <is_test>'")
+            print("'main.py -n <number_of_variations> -p <model_preference> -m <max_clicks_per_user> -t <is_test>'")
             sys.exit(1)
         elif currentArgument in ("-n", "--number_of_variations"):
             args1.append(int(currentValue))
-        elif currentArgument in ("-a", "--model_A_preference"):
+        elif currentArgument in ("-p", "--model_preference"):
             args1.append(float(currentValue))
         elif currentArgument in ("-m", "--max_clicks_per_user"):
             args1.append(int(currentValue))

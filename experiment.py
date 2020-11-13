@@ -4,14 +4,22 @@ import numpy as np
 from dataset_creation import create_adore_dataset, create_primary_dataset, create_variation_dataset
 
 
-def start_experiment(num_variations, model_a_preference, max_clicks_per_user, is_test=False):
+def start_experiment(num_variations, model_preference, max_clicks_per_user, is_test=False):
     # h = hpy()
     dataset_path = './dataset_from_adore/query_click_user.json'
     percentage_dropped_queries = []
 
+    if model_preference >= 0.5:
+        min_percentage_click_per_user_id = 1 - 0.5 / model_preference
+        max_percentage_click_per_user_id = 1
+    else:
+        min_percentage_click_per_user_id = 0
+        max_percentage_click_per_user_id = 0.5 / (1 - model_preference)
+
     print('------------- Creating adore dataset ----------------')
     start = time.time()
-    adore_dataset = create_adore_dataset(dataset_path, model_a_preference, is_test)
+    adore_dataset = create_adore_dataset(dataset_path, min_percentage_click_per_user_id,
+                                         max_percentage_click_per_user_id, is_test)
     print('Rows: ' + str(len(adore_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
@@ -30,7 +38,8 @@ def start_experiment(num_variations, model_a_preference, max_clicks_per_user, is
 
     print('\n------------- Creating primary dataset --------------')
     start = time.time()
-    primary_dataset = create_primary_dataset(adore_dataset, model_a_preference, max_clicks_per_user)
+    primary_dataset = create_primary_dataset(adore_dataset, min_percentage_click_per_user_id,
+                                             max_percentage_click_per_user_id, max_clicks_per_user)
     print('Rows: ' + str(len(primary_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
