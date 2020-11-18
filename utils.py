@@ -72,8 +72,8 @@ def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_cli
 
     print('Populating click_per_model_A')
     new_data['click_per_model_A'] = np.random.randint(new_data['click_per_userId'] * min_percentage_click_per_user_id,
-                                                      (new_data['click_per_userId'] * max_percentage_click_per_user_id)
-                                                      + 1)
+                                                      new_data['click_per_userId'] * max_percentage_click_per_user_id +
+                                                      1)
 
     new_data = new_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]
 

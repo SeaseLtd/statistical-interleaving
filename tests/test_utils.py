@@ -27,16 +27,24 @@ class TestUtils(unittest.TestCase):
                                          'new_interactions_to_add': [5, 4, 3],
                                          'click_per_query': [1, 2, 3],
                                          })
-        expected_data_frame = pd.DataFrame({'userId': [1, 1, 1, 2],
-                                            'click_per_userId': [5, 4, 1, 2],
-                                            'queryId': [5971, 5989, 5992, 5992],
-                                            'click_per_query': [6, 6, 6, 6],
-                                            'click_per_model_A': [3, 3, 1, 1],
-                                            })
+        expected_data_frame_a = pd.DataFrame({'userId': [1, 1, 1, 2],
+                                              'click_per_userId': [5, 4, 1, 2],
+                                              'queryId': [5971, 5989, 5992, 5992],
+                                              'click_per_query': [6, 6, 6, 6],
+                                              'click_per_model_A': [3, 3, 1, 1],
+                                              })
+        expected_data_frame_b = pd.DataFrame({'userId': [1, 1, 1, 2],
+                                              'click_per_userId': [5, 4, 1, 2],
+                                              'queryId': [5971, 5989, 5992, 5992],
+                                              'click_per_query': [6, 6, 6, 6],
+                                              'click_per_model_A': [3, 3, 0, 1],
+                                              })
 
-        result = generate_new_data(input_data_frame, 6, 0.15, 15)
+        result_a = generate_new_data(input_data_frame, 6, 0.1, 1, 15)
+        result_b = generate_new_data(input_data_frame, 6, 0, 0.9, 15)
 
-        pd.testing.assert_frame_equal(result, expected_data_frame)
+        pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
+        pd.testing.assert_frame_equal(result_b, expected_data_frame_b)
 
     def test_statistical_significance_computation(self):
         input_data_frame = pd.DataFrame(
