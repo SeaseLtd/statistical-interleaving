@@ -8,15 +8,24 @@ class TestCreateDataset(unittest.TestCase):
     def test_create_adore_dataset(self):
         dataset_path = './resources/query_click_user.json'
 
-        expected_data_frame = pd.DataFrame({'userId': [1, 2, 1, 1, 1],
-                                            'click_per_userId': [1, 3, 1, 2, 1],
-                                            'queryId': [5968, 5968, 5971, 5989, 5992],
-                                            'click_per_query': [4, 4, 1, 2, 1],
-                                            'click_per_model_A': [0, 3, 1, 0, 1],
-                                            })
+        expected_data_frame_a = pd.DataFrame({'userId': [1, 2, 1, 1, 1],
+                                              'click_per_userId': [1, 3, 1, 2, 1],
+                                              'queryId': [5968, 5968, 5971, 5989, 5992],
+                                              'click_per_query': [4, 4, 1, 2, 1],
+                                              'click_per_model_A': [0, 3, 1, 0, 1],
+                                              })
+        expected_data_frame_b = pd.DataFrame({'userId': [1, 2, 1, 1, 1],
+                                              'click_per_userId': [1, 3, 1, 2, 1],
+                                              'queryId': [5968, 5968, 5971, 5989, 5992],
+                                              'click_per_query': [4, 4, 1, 2, 1],
+                                              'click_per_model_A': [0, 0, 0, 1, 0],
+                                              })
 
-        result = create_adore_dataset(dataset_path, 0.15, False)
-        pd.testing.assert_frame_equal(result, expected_data_frame)
+        result_a = create_adore_dataset(dataset_path, 0.0566, 1, False)
+        result_b = create_adore_dataset(dataset_path, 0, 0.943, False)
+
+        pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
+        pd.testing.assert_frame_equal(result_b, expected_data_frame_b)
 
     def test_create_primary_dataset(self):
         input_data_frame = pd.DataFrame({'userId': [1, 2, 1, 1, 1],
@@ -25,16 +34,24 @@ class TestCreateDataset(unittest.TestCase):
                                          'click_per_query': [4, 4, 1, 2, 1],
                                          'click_per_model_A': [0, 3, 1, 0, 1],
                                          })
-        expected_data_frame = pd.DataFrame({'userId': [1, 2, 1, 1, 1, 2, 2, 2, 3],
-                                            'click_per_userId': [1, 3, 1, 2, 1, 3, 2, 1, 2],
-                                            'queryId': [5968, 5968, 5971, 5989, 5992, 5971, 5989, 5992, 5992],
-                                            'click_per_query': [4, 4, 4, 4, 4, 4, 4, 4, 4],
-                                            'click_per_model_A': [0, 3, 1, 0, 1, 3, 1, 1, 1],
-                                            })
+        expected_data_frame_a = pd.DataFrame({'userId': [1, 2, 1, 1, 1, 2, 2, 2, 3],
+                                              'click_per_userId': [1, 3, 1, 2, 1, 3, 2, 1, 2],
+                                              'queryId': [5968, 5968, 5971, 5989, 5992, 5971, 5989, 5992, 5992],
+                                              'click_per_query': [4, 4, 4, 4, 4, 4, 4, 4, 4],
+                                              'click_per_model_A': [0, 3, 1, 0, 1, 3, 1, 1, 1],
+                                              })
+        expected_data_frame_b = pd.DataFrame({'userId': [1, 2, 1, 1, 1, 2, 2, 2, 3],
+                                              'click_per_userId': [1, 3, 1, 2, 1, 3, 2, 1, 2],
+                                              'queryId': [5968, 5968, 5971, 5989, 5992, 5971, 5989, 5992, 5992],
+                                              'click_per_query': [4, 4, 4, 4, 4, 4, 4, 4, 4],
+                                              'click_per_model_A': [0, 3, 1, 0, 1, 1, 1, 0, 1],
+                                              })
 
-        result = create_primary_dataset(input_data_frame, 0.15, 15)
+        result_a = create_primary_dataset(input_data_frame, 0.0566, 1, 15)
+        result_b = create_primary_dataset(input_data_frame, 0, 0.943, 15)
 
-        pd.testing.assert_frame_equal(result, expected_data_frame)
+        pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
+        pd.testing.assert_frame_equal(result_b, expected_data_frame_b)
 
     def test_create_variation_dataset(self):
         input_data_frame = pd.DataFrame({'userId': [1, 2, 1, 1, 1, 2, 2, 2, 3],
