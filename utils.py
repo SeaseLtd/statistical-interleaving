@@ -15,6 +15,9 @@ def elaborate_dataset_for_score(interleaving_dataset):
     interleaving_dataset.drop(columns=['userId', 'click_per_userId', 'click_per_model_A'], inplace=True)
 
     print('Computing winning model')
+    # 2 means tie
+    # 0 means model A
+    # 1 means model B
     interleaving_dataset['winning_model'] = 2
     interleaving_dataset.loc[interleaving_dataset[
                                  'total_click_per_model_A'] > interleaving_dataset['click_per_query'] / 2,
@@ -30,6 +33,22 @@ def elaborate_dataset_for_score(interleaving_dataset):
     interleaving_dataset.rename(columns={'total_click_per_model_A': 'click_per_winning_model'}, inplace=True)
 
     return interleaving_dataset
+
+
+def per_user_distribution(interleaving_dataset):
+    print('Computing winning model')
+    # 2 means tie
+    # 0 means model A
+    # 1 means model B
+    interleaving_dataset['winning_model'] = 2
+    interleaving_dataset.loc[interleaving_dataset[
+                                 'click_per_model_A'] > interleaving_dataset['click_per_userId'] / 2,
+                             'winning_model'] = 0
+    interleaving_dataset.loc[interleaving_dataset[
+                                 'click_per_model_A'] < interleaving_dataset['click_per_userId'] / 2,
+                             'winning_model'] = 1
+    per_query = interleaving_dataset.groupby('queryId')['winning_model'].value_counts()
+    print()
 
 
 def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_click_per_user_id,

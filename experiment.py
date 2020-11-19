@@ -45,6 +45,11 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, is_t
     print('Rows: ' + str(len(primary_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
+
+    # For test
+    print('Per user distribution')
+    utils.per_user_distribution(primary_dataset)
+
     print('------------- Elaborating primary dataset --------------')
     start = time.time()
     primary_dataset_for_score = utils.elaborate_dataset_for_score(primary_dataset)
