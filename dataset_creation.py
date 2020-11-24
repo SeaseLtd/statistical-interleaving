@@ -3,7 +3,8 @@ import pandas as pd
 import utils
 
 
-def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_percentage_click_per_user_id, is_test):
+def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_percentage_click_per_user_id, seed,
+                         is_test):
     print('Reading json file')
     raw_data = pd.read_json(dataset_path)
     raw_data = pd.json_normalize(raw_data['parent_buckets'], record_path=['users'], meta=['val', 'count'],
@@ -17,7 +18,7 @@ def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_per
     raw_data = raw_data.astype({'queryId': 'int64', 'click_per_query': 'int64', 'userId': 'int64'})
 
     if is_test:
-        raw_data = raw_data.head(5000)
+        raw_data = raw_data.head(6000)
 
     print('Fixing click per query with real dataset values')
     sum_click_per_user_id = pd.DataFrame(raw_data.groupby('queryId')['click_per_userId'].sum()).reset_index()
@@ -27,7 +28,7 @@ def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_per
     raw_data.rename(columns={'click_per_query_y': 'click_per_query'}, inplace=True)
 
     print('Populating click_per_model_A')
-    np.random.seed(0)
+    np.random.seed(seed)
     raw_data['click_per_model_A'] = np.random.randint(raw_data['click_per_userId'] * min_percentage_click_per_user_id,
                                                       (raw_data['click_per_userId'] * max_percentage_click_per_user_id)
                                                       + 1)
@@ -39,7 +40,7 @@ def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_per
 
 
 def create_primary_dataset(adore_beauty_dataset, min_percentage_click_per_user_id, max_percentage_click_per_user_id,
-                           max_clicks_per_user):
+                           max_clicks_per_user, seed):
     primary_data = adore_beauty_dataset.copy()
 
     print('Computing per query interactions to add')
@@ -54,7 +55,7 @@ def create_primary_dataset(adore_beauty_dataset, min_percentage_click_per_user_i
     print('Generating additional data')
     new_data = utils.generate_new_data(data_to_add[data_to_add['new_interactions_to_add'] > 0],
                                        adore_beauty_dataset['click_per_query'].max(), min_percentage_click_per_user_id,
-                                       max_percentage_click_per_user_id, max_clicks_per_user)
+                                       max_percentage_click_per_user_id, max_clicks_per_user, seed)
     primary_data = primary_data.append(new_data, ignore_index=True)
 
     primary_data = primary_data[['userId', 'click_per_userId', 'queryId', 'click_per_query', 'click_per_model_A']]

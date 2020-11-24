@@ -52,10 +52,10 @@ def per_user_distribution(interleaving_dataset):
 
 
 def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_click_per_user_id,
-                      max_percentage_click_per_user_id, max_clicks_per_user):
+                      max_percentage_click_per_user_id, max_clicks_per_user, seed):
     interactions_added_data_frames = []
     # Setting seed for reproducibility
-    np.random.seed(0)
+    np.random.seed(seed)
     while data_to_add_stats['new_interactions_to_add'].values.sum() > 0:
         interactions_added_single_pass = pd.DataFrame()
         interactions_added_single_pass['queryId'] = data_to_add_stats['queryId']

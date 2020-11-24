@@ -40,8 +40,8 @@ class TestUtils(unittest.TestCase):
                                               'click_per_model_A': [3, 3, 0, 1],
                                               })
 
-        result_a = generate_new_data(input_data_frame, 6, 0.0566, 1, 15)
-        result_b = generate_new_data(input_data_frame, 6, 0, 0.943, 15)
+        result_a = generate_new_data(input_data_frame, 6, 0.0566, 1, 15, 0)
+        result_b = generate_new_data(input_data_frame, 6, 0, 0.943, 15, 0)
 
         pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
         pd.testing.assert_frame_equal(result_b, expected_data_frame_b)

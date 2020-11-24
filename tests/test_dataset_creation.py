@@ -21,8 +21,8 @@ class TestCreateDataset(unittest.TestCase):
                                               'click_per_model_A': [0, 0, 0, 1, 0],
                                               })
 
-        result_a = create_adore_dataset(dataset_path, 0.0566, 1, False)
-        result_b = create_adore_dataset(dataset_path, 0, 0.943, False)
+        result_a = create_adore_dataset(dataset_path, 0.0566, 1, 0, False)
+        result_b = create_adore_dataset(dataset_path, 0, 0.943, 0, False)
 
         pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
         pd.testing.assert_frame_equal(result_b, expected_data_frame_b)
@@ -47,8 +47,8 @@ class TestCreateDataset(unittest.TestCase):
                                               'click_per_model_A': [0, 3, 1, 0, 1, 1, 1, 0, 1],
                                               })
 
-        result_a = create_primary_dataset(input_data_frame, 0.0566, 1, 15)
-        result_b = create_primary_dataset(input_data_frame, 0, 0.943, 15)
+        result_a = create_primary_dataset(input_data_frame, 0.0566, 1, 15, 0)
+        result_b = create_primary_dataset(input_data_frame, 0, 0.943, 15, 0)
 
         pd.testing.assert_frame_equal(result_a, expected_data_frame_a)
         pd.testing.assert_frame_equal(result_b, expected_data_frame_b)
