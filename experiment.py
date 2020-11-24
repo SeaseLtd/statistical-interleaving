@@ -11,12 +11,12 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
 
     if model_preference > 0.5:
         # We prefer model A
-        min_percentage_click_per_user_id = 1.01 - 0.5 / model_preference
+        min_percentage_click_per_user_id = model_preference * 1.01 - 0.5
         max_percentage_click_per_user_id = 1
     elif model_preference < 0.5:
         # We prefer model B
         min_percentage_click_per_user_id = 0
-        max_percentage_click_per_user_id = (50 + model_preference) / (1 - model_preference) * 0.01
+        max_percentage_click_per_user_id = model_preference * 1.01 + 0.5
     else:
         # Tie
         min_percentage_click_per_user_id = 0
