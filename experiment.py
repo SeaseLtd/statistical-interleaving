@@ -11,12 +11,12 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
 
     if model_preference > 0.5:
         # We prefer model A
-        min_percentage_click_per_user_id = model_preference * 1.01 - 0.5
+        min_percentage_click_per_user_id = 1 - model_preference * 1.01
         max_percentage_click_per_user_id = 1
     elif model_preference < 0.5:
         # We prefer model B
         min_percentage_click_per_user_id = 0
-        max_percentage_click_per_user_id = model_preference * 1.01 + 0.5
+        max_percentage_click_per_user_id = 1 - model_preference * 1.01
     else:
         # Tie
         min_percentage_click_per_user_id = 0
@@ -94,7 +94,6 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
     print('AB score with pruning for adore dataset = ' + str(ab_score_adore_with_pruning))
     # print('ADORE AFTER AB')
     # print(h.heap())
-
     adore_total_click_for_variation = adore_dataset.drop_duplicates(
         subset=['queryId', 'click_per_query'], keep='last')[['queryId', 'click_per_query']]
     adore_total_click_for_variation.set_index('queryId', inplace=True)
@@ -111,6 +110,8 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
     agree_with_pruning = 0
     agree_between_variation = 0
     seeds = np.arange(start=0, stop=num_variations)
+    avg_no_pruning = []
+    avg_with_pruning = []
 
     for i in range(0, num_variations):
         print('\n\n***************************** Round ' + str(i) + ' ************************************')
@@ -156,6 +157,9 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
         # print('AFTER VAR DEL')
         # print(h.heap())
 
+        avg_no_pruning.append(ab_score_variation_no_pruning)
+        avg_with_pruning.append(ab_score_variation_with_pruning)
+
         print('------------- Comparing AB score between variation dataset and primary dataset --------------')
         start = time.time()
         comparison_with_primary = utils.same_score(ab_score_primary_no_pruning, ab_score_variation_no_pruning)
@@ -185,7 +189,14 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
         if comparison_between_variation:
             agree_between_variation = agree_between_variation + 1
 
+    avg_no_pruning = sum(avg_no_pruning) / len(avg_no_pruning)
+    avg_with_pruning = sum(avg_with_pruning) / len(avg_with_pruning)
+
+    print('\nAB score without pruning for primary dataset = ' + str(ab_score_primary_no_pruning))
+    print('AB score with pruning for primary dataset = ' + str(ab_score_primary_with_pruning))
     print('Number of times the TDI is correct = ' + str(agree_no_pruning) + '/' + str(num_variations))
     print('Number of times the SSP is correct = ' + str(agree_with_pruning) + '/' + str(num_variations))
+    print('Average answer of TDI = ' + str(avg_no_pruning))
+    print('Average answer of SSP = ' + str(avg_with_pruning))
     print('Average percentage of dropped queries = ' + str(sum(percentage_dropped_queries) / len(
         percentage_dropped_queries)))
