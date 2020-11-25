@@ -50,8 +50,14 @@ def per_user_distribution(interleaving_dataset):
     per_query = pd.DataFrame(interleaving_dataset.groupby('queryId')['winning_model'].value_counts())
     idx = pd.IndexSlice
     percentage_click_per_model_a = per_query.loc[idx[:, 0], :] / per_query.groupby(level=[0]).sum()
-    mean = percentage_click_per_model_a.mean()
-    print('!!!!!!!!!!!!!! Mean percentage clicks per model A ' + str(mean['winning_model']) + '!!!!!!!!!!!!!!!!')
+    mean_model_a = percentage_click_per_model_a.mean()
+    print('!!!!!!!!!!!!!! Mean percentage clicks per model A = ' + str(mean_model_a['winning_model']) + ' !!!!!!!!!!!!')
+    percentage_click_per_model_b = per_query.loc[idx[:, 1], :] / per_query.groupby(level=[0]).sum()
+    mean_model_b = percentage_click_per_model_b.mean()
+    print('!!!!!!!!!!!!!! Mean percentage clicks per model B = ' + str(mean_model_b['winning_model']) + ' !!!!!!!!!!!!')
+    percentage_click_per_tie = per_query.loc[idx[:, 2], :] / per_query.groupby(level=[0]).sum()
+    mean_tie = percentage_click_per_tie.mean()
+    print('!!!!!!!!!!!!!! Mean percentage clicks per Tie = ' + str(mean_tie['winning_model']) + ' !!!!!!!!!!!!')
 
 
 def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_click_per_user_id,
