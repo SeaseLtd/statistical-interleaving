@@ -49,13 +49,14 @@ def per_user_distribution(interleaving_dataset):
                              'winning_model'] = 1
     per_query = pd.DataFrame(interleaving_dataset.groupby('queryId')['winning_model'].value_counts())
     idx = pd.IndexSlice
-    percentage_click_per_model_a = per_query.loc[idx[:, 0], :] / per_query.groupby(level=[0]).sum()
+    tot = per_query.groupby(level=[0]).sum()
+    percentage_click_per_model_a = per_query.loc[idx[:, 0], :] / tot
     mean_model_a = percentage_click_per_model_a.mean()
     print('!!!!!!!!!!!!!! Mean percentage clicks per model A = ' + str(mean_model_a['winning_model']) + ' !!!!!!!!!!!!')
-    percentage_click_per_model_b = per_query.loc[idx[:, 1], :] / per_query.groupby(level=[0]).sum()
+    percentage_click_per_model_b = per_query.loc[idx[:, 1], :] / tot
     mean_model_b = percentage_click_per_model_b.mean()
     print('!!!!!!!!!!!!!! Mean percentage clicks per model B = ' + str(mean_model_b['winning_model']) + ' !!!!!!!!!!!!')
-    percentage_click_per_tie = per_query.loc[idx[:, 2], :] / per_query.groupby(level=[0]).sum()
+    percentage_click_per_tie = per_query.loc[idx[:, 2], :] / tot
     mean_tie = percentage_click_per_tie.mean()
     print('!!!!!!!!!!!!!! Mean percentage clicks per Tie = ' + str(mean_tie['winning_model']) + ' !!!!!!!!!!!!')
 
@@ -71,8 +72,7 @@ def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_cli
         # All the queries have the same total number of clicks.
         interactions_added_single_pass['click_per_query'] = click_per_query_max
         # Generate random click_per_userId
-        interactions_added_single_pass['click_per_userId'] = np.random.randint(1, max_clicks_per_user + 1,
-                                                                               size=data_to_add_stats.shape[0])
+        interactions_added_single_pass['click_per_userId'] = max_clicks_per_user
         # Computing remaining clicks to add
         interactions_added_single_pass['new_interactions_to_add'] = data_to_add_stats[
                                                            'new_interactions_to_add'] - interactions_added_single_pass[
