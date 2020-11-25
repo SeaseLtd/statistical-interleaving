@@ -47,8 +47,11 @@ def per_user_distribution(interleaving_dataset):
     interleaving_dataset.loc[interleaving_dataset[
                                  'click_per_model_A'] < interleaving_dataset['click_per_userId'] / 2,
                              'winning_model'] = 1
-    per_query = interleaving_dataset.groupby('queryId')['winning_model'].value_counts()
-    print()
+    per_query = pd.DataFrame(interleaving_dataset.groupby('queryId')['winning_model'].value_counts())
+    idx = pd.IndexSlice
+    percentage_click_per_model_a = per_query.loc[idx[:, 0], :] / per_query.groupby(level=[0]).sum()
+    mean = percentage_click_per_model_a.mean()
+    print('!!!!!!!!!!!!!! Mean percentage clicks per model A ' + str(mean['winning_model']) + '!!!!!!!!!!!!!!!!')
 
 
 def generate_new_data(data_to_add_stats, click_per_query_max, min_percentage_click_per_user_id,
@@ -156,3 +159,15 @@ def same_score(ab_first, ab_second):
         return True
     else:
         return False
+
+
+def compute_percentage_click(model_preference):
+    min_percentage_click_per_user_id = 0
+    max_percentage_click_per_user_id = 1
+    if model_preference > 0.5:
+        # We prefer model A
+        min_percentage_click_per_user_id = 1.01 - 0.5 / model_preference
+    elif model_preference < 0.5:
+        # We prefer model B
+        max_percentage_click_per_user_id = (model_preference + 50) / (1 - model_preference) * 0.01
+    return min_percentage_click_per_user_id, max_percentage_click_per_user_id

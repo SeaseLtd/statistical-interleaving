@@ -9,18 +9,8 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
     dataset_path = './dataset_from_adore/query_click_user.json'
     percentage_dropped_queries = []
 
-    if model_preference > 0.5:
-        # We prefer model A
-        min_percentage_click_per_user_id = 1 - model_preference * 1.01
-        max_percentage_click_per_user_id = 1
-    elif model_preference < 0.5:
-        # We prefer model B
-        min_percentage_click_per_user_id = 0
-        max_percentage_click_per_user_id = 1 - model_preference * 1.01
-    else:
-        # Tie
-        min_percentage_click_per_user_id = 0
-        max_percentage_click_per_user_id = 1
+    min_percentage_click_per_user_id, max_percentage_click_per_user_id = utils.compute_percentage_click(
+        model_preference)
 
     print('------------- Creating adore dataset ----------------')
     start = time.time()
@@ -29,6 +19,11 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
     print('Rows: ' + str(len(adore_dataset.index)))
     end = time.time()
     print('Time: ' + str(end - start))
+
+    # For test
+    print('Per user distribution')
+    utils.per_user_distribution(adore_dataset)
+
     print('------------- Elaborating adore dataset -------------')
     start = time.time()
     adore_dataset_for_score = utils.elaborate_dataset_for_score(adore_dataset)
@@ -94,6 +89,7 @@ def start_experiment(num_variations, model_preference, max_clicks_per_user, seed
     print('AB score with pruning for adore dataset = ' + str(ab_score_adore_with_pruning))
     # print('ADORE AFTER AB')
     # print(h.heap())
+
     adore_total_click_for_variation = adore_dataset.drop_duplicates(
         subset=['queryId', 'click_per_query'], keep='last')[['queryId', 'click_per_query']]
     adore_total_click_for_variation.set_index('queryId', inplace=True)
