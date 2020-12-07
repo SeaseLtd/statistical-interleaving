@@ -49,4 +49,4 @@ Thumbs.db
 *.wmv
 
 # Results folder
-paper_results
+our_implementation/paper_results

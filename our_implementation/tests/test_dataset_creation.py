@@ -1,12 +1,12 @@
 import unittest
 import pandas as pd
-from dataset_creation import create_adore_dataset, create_primary_dataset, create_variation_dataset
+from our_implementation.dataset_creation import create_adore_dataset, create_primary_dataset, create_variation_dataset
 
 
 class TestCreateDataset(unittest.TestCase):
 
     def test_create_adore_dataset(self):
-        dataset_path = './resources/query_click_user.json'
+        dataset_path = 'resources/query_click_user.json'
 
         expected_data_frame_a = pd.DataFrame({'userId': [1, 2, 1, 1, 1],
                                               'click_per_userId': [1, 3, 1, 2, 1],

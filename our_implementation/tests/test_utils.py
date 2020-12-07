@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from utils import elaborate_dataset_for_score, generate_new_data, statistical_significance_computation, pruning, \
+from our_implementation.utils import elaborate_dataset_for_score, generate_new_data, statistical_significance_computation, pruning, \
     computing_ab_score, same_score
 
 

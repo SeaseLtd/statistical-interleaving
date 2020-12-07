@@ -1,12 +1,12 @@
 import time
-import utils
+from our_implementation import utils
 import numpy as np
 from dataset_creation import create_adore_dataset, create_primary_dataset, create_variation_dataset
 
 
 def start_experiment(num_variations, model_preference, max_clicks_per_user, seed=0, is_test=False):
     # h = hpy()
-    dataset_path = './dataset_from_adore/query_click_user.json'
+    dataset_path = 'dataset_from_adore/query_click_user.json'
     percentage_dropped_queries = []
 
     min_percentage_click_per_user_id, max_percentage_click_per_user_id = utils.compute_percentage_click(

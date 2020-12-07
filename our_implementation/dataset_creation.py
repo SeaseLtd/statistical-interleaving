@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import utils
+from our_implementation import utils
 
 
 def create_adore_dataset(dataset_path, min_percentage_click_per_user_id, max_percentage_click_per_user_id, seed,
