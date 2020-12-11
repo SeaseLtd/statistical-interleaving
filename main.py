@@ -34,7 +34,7 @@ def main(argv):
     if chosen_experiment == '1':
         experiment_1.start_experiment(*args1)
     elif chosen_experiment == '1bis':
-        experiment_1.start_experiment(*args1, not_uniform_probability=True)
+        experiment_1.start_experiment(*args1)
     elif chosen_experiment == '2':
         experiment_2.start_experiment(*args1)
     elif chosen_experiment == '3':

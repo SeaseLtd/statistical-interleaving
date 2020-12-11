@@ -78,6 +78,29 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b):
     return interleaved_list
 
 
+def simulate_clicks(interleaved_list, seed):
+    clicks_column = pd.DataFrame()
+    np.random.seed(seed)
+
+    perfect_model_click_probabilities = {1: 0.2, 2: 0.4, 3: 0.8}
+    for key in perfect_model_click_probabilities:
+        partial_length = int(len(interleaved_list[interleaved_list['relevance'] == key]))
+        probability_click = perfect_model_click_probabilities[key]
+        clicks = pd.DataFrame(np.random.choice(2, size=partial_length, p=[1 - probability_click, probability_click]))
+        clicks.index = interleaved_list[interleaved_list['relevance'] == key].index
+        clicks_column = clicks_column.append(clicks)
+
+    interleaved_list = pd.merge(interleaved_list, clicks_column, how='left', left_index=True, right_index=True)
+    interleaved_list.rename(columns={0: 'click'}, inplace=True)
+    interleaved_list['click'] = np.where(interleaved_list['relevance'] == 0, 0, interleaved_list['click'])
+    interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
+    return interleaved_list
+
+
+def compute_winning_model():
+    print()
+
+
 def statistical_significance_computation(interactions, overall_diff):
     p = overall_diff
     interactions['cumulative_distribution_left'] = scistat.binom.cdf(interactions.click_per_winning_model,
