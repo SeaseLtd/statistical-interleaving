@@ -1,4 +1,5 @@
 import utils
+import pandas as pd
 
 
 def start_experiment(dataset_path, seed):
@@ -6,14 +7,18 @@ def start_experiment(dataset_path, seed):
     list_ndcg_model_a = []
     list_ndcg_model_b = []
     per_query_winning_model = []
+    ranker_pair_agree = []
+    ranker_pair_pruning_agree = []
 
     # Fixed subset of 1000 queries
     set_of_queries = dataset.queryId.unique()[:1000]
 
-    # Iterate on all possible pairs of rankers
+    # Iterate on all possible pairs of rankers/models (from 1 to 137)
     for i in range(1, 137):
         for j in range(i + 1, 137):
+            print('-------- Pair of rankers: (' + str(i) + ', ' + str(j) + ') --------')
             for k in range(0, 1000):
+                print('round ' + str(k) + ' for same pair of rankers')
                 chosen_query_id = set_of_queries[k]
 
                 # Reduce the dataset to the documents for the selected query
@@ -33,15 +38,67 @@ def start_experiment(dataset_path, seed):
                 # Simulate clicks
                 interleaved_list = utils.simulate_clicks(interleaved_list, seed)
 
-                # Computing the per query winning model
-                per_query_winning_model.append(utils.compute_winning_model())
+                # Computing the per query winning model/ranker
+                per_query_winning_model.append(utils.compute_winning_model(interleaved_list, chosen_query_id))
 
-
+            # Computing average ndcg to find winning model/ranker
+            avg_ndcg_model_a = sum(list_ndcg_model_a) / len(list_ndcg_model_a)
+            avg_ndcg_model_b = sum(list_ndcg_model_b) / len(list_ndcg_model_b)
+            if avg_ndcg_model_a > avg_ndcg_model_b:
+                ndcg_winning_model = 'a'
+            elif avg_ndcg_model_a < avg_ndcg_model_b:
+                ndcg_winning_model = 'b'
+            else:
+                ndcg_winning_model = 't'
 
             # Pruning
-            interleaved_list_pruned = utils.pruning(interleaved_list)
+            per_query_winning_model = pd.DataFrame.from_records(per_query_winning_model)
+            per_query_winning_model.rename(columns={0: 'queryId', 1: 'click_per_winning_model', 2: 'click_per_query',
+                                                    3: 'winning_model'}, inplace=True)
+            per_query_winning_model_pruned = utils.pruning(per_query_winning_model)
 
-            # Computing ab_score
-            ab_score = utils.computing_ab_score(interleaved_list)
-            ab_score_pruning = utils.computing_ab_score(interleaved_list_pruned)
-            print()
+            # Computing standard ab_score
+            ab_score = utils.computing_ab_score(per_query_winning_model)
+
+            # Computing winning model for ab_score
+            if ab_score > 0:
+                ab_score_winning_model = 'a'
+            elif ab_score < 0:
+                ab_score_winning_model = 'b'
+            else:
+                ab_score_winning_model = 't'
+
+            # Check if ndcg agree with ab_score
+            if ndcg_winning_model == ab_score_winning_model:
+                ranker_pair_agree.append(1)
+            else:
+                ranker_pair_pruning_agree.append(0)
+
+            # Computing pruning ab_score
+            if not per_query_winning_model_pruned.empty:
+                ab_score_pruning = utils.computing_ab_score(per_query_winning_model_pruned)
+
+                # Computing winning model for pruning ab_score
+                if ab_score_pruning > 0:
+                    ab_score_pruning_winning_model = 'a'
+                elif ab_score_pruning < 0:
+                    ab_score_pruning_winning_model = 'b'
+                else:
+                    ab_score_pruning_winning_model = 't'
+
+                # Check if ndcg agree with pruning ab_score
+                if ndcg_winning_model == ab_score_winning_model:
+                    ranker_pair_pruning_agree.append(1)
+                else:
+                    ranker_pair_pruning_agree.append(0)
+            else:
+                print('The pruning removes all the queries')
+            print('\n')
+
+    accuracy_standard_tdi = sum(ranker_pair_agree) / len(ranker_pair_agree)
+    print('Accuracy for standard tdi: ' + str(accuracy_standard_tdi))
+    if len(ranker_pair_pruning_agree) > 0:
+        accuracy_pruning_tdi = sum(ranker_pair_pruning_agree) / len(ranker_pair_pruning_agree)
+        print('Accuracy for pruning tdi: ' + str(accuracy_pruning_tdi))
+    else:
+        print('Pruning removes all queries for all pairs')

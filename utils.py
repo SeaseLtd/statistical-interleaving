@@ -94,11 +94,21 @@ def simulate_clicks(interleaved_list, seed):
     interleaved_list.rename(columns={0: 'click'}, inplace=True)
     interleaved_list['click'] = np.where(interleaved_list['relevance'] == 0, 0, interleaved_list['click'])
     interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
+
+    interleaved_list = interleaved_list[interleaved_list['click'] == 1]
     return interleaved_list
 
 
-def compute_winning_model():
-    print()
+def compute_winning_model(interleaved_list, chosen_query_id):
+    click_per_a = interleaved_list[interleaved_list['model'] == 'a'].shape[0]
+    click_per_b = interleaved_list[interleaved_list['model'] == 'b'].shape[0]
+    total_clicks = click_per_a + click_per_b
+    if click_per_a > click_per_b:
+        return [chosen_query_id, click_per_a, total_clicks, 'a']
+    elif click_per_b > click_per_a:
+        return [chosen_query_id, click_per_b, total_clicks, 'b']
+    else:
+        return [chosen_query_id, click_per_a, total_clicks, 't']
 
 
 def statistical_significance_computation(interactions, overall_diff):
@@ -116,25 +126,24 @@ def statistical_significance_computation(interactions, overall_diff):
 
 def pruning(interleaving_dataset):
     overall_diff = 0.5
-    print('Computing statistical significance')
     per_query_model_interactions = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
 
     # Remove interactions with significance higher than 5% threshold
     queries_before_drop = per_query_model_interactions.shape[0]
-    print('Number of queries before drop: ' + str(queries_before_drop))
+    print('------ Number of queries before drop: ' + str(queries_before_drop))
     per_query_model_interactions = per_query_model_interactions[
         per_query_model_interactions.statistical_significance < 0.05]
     queries_after_drop = per_query_model_interactions.shape[0]
-    print('Number of queries after drop: ' + str(queries_after_drop))
+    print('------ Number of queries after drop: ' + str(queries_after_drop))
     per_query_model_interactions = per_query_model_interactions.drop(columns='statistical_significance')
 
     return per_query_model_interactions
 
 
 def computing_ab_score(interleaving_dataset):
-    winner_a = len(interleaving_dataset[interleaving_dataset['model'] == 'a'])
-    winner_b = len(interleaving_dataset[interleaving_dataset['model'] == 'b'])
-    ties = len(interleaving_dataset[interleaving_dataset['model'] == 't'])
+    winner_a = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'a'])
+    winner_b = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'b'])
+    ties = len(interleaving_dataset[interleaving_dataset['winning_model'] == 't'])
 
     # Delta score
     delta_ab = (winner_a + 1 / 2 * ties) / (winner_a + winner_b + ties) - 0.5
