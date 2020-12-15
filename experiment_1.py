@@ -1,8 +1,9 @@
 import utils
 import pandas as pd
+import numpy as np
 
 
-def start_experiment(dataset_path, seed):
+def start_experiment(dataset_path, seed, experiment_one_bis=False):
     dataset = utils.load_dataframe(dataset_path)
     list_ndcg_model_a = []
     list_ndcg_model_b = []
@@ -11,14 +12,26 @@ def start_experiment(dataset_path, seed):
     ranker_pair_pruning_agree = []
 
     # Fixed subset of 1000 queries
-    set_of_queries = dataset.queryId.unique()[:1000]
+    if not experiment_one_bis:
+        set_of_queries = dataset.queryId.unique()[:1000]
+    else:
+        total_set_of_queries = dataset.queryId.unique()
+        # Search demand curve. First 360 unpopular queries.
+        set_of_queries = total_set_of_queries[:360]
+        # 14 queries repeated 10 times
+        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[360:374], 10))
+        # 2 queries repeated 100 times
+        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[374:376], 100))
+        # 1 query repeated 300 times
+        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[376:377], 300))
 
     # Iterate on all possible pairs of rankers/models (from 1 to 137)
     for i in range(1, 137):
         for j in range(i + 1, 137):
             print('-------- Pair of rankers: (' + str(i) + ', ' + str(j) + ') --------')
             for k in range(0, 1000):
-                print('round ' + str(k) + ' for same pair of rankers')
+                if k == 50 or k == 100 or k == 500:
+                    print('round ' + str(k) + ' for same pair of rankers')
                 chosen_query_id = set_of_queries[k]
 
                 # Reduce the dataset to the documents for the selected query
