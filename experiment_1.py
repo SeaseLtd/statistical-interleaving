@@ -1,6 +1,5 @@
 import utils
 import pandas as pd
-import numpy as np
 
 
 def start_experiment(dataset_path, seed, experiment_one_bis=False):
@@ -15,15 +14,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
     if not experiment_one_bis:
         set_of_queries = dataset.queryId.unique()[:1000]
     else:
-        total_set_of_queries = dataset.queryId.unique()
-        # Search demand curve. First 360 unpopular queries.
-        set_of_queries = total_set_of_queries[:360]
-        # 14 queries repeated 10 times
-        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[360:374], 10))
-        # 2 queries repeated 100 times
-        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[374:376], 100))
-        # 1 query repeated 300 times
-        set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[376:377], 300))
+        set_of_queries = utils.generate_set_with_search_demand_curve(dataset)
 
     # Iterate on all possible pairs of rankers/models (from 1 to 137)
     for i in range(1, 137):

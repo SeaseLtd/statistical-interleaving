@@ -28,6 +28,19 @@ def load_dataframe(dataset_path):
     return dataset
 
 
+def generate_set_with_search_demand_curve(dataset):
+    total_set_of_queries = dataset.queryId.unique()
+    # Search demand curve. First 360 unpopular queries.
+    set_of_queries = total_set_of_queries[:360]
+    # 14 queries repeated 10 times
+    set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[360:374], 10))
+    # 2 queries repeated 100 times
+    set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[374:376], 100))
+    # 1 query repeated 300 times
+    set_of_queries = np.append(set_of_queries, np.repeat(total_set_of_queries[376:377], 300))
+    return set_of_queries
+
+
 def compute_ndcg(ranked_list):
     idcg = dcg_at_k(sorted(ranked_list['relevance'], reverse=True), len(ranked_list))
     if not idcg:
