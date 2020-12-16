@@ -2,19 +2,23 @@ import pandas as pd
 import numpy as np
 import scipy.stats as scistat
 import sys
+import io
+from sklearn.datasets import load_svmlight_file
+
+
+def print_memory_status(dataset):
+    buffer = io.StringIO()
+    dataset.info(memory_usage='deep', buf=buffer)
+    s = buffer.getvalue()
+    print(s)
 
 
 def preprocess_dataset(dataset_path, output_path):
-    dataset = pd.read_csv(dataset_path, sep=' ', header=None)
-    dataset.drop(columns={138}, inplace=True)
-    dataset.replace(to_replace=r'^.*:', value='', regex=True, inplace=True)
-
-    dataset.rename(columns={0: 'relevance', 1: 'queryId'}, inplace=True)
-    new_columns_name = {key: value for key, value in zip(range(2, 138), range(1, 137))}
-    dataset.rename(columns=new_columns_name, inplace=True)
-
-    dataset = dataset.astype({key: 'float32' for key in range(1, 137)})
-    dataset = dataset.astype({'relevance': 'int8', 'queryId': 'int32'})
+    features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True)
+    dataset = pd.DataFrame(features.todense())
+    dataset['relevance'] = relevance
+    dataset['queryId'] = query_id
+    print_memory_status(dataset)
 
     store = pd.HDFStore(output_path + '/' + 'processed_train.h5')
     store['processed_train'] = dataset
