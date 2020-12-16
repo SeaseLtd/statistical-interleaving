@@ -13,22 +13,13 @@ def print_memory_status(dataset):
     print(s)
 
 
-def preprocess_dataset(dataset_path, output_path):
+def load_dataframe(dataset_path):
     features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True)
     dataset = pd.DataFrame(features.todense())
     dataset['relevance'] = relevance
     dataset['queryId'] = query_id
     print_memory_status(dataset)
 
-    store = pd.HDFStore(output_path + '/' + 'processed_train.h5')
-    store['processed_train'] = dataset
-    store.close()
-
-
-def load_dataframe(dataset_path):
-    dataset_store = pd.HDFStore(dataset_path, 'r')
-    dataset = dataset_store['processed_train']
-    dataset_store.close()
     return dataset
 
 
