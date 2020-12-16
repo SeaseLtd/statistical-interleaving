@@ -66,16 +66,12 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b):
         if (len(team_a) < len(team_b)) or ((len(team_a) == len(team_b)) and (random_model_choice == 1)):
             k = remaining_indexes_list_a[0]
             selected_document = pd.DataFrame(ranked_list_a[ranked_list_a['index'] == k])
-            selected_document = selected_document.astype({key: 'float32' for key in range(1, 137)})
-            selected_document = selected_document.astype({'relevance': 'int8', 'queryId': 'int32'})
             selected_document['model'] = 'a'
             interleaved_list = interleaved_list.append(selected_document)
             team_a.append(k)
         else:
             k = remaining_indexes_list_b[0]
             selected_document = pd.DataFrame(ranked_list_b[ranked_list_b['index'] == k])
-            selected_document = selected_document.astype({key: 'float32' for key in range(1, 137)})
-            selected_document = selected_document.astype({'relevance': 'int8', 'queryId': 'int32'})
             selected_document['model'] = 'b'
             interleaved_list = interleaved_list.append(selected_document)
             team_b.append(k)
@@ -98,8 +94,8 @@ def simulate_clicks(interleaved_list, seed):
         clicks.index = interleaved_list[interleaved_list['relevance'] == key].index
         clicks_column = clicks_column.append(clicks)
 
+    clicks_column.rename(columns={0: 'click'}, inplace=True)
     interleaved_list = pd.merge(interleaved_list, clicks_column, how='left', left_index=True, right_index=True)
-    interleaved_list.rename(columns={0: 'click'}, inplace=True)
     interleaved_list['click'] = np.where(interleaved_list['relevance'] == 0, 0, interleaved_list['click'])
     interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
 
