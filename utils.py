@@ -100,6 +100,7 @@ def simulate_clicks(interleaved_list, seed):
     interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
 
     interleaved_list = interleaved_list[interleaved_list['click'] == 1]
+    interleaved_list.drop(columns={'click'}, inplace=True)
     return interleaved_list
 
 

@@ -16,9 +16,9 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
     else:
         set_of_queries = utils.generate_set_with_search_demand_curve(dataset)
 
-    # Iterate on all possible pairs of rankers/models (from 1 to 137)
-    for i in range(1, 137):
-        for j in range(i + 1, 137):
+    # Iterate on all possible pairs of rankers/models (from 0 to 136)
+    for i in range(0, 136):
+        for j in range(i + 1, 136):
             print('-------- Pair of rankers: (' + str(i) + ', ' + str(j) + ') --------')
             for k in range(0, 1000):
                 if k == 50 or k == 100 or k == 500:
@@ -91,7 +91,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
                     ab_score_pruning_winning_model = 't'
 
                 # Check if ndcg agree with pruning ab_score
-                if ndcg_winning_model == ab_score_winning_model:
+                if ndcg_winning_model == ab_score_pruning_winning_model:
                     ranker_pair_pruning_agree.append(1)
                 else:
                     ranker_pair_pruning_agree.append(0)
