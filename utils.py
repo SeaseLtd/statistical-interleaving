@@ -19,6 +19,7 @@ def load_dataframe(dataset_path):
     dataset['relevance'] = relevance
     dataset['queryId'] = query_id
     print_memory_status(dataset)
+    print()
 
     return dataset
 
@@ -139,11 +140,9 @@ def pruning(interleaving_dataset):
 
     # Remove interactions with significance higher than 5% threshold
     queries_before_drop = per_query_model_interactions.shape[0]
-    print('------ Number of queries before drop: ' + str(queries_before_drop))
     per_query_model_interactions = per_query_model_interactions[
         per_query_model_interactions.statistical_significance < 0.05]
     queries_after_drop = per_query_model_interactions.shape[0]
-    print('------ Number of queries after drop: ' + str(queries_after_drop))
     per_query_model_interactions = per_query_model_interactions.drop(columns='statistical_significance')
 
     return per_query_model_interactions

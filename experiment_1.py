@@ -1,8 +1,14 @@
 import utils
 import pandas as pd
+from datetime import datetime
 
 
 def start_experiment(dataset_path, seed, experiment_one_bis=False):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Experiment started at:", current_time)
+    print()
+
     dataset = utils.load_dataframe(dataset_path)
     ranker_pair_agree = []
     ranker_pair_pruning_agree = []

@@ -1,9 +1,15 @@
 import utils
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 
 def start_experiment(dataset_path, seed, realistic_model=False):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Experiment started at:", current_time)
+    print()
+
     subset_of_rankers = [(64, 14), (108, 84), (134, 96), (97, 106), (77, 1)]
 
     dataset = utils.load_dataframe(dataset_path)
@@ -74,7 +80,7 @@ def start_experiment(dataset_path, seed, realistic_model=False):
                 all_queries_winning_model_pruned = utils.pruning(all_queries_winning_model)
 
                 # Computing standard ab_score
-                ab_score = utils.computing_ab_score(all_queries_winning_model_pruned)
+                ab_score = utils.computing_ab_score(all_queries_winning_model)
 
                 # Computing winning model for ab_score
                 if ab_score > 0:
@@ -107,8 +113,6 @@ def start_experiment(dataset_path, seed, realistic_model=False):
                         ranker_pair_pruning_agree.append(1)
                     else:
                         ranker_pair_pruning_agree.append(0)
-                else:
-                    print('The pruning removes all the queries\n')
 
             accuracy_standard_tdi[query_set_size] = sum(ranker_pair_agree) / len(ranker_pair_agree)
             if len(ranker_pair_pruning_agree) > 0:
