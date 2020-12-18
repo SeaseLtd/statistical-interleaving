@@ -4,9 +4,9 @@ from datetime import datetime
 
 
 def start_experiment(dataset_path, seed, experiment_one_bis=False):
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    print("Experiment started at:", current_time)
+    start = datetime.now()
+    start_time = start.strftime("%H:%M:%S")
+    print("Experiment started at:", start_time)
     print()
 
     dataset = utils.load_dataframe(dataset_path)
@@ -22,6 +22,8 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
     # Iterate on all possible pairs of rankers/models (from 1 to 137)
     for ranker_a in range(1, 137):
         for ranker_b in range(ranker_a + 1, 137):
+            start_each_pair = datetime.now()
+
             print('-------- Pair of rankers: (' + str(ranker_a) + ', ' + str(ranker_b) + ') --------')
             all_queries_winning_model = []
             list_ndcg_model_a = []
@@ -106,6 +108,9 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
             else:
                 print('The pruning removes all the queries\n')
 
+            end_each_pair = datetime.now()
+            print('Execution time each pair: ' + str(end_each_pair - start_each_pair) + '\n')
+
     accuracy_standard_tdi = sum(ranker_pair_agree) / len(ranker_pair_agree)
     print('Accuracy of tdi on all pairs of rankers:')
     print(accuracy_standard_tdi)
@@ -117,3 +122,8 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
         print(accuracy_pruning_tdi)
     else:
         print('Pruning removes all queries for all pairs')
+
+    end = datetime.now()
+    end_time = end.strftime("%H:%M:%S")
+    print("\nExperiment ended at:", end_time)
+    print('Total experiment time: ' + str(end - start))
