@@ -175,7 +175,7 @@ class TestUtils(unittest.TestCase):
              'click_per_query': [3, 6, 6, 9],
              'winning_model': ['a', 'a', 'b', 't'],
              })
-        expected_result_a = 0.125
+        expected_result_a = 'a'
 
         input_data_frame_b = pd.DataFrame(
             {'queryId': [2, 1, 4, 0],
@@ -183,7 +183,7 @@ class TestUtils(unittest.TestCase):
              'click_per_query': [3, 6, 6, 9],
              'winning_model': ['a', 'b', 'b', 't'],
              })
-        expected_result_b = -0.125
+        expected_result_b = 'b'
 
         input_data_frame_t = pd.DataFrame(
             {'queryId': [2, 1, 4, 0],
@@ -191,11 +191,11 @@ class TestUtils(unittest.TestCase):
              'click_per_query': [3, 6, 6, 9],
              'winning_model': ['a', 't', 'b', 't'],
              })
-        expected_result_t = 0.000
+        expected_result_t = 't'
 
-        result_a = utils.computing_ab_score(input_data_frame_a)
-        result_b = utils.computing_ab_score(input_data_frame_b)
-        result_t = utils.computing_ab_score(input_data_frame_t)
+        result_a = utils.computing_winning_model_ab_score(input_data_frame_a)
+        result_b = utils.computing_winning_model_ab_score(input_data_frame_b)
+        result_t = utils.computing_winning_model_ab_score(input_data_frame_t)
 
         self.assertEqual(result_a, expected_result_a)
         self.assertEqual(result_b, expected_result_b)

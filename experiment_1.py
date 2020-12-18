@@ -56,14 +56,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
                 all_queries_winning_model.append(utils.compute_winning_model(interleaved_list, chosen_query_id))
 
             # Computing average ndcg to find winning model/ranker
-            avg_ndcg_model_a = sum(list_ndcg_model_a) / len(list_ndcg_model_a)
-            avg_ndcg_model_b = sum(list_ndcg_model_b) / len(list_ndcg_model_b)
-            if avg_ndcg_model_a > avg_ndcg_model_b:
-                ndcg_winning_model = 'a'
-            elif avg_ndcg_model_a < avg_ndcg_model_b:
-                ndcg_winning_model = 'b'
-            else:
-                ndcg_winning_model = 't'
+            ndcg_winning_model = utils.compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b)
 
             # Pruning
             all_queries_winning_model = pd.DataFrame.from_records(all_queries_winning_model)
@@ -72,15 +65,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
             all_queries_winning_model_pruned = utils.pruning(all_queries_winning_model)
 
             # Computing standard ab_score
-            ab_score = utils.computing_ab_score(all_queries_winning_model)
-
-            # Computing winning model for ab_score
-            if ab_score > 0:
-                ab_score_winning_model = 'a'
-            elif ab_score < 0:
-                ab_score_winning_model = 'b'
-            else:
-                ab_score_winning_model = 't'
+            ab_score_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model)
 
             # Check if ndcg agree with ab_score
             if ndcg_winning_model == ab_score_winning_model:
@@ -90,15 +75,8 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
 
             # Computing pruning ab_score
             if not all_queries_winning_model_pruned.empty:
-                ab_score_pruning = utils.computing_ab_score(all_queries_winning_model_pruned)
-
-                # Computing winning model for pruning ab_score
-                if ab_score_pruning > 0:
-                    ab_score_pruning_winning_model = 'a'
-                elif ab_score_pruning < 0:
-                    ab_score_pruning_winning_model = 'b'
-                else:
-                    ab_score_pruning_winning_model = 't'
+                ab_score_pruning_winning_model = utils.computing_winning_model_ab_score(
+                    all_queries_winning_model_pruned)
 
                 # Check if ndcg agree with pruning ab_score
                 if ndcg_winning_model == ab_score_pruning_winning_model:

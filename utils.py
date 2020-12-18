@@ -145,7 +145,7 @@ def pruning(interleaving_dataset):
     return per_query_model_interactions
 
 
-def computing_ab_score(interleaving_dataset):
+def computing_winning_model_ab_score(interleaving_dataset):
     winner_a = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'a'])
     winner_b = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'b'])
     ties = len(interleaving_dataset[interleaving_dataset['winning_model'] == 't'])
@@ -153,4 +153,21 @@ def computing_ab_score(interleaving_dataset):
     # Delta score
     delta_ab = (winner_a + 1 / 2 * ties) / (winner_a + winner_b + ties) - 0.5
 
-    return round(delta_ab, 3)
+    # Computing winning model for ab_score
+    if round(delta_ab, 3) > 0:
+        return 'a'
+    elif round(delta_ab, 3) < 0:
+        return 'b'
+    else:
+        return 't'
+
+
+def compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b):
+    avg_ndcg_model_a = sum(list_ndcg_model_a) / len(list_ndcg_model_a)
+    avg_ndcg_model_b = sum(list_ndcg_model_b) / len(list_ndcg_model_b)
+    if avg_ndcg_model_a > avg_ndcg_model_b:
+        return 'a'
+    elif avg_ndcg_model_a < avg_ndcg_model_b:
+        return 'b'
+    else:
+        return 't'
