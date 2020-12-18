@@ -19,9 +19,9 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
     else:
         set_of_queries = utils.generate_set_with_search_demand_curve(dataset)
 
-    # Iterate on all possible pairs of rankers/models (from 0 to 136)
-    for ranker_a in range(0, 136):
-        for ranker_b in range(ranker_a + 1, 136):
+    # Iterate on all possible pairs of rankers/models (from 1 to 137)
+    for ranker_a in range(1, 137):
+        for ranker_b in range(ranker_a + 1, 137):
             print('-------- Pair of rankers: (' + str(ranker_a) + ', ' + str(ranker_b) + ') --------')
             all_queries_winning_model = []
             list_ndcg_model_a = []
@@ -45,7 +45,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
                 list_ndcg_model_b.append(utils.compute_ndcg(ranked_list_model_b))
 
                 # Creating interleaved list
-                interleaved_list = utils.execute_tdi_interleaving(ranked_list_model_a, ranked_list_model_b)
+                interleaved_list = utils.execute_tdi_interleaving(ranked_list_model_a, ranked_list_model_b, seed)
 
                 # Simulate clicks
                 interleaved_list = utils.simulate_clicks(interleaved_list, seed)

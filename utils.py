@@ -2,20 +2,18 @@ import pandas as pd
 import numpy as np
 import scipy.stats as scistat
 import sys
-import io
 from sklearn.datasets import load_svmlight_file
 
 
 def print_memory_status(dataset):
-    buffer = io.StringIO()
-    dataset.info(memory_usage='deep', buf=buffer)
-    s = buffer.getvalue()
-    print(s)
+    print(dataset.info(memory_usage='deep', verbose=False))
 
 
 def load_dataframe(dataset_path):
     features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True)
     dataset = pd.DataFrame(features.todense())
+    new_columns_name = {key: value for key, value in zip(range(0, 136), range(1, 137))}
+    dataset.rename(columns=new_columns_name, inplace=True)
     dataset['relevance'] = relevance
     dataset['queryId'] = query_id
     print_memory_status(dataset)
@@ -41,7 +39,7 @@ def compute_ndcg(ranked_list):
     idcg = dcg_at_k(sorted(ranked_list['relevance'], reverse=True), len(ranked_list))
     if not idcg:
         return 0.
-    return dcg_at_k(ranked_list['relevance'], len(ranked_list)) / idcg
+    return round(dcg_at_k(ranked_list['relevance'], len(ranked_list)) / idcg, 3)
 
 
 def dcg_at_k(r, k):
@@ -51,8 +49,9 @@ def dcg_at_k(r, k):
     return 0.
 
 
-def execute_tdi_interleaving(ranked_list_a, ranked_list_b):
+def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
     interleaved_list = pd.DataFrame()
+    np.random.seed(seed)
     team_a = []
     team_b = []
 
@@ -139,10 +138,8 @@ def pruning(interleaving_dataset):
     per_query_model_interactions = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
 
     # Remove interactions with significance higher than 5% threshold
-    queries_before_drop = per_query_model_interactions.shape[0]
     per_query_model_interactions = per_query_model_interactions[
         per_query_model_interactions.statistical_significance < 0.05]
-    queries_after_drop = per_query_model_interactions.shape[0]
     per_query_model_interactions = per_query_model_interactions.drop(columns='statistical_significance')
 
     return per_query_model_interactions
