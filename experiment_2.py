@@ -2,6 +2,7 @@ import utils
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from statsmodels.stats.proportion import proportion_confint
 
 
 def start_experiment(dataset_path, seed, realistic_model=False):
@@ -23,11 +24,19 @@ def start_experiment(dataset_path, seed, realistic_model=False):
         ranker_a = ranker_pair[0]
         ranker_b = ranker_pair[1]
 
-        accuracy_standard_tdi, accuracy_pruning_tdi = per_query_size_evaluation(dataset, ranker_a, ranker_b, seed,
-                                                                                realistic_model)
+        accuracy_standard_tdi, accuracy_pruning_tdi, interval_standard_tdi, interval_pruning_tdi = \
+            per_query_size_evaluation(dataset, ranker_a, ranker_b, seed, realistic_model)
 
         final_accuracy_standard_tdi[ranker_pair] = accuracy_standard_tdi
         final_accuracy_pruning_tdi[ranker_pair] = accuracy_pruning_tdi
+
+        print('Standard tdi: Confidence interval for pair (' + str(ranker_a) + ',' + str(ranker_b) + ') is ' +
+              str(interval_standard_tdi))
+        if len(interval_pruning_tdi) > 0:
+            print('Pruning tdi: Confidence interval for pair (' + str(ranker_a) + ',' + str(ranker_b) + ') is ' +
+                  str(interval_pruning_tdi))
+        else:
+            print('Pruning removes all queries\n')
 
         end_each_pair = datetime.now()
         print('Execution time each pair: ' + str(end_each_pair - start_each_pair) + '\n')
@@ -50,21 +59,21 @@ def per_query_size_evaluation(dataset, ranker_a, ranker_b, seed, realistic_model
     # Iterate on all possible query set sizes (from 1 to 10001)
     for query_set_size in range(1, 10001):
 
-        ranker_pair_agree, ranker_pair_pruning_agree = repetition_1000_times(dataset, query_set_size, ranker_a,
-                                                                             ranker_b, seed, realistic_model)
+        ranker_pair_agree, ranker_pair_pruning_agree, interval_standard_tdi, interval_pruning_tdi = \
+            repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, realistic_model)
 
         accuracy_standard_tdi[query_set_size] = sum(ranker_pair_agree) / len(ranker_pair_agree)
         if len(ranker_pair_pruning_agree) > 0:
             accuracy_pruning_tdi[query_set_size] = sum(ranker_pair_pruning_agree) / len(ranker_pair_pruning_agree)
-        else:
-            print('Pruning removes all queries for all pairs\n')
 
-    return accuracy_standard_tdi, accuracy_pruning_tdi
+    return accuracy_standard_tdi, accuracy_pruning_tdi, interval_standard_tdi, interval_pruning_tdi
 
 
 def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, realistic_model):
     ranker_pair_agree = []
     ranker_pair_pruning_agree = []
+    interval_standard_tdi = {}
+    interval_pruning_tdi = {}
 
     # For each query set size we repeat the experiment 1000 times
     for repetition in range(0, 1000):
@@ -128,4 +137,10 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
             else:
                 ranker_pair_pruning_agree.append(0)
 
-    return ranker_pair_agree, ranker_pair_pruning_agree
+    interval_standard_tdi[query_set_size] = proportion_confint(sum(ranker_pair_agree), len(ranker_pair_agree),
+                                                               method='wilson')
+    if len(ranker_pair_pruning_agree) > 0:
+        interval_pruning_tdi[query_set_size] = proportion_confint(sum(ranker_pair_pruning_agree),
+                                                                  len(ranker_pair_pruning_agree), method='wilson')
+
+    return ranker_pair_agree, ranker_pair_pruning_agree, interval_standard_tdi, interval_pruning_tdi
