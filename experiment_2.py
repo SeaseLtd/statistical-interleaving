@@ -104,43 +104,45 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
 
             # Simulate clicks
             interleaved_list = utils.simulate_clicks(interleaved_list, seed, realistic_model)
+            if interleaved_list.empty:
+                continue
 
             # Computing the per query winning model/ranker
             all_queries_winning_model.append(utils.compute_winning_model(interleaved_list, chosen_query_id))
 
-        # Computing average ndcg to find winning model/ranker
-        ndcg_winning_model = utils.compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b)
+        if len(all_queries_winning_model) > 0:
+            # Computing average ndcg to find winning model/ranker
+            ndcg_winning_model = utils.compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b)
 
-        # Pruning
-        all_queries_winning_model = pd.DataFrame.from_records(all_queries_winning_model)
-        all_queries_winning_model.rename(
-            columns={0: 'queryId', 1: 'click_per_winning_model', 2: 'click_per_query',
-                     3: 'winning_model'}, inplace=True)
-        all_queries_winning_model_pruned = utils.pruning(all_queries_winning_model)
+            # Pruning
+            all_queries_winning_model = pd.DataFrame.from_records(all_queries_winning_model)
+            all_queries_winning_model.rename(
+                columns={0: 'queryId', 1: 'click_per_winning_model', 2: 'click_per_query',
+                         3: 'winning_model'}, inplace=True)
+            all_queries_winning_model_pruned = utils.pruning(all_queries_winning_model)
 
-        # Computing standard ab_score
-        ab_score_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model)
+            # Computing standard ab_score
+            ab_score_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model)
 
-        # Check if ndcg agree with ab_score
-        if ndcg_winning_model == ab_score_winning_model:
-            ranker_pair_agree.append(1)
-        else:
-            ranker_pair_agree.append(0)
-
-        # Computing pruning ab_score
-        if not all_queries_winning_model_pruned.empty:
-            ab_score_pruning_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model_pruned)
-
-            # Check if ndcg agree with pruning ab_score
-            if ndcg_winning_model == ab_score_pruning_winning_model:
-                ranker_pair_pruning_agree.append(1)
+            # Check if ndcg agree with ab_score
+            if ndcg_winning_model == ab_score_winning_model:
+                ranker_pair_agree.append(1)
             else:
-                ranker_pair_pruning_agree.append(0)
+                ranker_pair_agree.append(0)
 
-    interval_standard_tdi[query_set_size] = proportion_confint(sum(ranker_pair_agree), len(ranker_pair_agree),
-                                                               method='wilson')
+            # Computing pruning ab_score
+            if not all_queries_winning_model_pruned.empty:
+                ab_score_pruning_winning_model = utils.computing_winning_model_ab_score(
+                    all_queries_winning_model_pruned)
+
+                # Check if ndcg agree with pruning ab_score
+                if ndcg_winning_model == ab_score_pruning_winning_model:
+                    ranker_pair_pruning_agree.append(1)
+                else:
+                    ranker_pair_pruning_agree.append(0)
+
+    interval_standard_tdi[query_set_size] = proportion_confint(sum(ranker_pair_agree), 1000, method='wilson')
     if len(ranker_pair_pruning_agree) > 0:
-        interval_pruning_tdi[query_set_size] = proportion_confint(sum(ranker_pair_pruning_agree),
-                                                                  len(ranker_pair_pruning_agree), method='wilson')
+        interval_pruning_tdi[query_set_size] = proportion_confint(sum(ranker_pair_pruning_agree), 1000, method='wilson')
 
     return ranker_pair_agree, ranker_pair_pruning_agree, interval_standard_tdi, interval_pruning_tdi

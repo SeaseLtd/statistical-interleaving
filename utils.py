@@ -84,27 +84,49 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
 
 def simulate_clicks(interleaved_list, seed, realistic_model=False):
     clicks_column = pd.DataFrame()
+    to_continue_column = pd.DataFrame()
     np.random.seed(seed)
 
-    if realistic_model:
-        realistic_model_click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
-        continue_probabilities = {0: 0, 1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8}
-    else:
-        perfect_model_click_probabilities = {1: 0.2, 2: 0.4, 3: 0.8}
-        for key in perfect_model_click_probabilities:
-            partial_length = int(len(interleaved_list[interleaved_list['relevance'] == key]))
-            probability_click = perfect_model_click_probabilities[key]
-            clicks = pd.DataFrame(np.random.choice(2, size=partial_length, p=[1 - probability_click, probability_click]))
-            clicks.index = interleaved_list[interleaved_list['relevance'] == key].index
-            clicks_column = clicks_column.append(clicks)
+    interleaved_list['new_index'] = np.arange(0, len(interleaved_list))
 
-        clicks_column.rename(columns={0: 'click'}, inplace=True)
-        interleaved_list = pd.merge(interleaved_list, clicks_column, how='left', left_index=True, right_index=True)
+    if realistic_model:
+        click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
+        continue_probabilities = {0: 0, 1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8}
+
+        for key in continue_probabilities:
+            partial_length = int(len(interleaved_list[interleaved_list['relevance'] == key]))
+            probability_to_continue = continue_probabilities[key]
+            per_row_to_continue = pd.DataFrame(np.random.choice(2, size=partial_length, p=[
+                1 - probability_to_continue, probability_to_continue]))
+            per_row_to_continue.rename(columns={0: 'to_continue'}, inplace=True)
+            per_row_to_continue.index = interleaved_list[interleaved_list['relevance'] == key].index
+            to_continue_column = to_continue_column.append(per_row_to_continue)
+
+        to_continue_column.rename(columns={0: 'to_continue'}, inplace=True)
+        interleaved_list = pd.merge(interleaved_list, to_continue_column, how='left', left_index=True, right_index=True)
+
+        idx = interleaved_list[interleaved_list['to_continue'] == 0]['new_index']
+        idx = idx.iloc[0]
+        interleaved_list = interleaved_list.iloc[0:idx + 1]
+    else:
+        click_probabilities = {1: 0.2, 2: 0.4, 3: 0.8}
+
+    for key in click_probabilities:
+        partial_length = int(len(interleaved_list[interleaved_list['relevance'] == key]))
+        probability_click = click_probabilities[key]
+        clicks = pd.DataFrame(np.random.choice(2, size=partial_length, p=[1 - probability_click, probability_click]))
+        clicks.index = interleaved_list[interleaved_list['relevance'] == key].index
+        clicks_column = clicks_column.append(clicks)
+
+    clicks_column.rename(columns={0: 'click'}, inplace=True)
+    interleaved_list = pd.merge(interleaved_list, clicks_column, how='left', left_index=True, right_index=True)
+
+    if not realistic_model:
         interleaved_list['click'] = np.where(interleaved_list['relevance'] == 0, 0, interleaved_list['click'])
         interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
 
     interleaved_list = interleaved_list[interleaved_list['click'] == 1]
-    interleaved_list.drop(columns={'click'}, inplace=True)
+    interleaved_list.drop(columns={'click', 'new_index'}, inplace=True)
     return interleaved_list
 
 
