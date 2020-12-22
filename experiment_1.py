@@ -84,6 +84,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
                 else:
                     ranker_pair_pruning_agree.append(0)
             else:
+                ranker_pair_pruning_agree.append(0)
                 print('The pruning removes all the queries\n')
 
             end_each_pair = datetime.now()

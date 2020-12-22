@@ -140,9 +140,13 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
                     ranker_pair_pruning_agree.append(1)
                 else:
                     ranker_pair_pruning_agree.append(0)
+            else:
+                ranker_pair_pruning_agree.append(0)
 
-    interval_standard_tdi[query_set_size] = proportion_confint(sum(ranker_pair_agree), 1000, method='wilson')
+    interval_standard_tdi[query_set_size] = proportion_confint(sum(ranker_pair_agree), len(ranker_pair_agree),
+                                                               method='wilson')
     if len(ranker_pair_pruning_agree) > 0:
-        interval_pruning_tdi[query_set_size] = proportion_confint(sum(ranker_pair_pruning_agree), 1000, method='wilson')
+        interval_pruning_tdi[query_set_size] = proportion_confint(sum(ranker_pair_pruning_agree),
+                                                                  len(ranker_pair_pruning_agree), method='wilson')
 
     return ranker_pair_agree, ranker_pair_pruning_agree, interval_standard_tdi, interval_pruning_tdi
