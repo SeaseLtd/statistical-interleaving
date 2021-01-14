@@ -8,8 +8,8 @@ import experiment_2
 
 
 def main(argv):
-    unix_options = "hp:s:e:"
-    gnu_options = ["help", "dataset_path=", "seed=", "experiment="]
+    unix_options = "hp:s:e:t"
+    gnu_options = ["help", "dataset_path=", "seed=", "experiment=", "monitoring_time"]
     args1 = []
     chosen_experiment = '1'
 
@@ -22,7 +22,7 @@ def main(argv):
 
     for currentArgument, currentValue in arguments:
         if currentArgument in ("-h", "--help"):
-            print("'main.py -p <dataset_path> -s <seed> -e <experiment>'")
+            print("'main.py -p <dataset_path> -s <seed> -e <experiment> -t <monitoring_time>'")
             sys.exit(1)
         elif currentArgument in ("-p", "--dataset_path"):
             args1.append(currentValue)
@@ -30,11 +30,13 @@ def main(argv):
             args1.append(int(currentValue))
         elif currentArgument in ("-e", "--experiment"):
             chosen_experiment = currentValue
+        elif currentArgument in ("-t", "--monitoring_time"):
+            args1.append(True)
 
     if chosen_experiment == '1':
         experiment_1.start_experiment(*args1)
     elif chosen_experiment == '1bis':
-        experiment_1.start_experiment(*args1, True)
+        experiment_1.start_experiment(*args1, experiment_one_bis=True)
     elif chosen_experiment == '2':
         experiment_2.start_experiment(*args1)
     elif chosen_experiment == '3':

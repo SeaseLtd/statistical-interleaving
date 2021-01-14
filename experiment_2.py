@@ -5,7 +5,7 @@ from datetime import datetime
 from statsmodels.stats.proportion import proportion_confint
 
 
-def start_experiment(dataset_path, seed, realistic_model=False):
+def start_experiment(dataset_path, seed, monitoring_time=False, realistic_model=False):
     start = datetime.now()
     start_time = start.strftime("%H:%M:%S")
     print("Experiment started at:", start_time)
