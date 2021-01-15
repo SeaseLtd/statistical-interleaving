@@ -1,11 +1,11 @@
-import utils
+import utils_with_time
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from statsmodels.stats.proportion import proportion_confint
 
 
-def start_experiment(dataset_path, seed, realistic_model=False):
+def start_experiment(dataset_path, seed, monitoring_time=False, realistic_model=False):
     start = datetime.now()
     start_time = start.strftime("%H:%M:%S")
     print("Experiment started at:", start_time)
@@ -13,7 +13,7 @@ def start_experiment(dataset_path, seed, realistic_model=False):
 
     subset_of_rankers = [(64, 14), (108, 84), (134, 96), (97, 106), (77, 1)]
 
-    dataset = utils.load_dataframe(dataset_path)
+    dataset = utils_with_time.load_dataframe(dataset_path)
     final_accuracy_standard_tdi = {}
     final_accuracy_pruning_tdi = {}
 
@@ -96,33 +96,33 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
             ranked_list_model_b = query_selected_documents_1.sort_values(by=[ranker_b], ascending=False)
 
             # Computing ndcg
-            list_ndcg_model_a.append(utils.compute_ndcg(ranked_list_model_a))
-            list_ndcg_model_b.append(utils.compute_ndcg(ranked_list_model_b))
+            list_ndcg_model_a.append(utils_with_time.compute_ndcg(ranked_list_model_a))
+            list_ndcg_model_b.append(utils_with_time.compute_ndcg(ranked_list_model_b))
 
             # Creating interleaved list
-            interleaved_list = utils.execute_tdi_interleaving(ranked_list_model_a, ranked_list_model_b, seed)
+            interleaved_list = utils_with_time.execute_tdi_interleaving(ranked_list_model_a, ranked_list_model_b, seed)
 
             # Simulate clicks
-            interleaved_list = utils.simulate_clicks(interleaved_list, seed, realistic_model)
+            interleaved_list = utils_with_time.simulate_clicks(interleaved_list, seed, realistic_model)
             if interleaved_list.empty:
                 continue
 
             # Computing the per query winning model/ranker
-            all_queries_winning_model.append(utils.compute_winning_model(interleaved_list, chosen_query_id))
+            all_queries_winning_model.append(utils_with_time.compute_winning_model(interleaved_list, chosen_query_id))
 
         if len(all_queries_winning_model) > 0:
             # Computing average ndcg to find winning model/ranker
-            ndcg_winning_model = utils.compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b)
+            ndcg_winning_model = utils_with_time.compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b)
 
             # Pruning
             all_queries_winning_model = pd.DataFrame.from_records(all_queries_winning_model)
             all_queries_winning_model.rename(
                 columns={0: 'queryId', 1: 'click_per_winning_model', 2: 'click_per_query',
                          3: 'winning_model'}, inplace=True)
-            all_queries_winning_model_pruned = utils.pruning(all_queries_winning_model)
+            all_queries_winning_model_pruned = utils_with_time.pruning(all_queries_winning_model)
 
             # Computing standard ab_score
-            ab_score_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model)
+            ab_score_winning_model = utils_with_time.computing_winning_model_ab_score(all_queries_winning_model)
 
             # Check if ndcg agree with ab_score
             if ndcg_winning_model == ab_score_winning_model:
@@ -132,7 +132,7 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
 
             # Computing pruning ab_score
             if not all_queries_winning_model_pruned.empty:
-                ab_score_pruning_winning_model = utils.computing_winning_model_ab_score(
+                ab_score_pruning_winning_model = utils_with_time.computing_winning_model_ab_score(
                     all_queries_winning_model_pruned)
 
                 # Check if ndcg agree with pruning ab_score
