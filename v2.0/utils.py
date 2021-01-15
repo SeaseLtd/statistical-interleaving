@@ -32,6 +32,38 @@ def load_dataframe(dataset_path):
     return dataset
 
 
+def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
+    # Create id column
+    dataset.reset_index(drop=False, inplace=True)
+    dataset.rename(columns={'index': 'query_doc_id'}, inplace=True)
+
+    ranked_table_lists = []
+    ndcg_per_query_ranker_list =[]
+    for ranker in range(1, max_range_pair):
+        for query_index in range(0, len(set_of_queries)):
+            chosen_query_id = set_of_queries[query_index]
+            query_selected_documents = dataset[dataset['queryId'] == chosen_query_id]
+            ranked_list = query_selected_documents.sort_values(by=[ranker], ascending=False)
+            ranked_list['ranker'] = ranker
+            ranked_table_lists.append(ranked_list)
+
+            ndcg_per_query_ranker = compute_ndcg(ranked_list)
+            ndcg_per_query_ranker_list.append([ranker, chosen_query_id, ndcg_per_query_ranker])
+
+    ranked_table = pd.concat(ranked_table_lists, ignore_index=True, sort=True)
+    ndcg_ranked_table = pd.DataFrame(ndcg_per_query_ranker_list)
+    ndcg_ranked_table.rename(columns={0: 'ranker', 1: 'queryId', 2: 'ndcg'}, inplace=True)
+
+    # Reorder columns
+    cols = ranked_table.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    ranked_table = ranked_table[cols]
+
+    # Set multiindex
+    ranked_table.set_index(['ranker', 'query_doc_id'], inplace=True, verify_integrity=True)
+    return ranked_table, ndcg_ranked_table
+
+
 def generate_set_with_search_demand_curve(dataset):
     total_set_of_queries = dataset.queryId.unique()
     # Search demand curve. First 360 unpopular queries.
