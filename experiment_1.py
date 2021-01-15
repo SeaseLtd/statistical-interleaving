@@ -5,7 +5,7 @@ from datetime import datetime
 import pprint
 
 
-def start_experiment(dataset_path, seed, experiment_one_bis=False):
+def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, experiment_one_bis=False):
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
@@ -24,7 +24,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
 
     # Fixed subset of 1000 queries
     if not experiment_one_bis:
-        set_of_queries = dataset.queryId.unique()[:1000]
+        set_of_queries = dataset.queryId.unique()[:query_set]
     else:
         start_step = time.time()
         set_of_queries = utils.generate_set_with_search_demand_curve(dataset)
@@ -33,8 +33,8 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
         total_repetitions_per_step['query'] += 1
 
     # Iterate on all possible pairs of rankers/models (from 1 to 137)
-    for ranker_a in range(1, 137):
-        for ranker_b in range(ranker_a + 1, 137):
+    for ranker_a in range(1, max_range_pair):
+        for ranker_b in range(ranker_a + 1, max_range_pair):
             start_each_pair = datetime.now()
 
             print('-------- Pair of rankers: (' + str(ranker_a) + ', ' + str(ranker_b) + ') --------')
@@ -173,7 +173,7 @@ def start_experiment(dataset_path, seed, experiment_one_bis=False):
             del avg_times_per_step[key]
     for key, dividend in avg_times_per_step.items():
         avg_times_per_step[key] = dividend / total_repetitions_per_step.get(key, 1)
-    print('Average times per step:')
+    print('\nAverage times per step:')
     pprint.pprint(avg_times_per_step)
 
     end_total = time.time()
