@@ -61,6 +61,7 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
 
     # Set multiindex
     ranked_table.set_index(['ranker', 'query_doc_id'], inplace=True, verify_integrity=True)
+    ndcg_ranked_table.set_index(['ranker', 'queryId'], inplace=True, verify_integrity=True)
     return ranked_table, ndcg_ranked_table
 
 
@@ -100,27 +101,27 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
     ranked_list_a.reset_index(inplace=True)
     ranked_list_b.reset_index(inplace=True)
 
-    remaining_indexes_list_a = list(ranked_list_a['index'])
-    remaining_indexes_list_b = list(ranked_list_b['index'])
+    remaining_indexes_list_a = list(ranked_list_a['query_doc_id'])
+    remaining_indexes_list_b = list(ranked_list_b['query_doc_id'])
 
     while (len(remaining_indexes_list_a) > 0) and (len(remaining_indexes_list_b) > 0):
         random_model_choice = np.random.randint(2, size=1)
         if (len(team_a) < len(team_b)) or ((len(team_a) == len(team_b)) and (random_model_choice == 1)):
             k = remaining_indexes_list_a[0]
-            selected_document = pd.DataFrame(ranked_list_a[ranked_list_a['index'] == k])
+            selected_document = pd.DataFrame(ranked_list_a[ranked_list_a['query_doc_id'] == k])
             selected_document['model'] = 'a'
             interleaved_list = interleaved_list.append(selected_document)
             team_a.append(k)
         else:
             k = remaining_indexes_list_b[0]
-            selected_document = pd.DataFrame(ranked_list_b[ranked_list_b['index'] == k])
+            selected_document = pd.DataFrame(ranked_list_b[ranked_list_b['query_doc_id'] == k])
             selected_document['model'] = 'b'
             interleaved_list = interleaved_list.append(selected_document)
             team_b.append(k)
         remaining_indexes_list_a.remove(k)
         remaining_indexes_list_b.remove(k)
 
-    interleaved_list.set_index('index', inplace=True)
+    interleaved_list.set_index('query_doc_id', inplace=True, verify_integrity=True)
     return interleaved_list
 
 

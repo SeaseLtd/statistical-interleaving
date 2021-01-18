@@ -88,7 +88,7 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
         remaining_indexes_list_a.remove(k)
         remaining_indexes_list_b.remove(k)
 
-    interleaved_list.set_index('index', inplace=True)
+    interleaved_list.set_index('index', inplace=True, verify_integrity=True)
     return interleaved_list
 
 

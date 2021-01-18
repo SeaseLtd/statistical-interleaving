@@ -33,7 +33,10 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
         total_repetitions_per_step['query'] += 1
 
     # Precompute ranked lists and ndcg per ranker-query
+    # Index of ranked_table is ranker/docId
+    # Index of ndcg_ranked_table is ranker/queryId
     ranked_table, ndcg_ranked_table = utils.precompute_ranked_table(dataset, max_range_pair, set_of_queries)
+    del dataset
 
     # Iterate on all possible pairs of rankers/models (from 1 to 137)
     for ranker_a in range(1, max_range_pair):
@@ -60,26 +63,24 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
 
                 # Selecting the models' ranked lists
                 start_step = time.time()
-                ranked_list_model_a = query_selected_documents.query("ranker == {}".format(ranker_a))
+                ranked_list_model_a = query_selected_documents.loc[ranker_a]
                 end_step = time.time()
                 avg_times_per_step['ranked_list_a'].append(end_step - start_step)
                 total_repetitions_per_step['ranked_list_a'] += 1
                 start_step = time.time()
-                ranked_list_model_b = query_selected_documents.query("ranker == {}".format(ranker_b))
+                ranked_list_model_b = query_selected_documents.loc[ranker_b]
                 end_step = time.time()
                 avg_times_per_step['ranked_list_b'].append(end_step - start_step)
                 total_repetitions_per_step['ranked_list_b'] += 1
 
                 # Computing ndcg
                 start_step = time.time()
-                list_ndcg_model_a.append(ndcg_ranked_table[(ndcg_ranked_table['queryId'] == chosen_query_id) &
-                                                           (ndcg_ranked_table['ranker'] == ranker_a)].ndcg)
+                list_ndcg_model_a.append(ndcg_ranked_table.loc[ranker_a, chosen_query_id].ndcg)
                 end_step = time.time()
                 avg_times_per_step['ndcg_a'].append(end_step - start_step)
                 total_repetitions_per_step['ndcg_a'] += 1
                 start_step = time.time()
-                list_ndcg_model_b.append(ndcg_ranked_table[(ndcg_ranked_table['queryId'] == chosen_query_id) &
-                                                           (ndcg_ranked_table['ranker'] == ranker_b)].ndcg)
+                list_ndcg_model_b.append(ndcg_ranked_table.loc[ranker_b, chosen_query_id].ndcg)
                 end_step = time.time()
                 avg_times_per_step['ndcg_b'].append(end_step - start_step)
                 total_repetitions_per_step['ndcg_b'] += 1
