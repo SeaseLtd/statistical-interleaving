@@ -52,6 +52,11 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
     # Set multiindex
     ranked_table.set_index(['ranker', 'query_doc_id'], inplace=True, verify_integrity=True)
     ndcg_ranked_table.set_index(['ranker', 'queryId'], inplace=True, verify_integrity=True)
+
+    print('Precomputed dataframes:')
+    print_memory_status(ranked_table)
+    print_memory_status(ndcg_ranked_table)
+    print()
     return ranked_table, ndcg_ranked_table
 
 
