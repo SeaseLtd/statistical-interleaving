@@ -1,12 +1,12 @@
 import unittest
 import pandas as pd
-import utils
+from v1_0 import utils
 
 
 class TestUtils(unittest.TestCase):
 
     def test_load_dataframe(self):
-        input_data_frame_path = 'resources/train.txt'
+        input_data_frame_path = '../resources/train.txt'
         expected_data_frame = pd.DataFrame({1: [3.00, 3.00, 3.00, 3.00, 3.00, 3.00],
                                             2: [3.00, 0.00, 0.11, 0.00, 0.00, 0.00],
                                             3: [0.00, 3.00, 2.00, 3.00, 3.00, 3.00],

@@ -9,16 +9,6 @@ def print_memory_status(dataset):
     print(dataset.info(memory_usage='deep', verbose=False))
 
 
-def initialize_dictionaries():
-    dictionary = {'load': 0.00, 'query': 0.00, 'select_documents': [], 'ranked_list_a': [], 'ranked_list_b': [],
-                  'ndcg_a': [], 'ndcg_b': [], 'interleaving': [], 'clicks': [], 'query_winning_model': [],
-                  'ndcg_winning_model': [], 'pruning': [], 'ab_score': [], 'pruning_ab_score': []}
-    total_repetitions = {'load': 0, 'query': 0, 'select_documents': 0, 'ranked_list_a': 0, 'ranked_list_b': 0,
-                  'ndcg_a': 0, 'ndcg_b': 0, 'interleaving': 0, 'clicks': 0, 'query_winning_model': 0,
-                  'ndcg_winning_model': 0, 'pruning': 0, 'ab_score': 0, 'pruning_ab_score': 0}
-    return dictionary, total_repetitions
-
-
 def load_dataframe(dataset_path):
     features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True)
     dataset = pd.DataFrame(features.todense())
@@ -122,6 +112,7 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
         remaining_indexes_list_b.remove(k)
 
     interleaved_list.set_index('query_doc_id', inplace=True, verify_integrity=True)
+    interleaved_list.drop(columns='ranker', inplace=True)
     return interleaved_list
 
 
