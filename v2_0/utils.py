@@ -22,13 +22,21 @@ def load_dataframe(dataset_path):
     return dataset
 
 
-def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
+def precompute_ranked_table(dataset, max_range_pair, set_of_queries, h):
+    print('Memory usage inside precompute:')
+    print(h.heap())
+    print()
+
     # Create id column
     dataset.reset_index(drop=False, inplace=True)
     dataset.rename(columns={'index': 'query_doc_id'}, inplace=True)
 
+    print('Memory usage after reset index:')
+    print(h.heap())
+    print()
+
     ranked_table_lists = []
-    ndcg_per_query_ranker_list =[]
+    ndcg_per_query_ranker_list = []
     for ranker in range(1, max_range_pair):
         for query_index in range(0, len(set_of_queries)):
             chosen_query_id = set_of_queries[query_index]
@@ -40,9 +48,27 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
             ndcg_per_query_ranker = compute_ndcg(ranked_list)
             ndcg_per_query_ranker_list.append([ranker, chosen_query_id, ndcg_per_query_ranker])
 
+            print('Memory usage for ranker ' + str(ranker) + ' and query ' + str(set_of_queries[query_index])
+                  + ' of for loop:')
+            print(h.heap())
+            print()
+
+    print('Memory usage end for loop:')
+    print(h.heap())
+    print()
+
     ranked_table = pd.concat(ranked_table_lists, ignore_index=True, sort=True)
+
+    print('Memory usage after concat:')
+    print(h.heap())
+    print()
+
     ndcg_ranked_table = pd.DataFrame(ndcg_per_query_ranker_list)
     ndcg_ranked_table.rename(columns={0: 'ranker', 1: 'queryId', 2: 'ndcg'}, inplace=True)
+
+    print('Memory usage after ranked table creation:')
+    print(h.heap())
+    print()
 
     # Reorder columns
     cols = ranked_table.columns.tolist()
