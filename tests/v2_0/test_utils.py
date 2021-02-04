@@ -7,13 +7,14 @@ class TestUtils(unittest.TestCase):
 
     def test_load_dataframe(self):
         input_data_frame_path = '../resources/train.txt'
-        expected_data_frame = pd.DataFrame({1: [3.00, 3.00, 3.00, 3.00, 3.00, 3.00],
-                                            2: [3.00, 0.00, 0.11, 0.00, 0.00, 0.00],
-                                            3: [0.00, 3.00, 2.00, 3.00, 3.00, 3.00],
-                                            4: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
-                                            5: [3.45, 3.00, 3.00, 3.00, 3.00, 3.00],
-                                            'relevance': [2.00, 2.00, 0.00, 2.00, 1.00, 1.00],
-                                            'queryId': [1, 1, 1, 1, 1, 1]
+        expected_data_frame = pd.DataFrame({1: pd.Series([3.00, 3.00, 3.00, 3.00, 3.00, 3.00], dtype='float32'),
+                                            2: pd.Series([3.00, 0.00, 0.11, 0.00, 0.00, 0.00], dtype='float32'),
+                                            3: pd.Series([0.00, 3.00, 2.00, 3.00, 3.00, 3.00], dtype='float32'),
+                                            4: pd.Series([0.00, 0.00, 0.00, 0.00, 0.00, 0.00], dtype='float32'),
+                                            5: pd.Series([3.45, 3.00, 3.00, 3.00, 3.00, 3.00], dtype='float32'),
+                                            'relevance': pd.Series([2.00, 2.00, 0.00, 2.00, 1.00, 1.00],
+                                                                   dtype='float32'),
+                                            'queryId': pd.Series([1, 1, 1, 1, 1, 1], dtype='int32')
                                             })
 
         result = utils.load_dataframe(input_data_frame_path)
@@ -71,7 +72,7 @@ class TestUtils(unittest.TestCase):
         expected_data_frame.set_index([pd.Int64Index([1, 0, 2, 3, 4, 5], dtype='int64', name='query_doc_id')],
                                       inplace=True)
 
-        result = utils.execute_tdi_interleaving(input_data_frame_a, input_data_frame_b, 0)
+        result = utils.execute_tdi_interleaving(input_data_frame_a.loc[1], input_data_frame_b.loc[2], 0)
         pd.testing.assert_frame_equal(result, expected_data_frame)
 
     def test_simulate_clicks(self):

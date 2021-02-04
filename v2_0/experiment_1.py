@@ -2,7 +2,7 @@ import utils
 import pandas as pd
 import time
 from datetime import datetime
-from guppy import hpy
+# from guppy import hpy
 
 
 def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, experiment_one_bis=False):
@@ -10,18 +10,18 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
 
-    h = hpy()
-    print('Starting memory usage:')
-    print(h.heap())
-    print()
+    # h = hpy()
+    # print('Starting memory usage:')
+    # print(h.heap())
+    # print()
 
     # load dataframe
     dataset = utils.load_dataframe(dataset_path)
 
-    h = hpy()
-    print('After load memory usage:')
-    print(h.heap())
-    print()
+    # h = hpy()
+    # print('After load memory usage:')
+    # print(h.heap())
+    # print()
 
     ranker_pair_agree = []
     ranker_pair_pruning_agree = []
@@ -36,7 +36,7 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     # Precompute ranked lists and ndcg per ranker-query
     # Index of ranked_table is ranker/docId
     # Index of ndcg_ranked_table is ranker/queryId
-    ranked_table, ndcg_ranked_table = utils.precompute_ranked_table(dataset, max_range_pair, set_of_queries, h)
+    ranked_table, ndcg_ranked_table = utils.precompute_ranked_table(dataset, max_range_pair, set_of_queries)
     del dataset
 
     # Iterate on all possible pairs of rankers/models (from 1 to 137)

@@ -10,30 +10,32 @@ def print_memory_status(dataset):
 
 
 def load_dataframe(dataset_path):
-    features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True)
+    features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True, dtype="float32")
     dataset = pd.DataFrame(features.todense())
     new_columns_name = {key: value for key, value in zip(range(0, 136), range(1, 137))}
     dataset.rename(columns=new_columns_name, inplace=True)
     dataset['relevance'] = relevance
     dataset['queryId'] = query_id
+    dataset['relevance'] = dataset['relevance'].astype('float32')
+    dataset['queryId'] = dataset['queryId'].astype('int32')
     print_memory_status(dataset)
     print()
 
     return dataset
 
 
-def precompute_ranked_table(dataset, max_range_pair, set_of_queries, h):
-    print('Memory usage inside precompute:')
-    print(h.heap())
-    print()
+def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
+    # print('Memory usage inside precompute:')
+    # print(h.heap())
+    # print()
 
     # Create id column
     dataset.reset_index(drop=False, inplace=True)
     dataset.rename(columns={'index': 'query_doc_id'}, inplace=True)
 
-    print('Memory usage after reset index:')
-    print(h.heap())
-    print()
+    # print('Memory usage after reset index:')
+    # print(h.heap())
+    # print()
 
     ranked_table_lists = []
     ndcg_per_query_ranker_list = []
@@ -48,27 +50,27 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries, h):
             ndcg_per_query_ranker = compute_ndcg(ranked_list)
             ndcg_per_query_ranker_list.append([ranker, chosen_query_id, ndcg_per_query_ranker])
 
-            print('Memory usage for ranker ' + str(ranker) + ' and query ' + str(set_of_queries[query_index])
-                  + ' of for loop:')
-            print(h.heap())
-            print()
+            # print('Memory usage for ranker ' + str(ranker) + ' and query ' + str(set_of_queries[query_index])
+            #       + ' of for loop:')
+            # print(h.heap())
+            # print()
 
-    print('Memory usage end for loop:')
-    print(h.heap())
-    print()
+    # print('Memory usage end for loop:')
+    # print(h.heap())
+    # print()
 
     ranked_table = pd.concat(ranked_table_lists, ignore_index=True, sort=True)
 
-    print('Memory usage after concat:')
-    print(h.heap())
-    print()
+    # print('Memory usage after concat:')
+    # print(h.heap())
+    # print()
 
     ndcg_ranked_table = pd.DataFrame(ndcg_per_query_ranker_list)
     ndcg_ranked_table.rename(columns={0: 'ranker', 1: 'queryId', 2: 'ndcg'}, inplace=True)
 
-    print('Memory usage after ranked table creation:')
-    print(h.heap())
-    print()
+    # print('Memory usage after ranked table creation:')
+    # print(h.heap())
+    # print()
 
     # Reorder columns
     cols = ranked_table.columns.tolist()
@@ -143,7 +145,6 @@ def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
         remaining_indexes_list_b.remove(k)
 
     interleaved_list.set_index('query_doc_id', inplace=True, verify_integrity=True)
-    interleaved_list.drop(columns='ranker', inplace=True)
     return interleaved_list
 
 
