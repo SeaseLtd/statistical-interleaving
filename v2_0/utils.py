@@ -115,37 +115,46 @@ def dcg_at_k(r, k):
     return 0.
 
 
-def execute_tdi_interleaving(ranked_list_a, ranked_list_b, seed):
-    interleaved_list = pd.DataFrame()
+def update_index(already_added, index, ranked_list):
+    found_element_to_add = False
+    while index < len(ranked_list) and not found_element_to_add:
+        element_to_check = ranked_list[index]
+        if element_to_check in already_added:
+            index += 1
+        else:
+            found_element_to_add = 'true'
+    return index
+
+
+def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b,b_ratings, seed):
+    interleaved_list = []
     np.random.seed(seed)
     team_a = []
     team_b = []
+    already_added = []
 
-    ranked_list_a.reset_index(inplace=True)
-    ranked_list_b.reset_index(inplace=True)
+    index_a = 0
+    index_b = 0
 
-    remaining_indexes_list_a = list(ranked_list_a['query_doc_id'])
-    remaining_indexes_list_b = list(ranked_list_b['query_doc_id'])
-
-    while (len(remaining_indexes_list_a) > 0) and (len(remaining_indexes_list_b) > 0):
+    while (len(interleaved_list) < len(ranked_list_a)) and index_a < len(ranked_list_a) and index_b < len(ranked_list_b):
         random_model_choice = np.random.randint(2, size=1)
         if (len(team_a) < len(team_b)) or ((len(team_a) == len(team_b)) and (random_model_choice == 1)):
-            k = remaining_indexes_list_a[0]
-            selected_document = pd.DataFrame(ranked_list_a[ranked_list_a['query_doc_id'] == k])
-            selected_document['model'] = 'a'
-            interleaved_list = interleaved_list.append(selected_document)
+            index_a = update_index(already_added, index_a, ranked_list_a);
+            k = ranked_list_a[index_a]
+            already_added.append(k)
+            interleaved_list.append([k, a_ratings[index_a], 'a'])
             team_a.append(k)
+            index_a += 1
         else:
-            k = remaining_indexes_list_b[0]
-            selected_document = pd.DataFrame(ranked_list_b[ranked_list_b['query_doc_id'] == k])
-            selected_document['model'] = 'b'
-            interleaved_list = interleaved_list.append(selected_document)
+            index_b = update_index(already_added, index_b, ranked_list_b);
+            k = ranked_list_b[index_b]
+            already_added.append(k)
+            interleaved_list.append([k, b_ratings[index_b], 'b'])
             team_b.append(k)
-        remaining_indexes_list_a.remove(k)
-        remaining_indexes_list_b.remove(k)
+            index_b += 1
 
-    interleaved_list.set_index('query_doc_id', inplace=True, verify_integrity=True)
-    return interleaved_list
+    interleaving_dataframe = pd.DataFrame(interleaved_list, columns=['doc_id', 'rating', 'model'])
+    return interleaving_dataframe
 
 
 def simulate_clicks(interleaved_list, seed, realistic_model=False):
