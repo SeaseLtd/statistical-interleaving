@@ -126,7 +126,7 @@ def update_index(already_added, index, ranked_list):
     return index
 
 
-def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b,b_ratings, seed):
+def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings, seed):
     interleaved_list = []
     np.random.seed(seed)
     team_a = []
@@ -136,17 +136,18 @@ def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b,b_ratings, 
     index_a = 0
     index_b = 0
 
-    while (len(interleaved_list) < len(ranked_list_a)) and index_a < len(ranked_list_a) and index_b < len(ranked_list_b):
+    while (len(interleaved_list) < len(ranked_list_a)) and index_a < len(ranked_list_a) and \
+            index_b < len(ranked_list_b):
         random_model_choice = np.random.randint(2, size=1)
         if (len(team_a) < len(team_b)) or ((len(team_a) == len(team_b)) and (random_model_choice == 1)):
-            index_a = update_index(already_added, index_a, ranked_list_a);
+            index_a = update_index(already_added, index_a, ranked_list_a)
             k = ranked_list_a[index_a]
             already_added.append(k)
             interleaved_list.append([k, a_ratings[index_a], 'a'])
             team_a.append(k)
             index_a += 1
         else:
-            index_b = update_index(already_added, index_b, ranked_list_b);
+            index_b = update_index(already_added, index_b, ranked_list_b)
             k = ranked_list_b[index_b]
             already_added.append(k)
             interleaved_list.append([k, b_ratings[index_b], 'b'])
@@ -187,41 +188,41 @@ def simulate_clicks(interleaved_list, seed, realistic_model=False):
         click_probabilities = {1: 0.2, 2: 0.4, 3: 0.8}
 
     for key in click_probabilities:
-        partial_length = int(len(interleaved_list[interleaved_list['relevance'] == key]))
+        partial_length = int(len(interleaved_list[interleaved_list['rating'] == key]))
         probability_click = click_probabilities[key]
         clicks = pd.DataFrame(np.random.choice(2, size=partial_length, p=[1 - probability_click, probability_click]))
-        clicks.index = interleaved_list[interleaved_list['relevance'] == key].index
+        clicks.index = interleaved_list[interleaved_list['rating'] == key].index
         clicks_column = clicks_column.append(clicks)
 
     clicks_column.rename(columns={0: 'click'}, inplace=True)
     interleaved_list = pd.merge(interleaved_list, clicks_column, how='left', left_index=True, right_index=True)
 
     if not realistic_model:
-        interleaved_list['click'] = np.where(interleaved_list['relevance'] == 0, 0, interleaved_list['click'])
-        interleaved_list['click'] = np.where(interleaved_list['relevance'] == 4, 1, interleaved_list['click'])
+        interleaved_list['click'] = np.where(interleaved_list['rating'] == 0, 0, interleaved_list['click'])
+        interleaved_list['click'] = np.where(interleaved_list['rating'] == 4, 1, interleaved_list['click'])
 
     interleaved_list = interleaved_list[interleaved_list['click'] == 1]
     interleaved_list.drop(columns={'click', 'new_index'}, inplace=True)
     return interleaved_list
 
 
-def compute_winning_model(interleaved_list, chosen_query_id):
+def compute_winning_model(interleaved_list):
     click_per_a = interleaved_list[interleaved_list['model'] == 'a'].shape[0]
     click_per_b = interleaved_list[interleaved_list['model'] == 'b'].shape[0]
     total_clicks = click_per_a + click_per_b
     if click_per_a > click_per_b:
-        return [chosen_query_id, click_per_a, total_clicks, 'a']
+        return click_per_a, total_clicks, 'a'
     elif click_per_b > click_per_a:
-        return [chosen_query_id, click_per_b, total_clicks, 'b']
+        return click_per_b, total_clicks, 'b'
     else:
-        return [chosen_query_id, click_per_a, total_clicks, 't']
+        return click_per_a, total_clicks, 't'
 
 
 def statistical_significance_computation(interactions, overall_diff):
     p = overall_diff
-    interactions['cumulative_distribution_left'] = scistat.binom.cdf(interactions.click_per_winning_model,
-                                                                     interactions.click_per_query, p)
-    interactions['pmf'] = scistat.binom.pmf(interactions.click_per_winning_model, interactions.click_per_query, p)
+    interactions['cumulative_distribution_left'] = scistat.binom.cdf(interactions.clicks_per_ranker,
+                                                                     interactions.total_clicks, p)
+    interactions['pmf'] = scistat.binom.pmf(interactions.clicks_per_ranker, interactions.total_clicks, p)
     interactions['cumulative_distribution_right'] = 1 - interactions[
         'cumulative_distribution_left'] + interactions['pmf']
     interactions['statistical_significance'] = 2 * interactions[[
@@ -232,14 +233,14 @@ def statistical_significance_computation(interactions, overall_diff):
 
 def pruning(interleaving_dataset):
     overall_diff = 0.5
-    per_query_model_interactions = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
+    interleaving_dataset_with_ss = statistical_significance_computation(interleaving_dataset.copy(), overall_diff)
 
     # Remove interactions with significance higher than 5% threshold
-    per_query_model_interactions = per_query_model_interactions[
-        per_query_model_interactions.statistical_significance < 0.05]
-    per_query_model_interactions = per_query_model_interactions.drop(columns='statistical_significance')
+    per_query_model_interactions_pruned = interleaving_dataset_with_ss[
+        interleaving_dataset_with_ss.statistical_significance < 0.05]
+    per_query_model_interactions_pruned = per_query_model_interactions_pruned.drop(columns='statistical_significance')
 
-    return per_query_model_interactions
+    return per_query_model_interactions_pruned
 
 
 def computing_winning_model_ab_score(interleaving_dataset):
@@ -254,17 +255,6 @@ def computing_winning_model_ab_score(interleaving_dataset):
     if round(delta_ab, 3) > 0:
         return 'a'
     elif round(delta_ab, 3) < 0:
-        return 'b'
-    else:
-        return 't'
-
-
-def compute_ndcg_winning_model(list_ndcg_model_a, list_ndcg_model_b):
-    avg_ndcg_model_a = sum(list_ndcg_model_a) / len(list_ndcg_model_a)
-    avg_ndcg_model_b = sum(list_ndcg_model_b) / len(list_ndcg_model_b)
-    if avg_ndcg_model_a > avg_ndcg_model_b:
-        return 'a'
-    elif avg_ndcg_model_a < avg_ndcg_model_b:
         return 'b'
     else:
         return 't'
