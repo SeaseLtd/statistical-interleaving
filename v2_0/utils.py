@@ -244,9 +244,38 @@ def pruning(interleaving_dataset):
 
 
 def computing_winning_model_ab_score(interleaving_dataset):
-    winner_a = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'a'])
-    winner_b = len(interleaving_dataset[interleaving_dataset['winning_model'] == 'b'])
-    ties = len(interleaving_dataset[interleaving_dataset['winning_model'] == 't'])
+    interleaving_dataset_tdi_stats = interleaving_dataset.groupby(
+        ['rankerA_id', 'rankerB_id', 'per_query_TDI_winning_ranker']).size()
+    interleaving_dataset_tdi_stats = pd.DataFrame(interleaving_dataset_tdi_stats).reset_index().rename(
+        columns={0: 'per_ranker_wins'})
+
+    per_pair_winner = pd.DataFrame(interleaving_dataset_tdi_stats.groupby(['rankerA_id', 'rankerB_id']).apply(
+        lambda x: compute_ab_per_group(x))).reset_index()
+    per_pair_winner.rename(columns={0: 'TDI_winning_ranker'}, inplace=True)
+    interleaving_dataset = pd.merge(interleaving_dataset, per_pair_winner, how='left', on=['rankerA_id', 'rankerB_id'])
+
+    return interleaving_dataset
+
+
+def compute_ab_per_group(per_group_interleaving_dataset):
+    winner_a = per_group_interleaving_dataset[
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 'a']['per_ranker_wins']
+    if winner_a.empty:
+        winner_a = 0
+    else:
+        winner_a = int(winner_a)
+    winner_b = per_group_interleaving_dataset[
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 'b']['per_ranker_wins']
+    if winner_b.empty:
+        winner_b = 0
+    else:
+        winner_b = int(winner_b)
+    ties = per_group_interleaving_dataset[
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 't']['per_ranker_wins']
+    if ties.empty:
+        ties = 0
+    else:
+        ties = int(ties)
 
     # Delta score
     delta_ab = (winner_a + 1 / 2 * ties) / (winner_a + winner_b + ties) - 0.5

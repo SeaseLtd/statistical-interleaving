@@ -18,7 +18,11 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
 
     # load dataframe
     print('Loading dataframe')
+    start_loading = time.time()
     training_dataset = utils.load_dataframe(dataset_path)
+    end_loading = time.time()
+    time_for_loading = end_loading - start_loading
+    print('Time for loading dataframe: ' + str(time_for_loading))
 
     # Fixed subset of 1000 queries
     print('Selecting queries')
@@ -34,7 +38,8 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
 
     # Set up the experiment dataframe, each row is a triple <rankerA,rankerB,queryId>
     # Rankers goes from 1 to 137
-    print('Computing experiment dataframe')
+    print('\nComputing experiment dataframe')
+    start_computing_experiment_df = time.time()
     experiment_data = []
     for ranker_a in range(1, max_range_pair):
         for ranker_b in range(ranker_a + 1, max_range_pair):
@@ -59,10 +64,14 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     experiment_dataframe['rankerA_avg_NDCG'] = np.nan
     experiment_dataframe['rankerB_avg_NDCG'] = np.nan
 
+    end_computing_experiment_df = time.time()
+    time_computing_experiment_df = end_computing_experiment_df - start_computing_experiment_df
+    print('Time for computing experiment df: ' + str(time_computing_experiment_df))
+
     # Let's add to each row :
     # ranked list for rankerA, ranker list for rankerB, ratings for rankerA, ratings for rankerB and interleaved list
-    print('Computing Interleaving')
-    rankers_avg_ndcg = []
+    print('\nComputing Interleaving')
+    start_interleaving = time.time()
     for ranker in range(1, max_range_pair):
         for query_index in range(0, len(set_of_queries)):
             chosen_query_id = set_of_queries[query_index]
@@ -126,65 +135,78 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     experiment_dataframe.drop(columns=['rankerA_list', 'rankerA_ratings', 'rankerB_list', 'rankerB_ratings'], axis=1,
                               inplace=True)
     end_interleaving = time.time()
-    time_for_interleaving = end_interleaving - start_total
-    print(time_for_interleaving)
+    time_for_interleaving = end_interleaving - start_interleaving
+    print('Time for interleaving: ' + str(time_for_interleaving))
 
     # At this point we have the interleaved list in a column, we should calculate the clicks
-    print('Generating Clicks')
+    print('\nGenerating Clicks')
+    start_generating_clicks = time.time()
     experiment_dataframe['clicks'] = np.vectorize(utils.simulate_clicks)(experiment_dataframe['interleaved_list'], seed)
     experiment_dataframe.drop(columns=['interleaved_list'], inplace=True)
     experiment_dataframe.rename(columns={'clicks': 'clicked_interleaved_list'}, inplace=True)
+    end_generating_clicks = time.time()
+    time_generating_clicks = end_generating_clicks - start_generating_clicks
+    print('Time for generating clicks: ' + str(time_generating_clicks))
 
     # Computing the per query winning model/ranker
-    print('Computing per query winning model')
+    print('\nComputing per query winning model')
+    start_computing_per_query_winner = time.time()
     experiment_dataframe['clicks_per_ranker'], experiment_dataframe['total_clicks'], experiment_dataframe[
-        'TDI_winning_ranker'] = np.vectorize(utils.compute_winning_model)(experiment_dataframe[
+        'per_query_TDI_winning_ranker'] = np.vectorize(utils.compute_winning_model)(experiment_dataframe[
                                                                                   'clicked_interleaved_list'])
     experiment_dataframe.drop(columns=['clicked_interleaved_list'], inplace=True)
+    end_computing_per_query_winner = time.time()
+    time_computing_per_query_winner = end_computing_per_query_winner - start_computing_per_query_winner
+    print('Time for computing per query winning model: ' + str(time_computing_per_query_winner))
 
     # Pruning
+    print('\nPruning')
+    start_pruning = time.time()
     experiment_dataframe_pruned = utils.pruning(experiment_dataframe)
-
-    # TO CONTINUE
+    experiment_dataframe.drop(columns=['clicks_per_ranker', 'total_clicks'], inplace=True)
+    end_pruning = time.time()
+    time_pruning = end_pruning - start_pruning
+    print('Time for pruning: ' + str(time_pruning))
 
     # Computing standard ab_score
-    ab_score_winning_model = utils.computing_winning_model_ab_score(all_queries_winning_model)
+    print('\nComputing standard AB score')
+    start_ab = time.time()
+    experiment_dataframe = utils.computing_winning_model_ab_score(experiment_dataframe)
+    experiment_dataframe.drop(columns=['query_id', 'per_query_TDI_winning_ranker'], inplace=True)
+    experiment_dataframe = experiment_dataframe.drop_duplicates()
+    end_ab = time.time()
+    time_ab = end_ab - start_ab
+    print('Time for ab score: ' + str(time_ab))
 
     # Check if ndcg agree with ab_score
-    if ndcg_winning_model == ab_score_winning_model:
-        ranker_pair_agree.append(1)
-    else:
-        ranker_pair_agree.append(0)
+    ranker_pair_agree = len(experiment_dataframe[
+        experiment_dataframe['avg_NDCG_winning_ranker'] == experiment_dataframe['TDI_winning_ranker']])
 
     # Computing pruning ab_score
-    if not all_queries_winning_model_pruned.empty:
-        ab_score_pruning_winning_model = utils.computing_winning_model_ab_score(
-            all_queries_winning_model_pruned)
+    if not experiment_dataframe_pruned.empty:
+        print('\nComputing standard AB score on pruned dataset')
+        start_ab_pruning = time.time()
+        experiment_dataframe_pruned.drop(columns=['clicks_per_ranker', 'total_clicks'], inplace=True)
+        experiment_dataframe_pruned = utils.computing_winning_model_ab_score(experiment_dataframe_pruned)
+        experiment_dataframe_pruned.drop(columns=['query_id', 'per_query_TDI_winning_ranker'], inplace=True)
+        experiment_dataframe_pruned = experiment_dataframe_pruned.drop_duplicates()
+        end_ab_pruning = time.time()
+        time_ab_pruning = end_ab_pruning - start_ab_pruning
+        print('Time for ab score pruning: ' + str(time_ab_pruning))
 
         # Check if ndcg agree with pruning ab_score
-        if ndcg_winning_model == ab_score_pruning_winning_model:
-            ranker_pair_pruning_agree.append(1)
-        else:
-            ranker_pair_pruning_agree.append(0)
+        ranker_pair_pruning_agree = len(
+            experiment_dataframe_pruned[
+                experiment_dataframe_pruned['avg_NDCG_winning_ranker'] == experiment_dataframe_pruned[
+                    'TDI_winning_ranker']])
+
+        accuracy_pruning_tdi = ranker_pair_pruning_agree / len(experiment_dataframe)
+        print('\nAccuracy of pruning tdi on all pairs of rankers: ' + str(accuracy_pruning_tdi))
     else:
-        ranker_pair_pruning_agree.append(0)
-        print('The pruning removes all the queries')
+        print('\n!!!!!!!!! The pruning removes all the queries for all the rankers !!!!!!!!!!')
 
-    end_each_pair = time.time()
-    each_pair_time.append(end_each_pair - start_each_pair)
-
-    accuracy_standard_tdi = sum(ranker_pair_agree) / len(ranker_pair_agree)
-    print('\nAccuracy of tdi on all pairs of rankers:')
-    print(accuracy_standard_tdi)
-
-    if len(ranker_pair_pruning_agree) > 0:
-        accuracy_pruning_tdi = sum(ranker_pair_pruning_agree) / len(
-            ranker_pair_pruning_agree)
-        print('Accuracy of pruning tdi on all pairs of rankers:')
-        print(accuracy_pruning_tdi)
-    else:
-        print('Pruning removes all queries for all pairs')
-
+    accuracy_standard_tdi = ranker_pair_agree / len(experiment_dataframe)
+    print('\nAccuracy of tdi on all pairs of rankers: ' + str(accuracy_standard_tdi))
 
     end_total = time.time()
     print("\nExperiment ended at:", datetime.now().strftime("%H:%M:%S"))
