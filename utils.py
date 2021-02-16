@@ -155,6 +155,9 @@ def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings,
             index_b += 1
 
     interleaving_dataframe = pd.DataFrame(interleaved_list, columns=['doc_id', 'rating', 'model'])
+    nans = interleaving_dataframe.isna().sum().sum()
+    if nans > 0:
+        print('Nans: ' + str(interleaving_dataframe.isna().sum().sum()))
     return interleaving_dataframe
 
 
