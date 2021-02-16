@@ -6,7 +6,7 @@ from datetime import datetime
 # from guppy import hpy
 
 
-def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, experiment_one_bis=False):
+def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=138, experiment_one_bis=False):
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
@@ -64,6 +64,8 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     experiment_dataframe['rankerA_avg_NDCG'] = np.nan
     experiment_dataframe['rankerB_avg_NDCG'] = np.nan
 
+    experiment_dataframe['avg_NDCG_winning_ranker'] = np.nan
+
     end_computing_experiment_df = time.time()
     time_computing_experiment_df = end_computing_experiment_df - start_computing_experiment_df
     print('Time for computing experiment df: ' + str(time_computing_experiment_df))
@@ -120,14 +122,17 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
             experiment_dataframe.loc[
                 (experiment_dataframe['rankerB_id'] == ranker), 'rankerB_avg_NDCG'] = avg_ndcg
 
-    experiment_dataframe['avg_NDCG_winning_ranker'] = np.where(
-        experiment_dataframe['rankerA_avg_NDCG'] > experiment_dataframe['rankerB_avg_NDCG'], 'a', 'n')
-    experiment_dataframe['avg_NDCG_winning_ranker'] = np.where(
-        experiment_dataframe['rankerA_avg_NDCG'] == experiment_dataframe['rankerB_avg_NDCG'], 't', 'n')
-    experiment_dataframe['avg_NDCG_winning_ranker'] = np.where(
-        experiment_dataframe['rankerA_avg_NDCG'] < experiment_dataframe['rankerB_avg_NDCG'], 'b', 'n')
-    experiment_dataframe.drop(columns=['rankerA_avg_NDCG', 'rankerB_avg_NDCG', 'rankerA_NDCG', 'rankerB_NDCG'],
-                              inplace=True)
+    experiment_dataframe.drop(columns=['rankerA_NDCG', 'rankerB_NDCG'], inplace=True)
+    indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] > experiment_dataframe[
+        'rankerB_avg_NDCG']].index.values
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'a'
+    indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] == experiment_dataframe[
+        'rankerB_avg_NDCG']].index.values
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 't'
+    indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] < experiment_dataframe[
+        'rankerB_avg_NDCG']].index.values
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'b'
+    experiment_dataframe.drop(columns=['rankerA_avg_NDCG', 'rankerB_avg_NDCG'], inplace=True)
 
     experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving)(
         experiment_dataframe['rankerA_list'], experiment_dataframe['rankerA_ratings'],
