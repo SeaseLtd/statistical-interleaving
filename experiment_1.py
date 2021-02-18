@@ -43,7 +43,6 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=138, exp
     experiment_data = []
     for ranker_a in range(1, max_range_pair):
         for ranker_b in range(ranker_a + 1, max_range_pair):
-            print('-------- Pair of rankers: (' + str(ranker_a) + ', ' + str(ranker_b) + ') --------')
             for query_index in range(0, len(set_of_queries)):
                 query_id = set_of_queries[query_index]
                 experiment_data.append([ranker_a, ranker_b, query_id])
