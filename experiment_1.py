@@ -37,7 +37,7 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=138, exp
     # print()
 
     # Set up the experiment dataframe, each row is a triple <rankerA,rankerB,queryId>
-    # Rankers goes from 1 to 137
+    # Rankers goes from 1 to 136 (therefore our range goes from 1 to 137)
     print('\nComputing experiment dataframe')
     start_computing_experiment_df = time.time()
     experiment_data = []
