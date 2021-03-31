@@ -6,7 +6,7 @@ from datetime import datetime
 # from guppy import hpy
 
 
-def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=138, experiment_one_bis=False):
+def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, experiment_one_bis=False):
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
