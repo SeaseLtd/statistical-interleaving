@@ -71,8 +71,8 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
 
     # Let's add to each row :
     # ranked list for rankerA, ranker list for rankerB, ratings for rankerA, ratings for rankerB and interleaved list
-    print('\nComputing Interleaving')
-    start_interleaving = time.time()
+    print('\nComputing ranked lists and ratings')
+    start_lists = time.time()
     for ranker in range(1, max_range_pair):
         for query_index in range(0, len(set_of_queries)):
             chosen_query_id = set_of_queries[query_index]
@@ -132,7 +132,12 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
         'rankerB_avg_NDCG']].index.values
     experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'b'
     experiment_dataframe.drop(columns=['rankerA_avg_NDCG', 'rankerB_avg_NDCG'], inplace=True)
+    end_lists = time.time()
+    time_for_interleaving = end_lists - start_lists
+    print('Time for interleaving: ' + str(time_for_interleaving))
 
+    print('\nComputing Interleaving')
+    start_interleaving = time.time()
     experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving)(
         experiment_dataframe['rankerA_list'], experiment_dataframe['rankerA_ratings'],
         experiment_dataframe['rankerB_list'], experiment_dataframe['rankerB_ratings'], seed)
