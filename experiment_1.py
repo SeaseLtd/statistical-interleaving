@@ -3,18 +3,12 @@ import pandas as pd
 import numpy as np
 import time
 from datetime import datetime
-# from guppy import hpy
 
 
-def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, experiment_one_bis=False):
+def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_pair=137, experiment_one_bis=False):
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
-
-    # h = hpy()
-    # print('Starting memory usage:')
-    # print(h.heap())
-    # print()
 
     # load dataframe
     print('Loading dataframe')
@@ -31,11 +25,6 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
     else:
         set_of_queries = utils.generate_set_with_search_demand_curve(training_dataset)
 
-    # h = hpy()
-    # print('After load memory usage:')
-    # print(h.heap())
-    # print()
-
     # Set up the experiment dataframe, each row is a triple <rankerA,rankerB,queryId>
     # Rankers goes from 1 to 136 (therefore our range goes from 1 to 137)
     print('\nComputing experiment dataframe')
@@ -47,6 +36,10 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
                 query_id = set_of_queries[query_index]
                 experiment_data.append([ranker_a, ranker_b, query_id])
     experiment_dataframe = pd.DataFrame(experiment_data, columns=['rankerA_id', 'rankerB_id', 'query_id'])
+
+    # Clean unuseful data structures
+    del experiment_data
+
     experiment_dataframe['rankerA_list'] = np.nan
     experiment_dataframe['rankerA_list'] = experiment_dataframe['rankerA_list'].astype(object)
     experiment_dataframe['rankerB_list'] = np.nan
@@ -121,6 +114,10 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
             experiment_dataframe.loc[
                 (experiment_dataframe['rankerB_id'] == ranker), 'rankerB_avg_NDCG'] = avg_ndcg
 
+    # Clean unuseful data structures
+    del query_selected_documents, ranked_list, ranked_list_ids, ranked_list_ratings, ndcg_per_query_ranker, \
+        set_of_queries, single_avg_ndcg, training_dataset
+
     experiment_dataframe.drop(columns=['rankerA_NDCG', 'rankerB_NDCG'], inplace=True)
     indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] > experiment_dataframe[
         'rankerB_avg_NDCG']].index.values
@@ -132,37 +129,97 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
         'rankerB_avg_NDCG']].index.values
     experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'b'
     experiment_dataframe.drop(columns=['rankerA_avg_NDCG', 'rankerB_avg_NDCG'], inplace=True)
+
     end_lists = time.time()
     time_for_interleaving = end_lists - start_lists
-    print('Time for interleaving: ' + str(time_for_interleaving))
+    print('Time for ranked lists and ratings: ' + str(time_for_interleaving))
 
+    # Splitting the dataframe in 10 pieces and save all on disk
+    splitted_dataframe = np.array_split(experiment_dataframe, 10)
+    i = 1
+    for dataframe in splitted_dataframe:
+        store_name = 'store' + str(i) + '_start'
+        store = pd.HDFStore(output_dir + '/' + store_name + '.h5')
+        store[store_name] = dataframe
+        store.close()
+        i += 1
+
+    # Clean unuseful data structures
+    del splitted_dataframe, experiment_dataframe, dataframe, indexes_to_change
+
+    # Compute interleaving on the splitted dataframe uploading only one at a time
     print('\nComputing Interleaving')
     start_interleaving = time.time()
-    experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving)(
-        experiment_dataframe['rankerA_list'], experiment_dataframe['rankerA_ratings'],
-        experiment_dataframe['rankerB_list'], experiment_dataframe['rankerB_ratings'], seed)
-    experiment_dataframe.drop(columns=['rankerA_list', 'rankerA_ratings', 'rankerB_list', 'rankerB_ratings'], axis=1,
-                              inplace=True)
+    for i in range(1, 11):
+        store_name = 'store' + str(i) + '_start'
+        experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
+        experiment_dataframe = experiment_dataframe_store[store_name]
+        experiment_dataframe_store.close()
+
+        experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving)(
+            experiment_dataframe['rankerA_list'], experiment_dataframe['rankerA_ratings'],
+            experiment_dataframe['rankerB_list'], experiment_dataframe['rankerB_ratings'], seed)
+        experiment_dataframe.drop(columns=['rankerA_list', 'rankerA_ratings', 'rankerB_list', 'rankerB_ratings'], axis=1,
+                                  inplace=True)
+
+        store_name = 'store' + str(i) + '_interleaved'
+        store = pd.HDFStore(output_dir + '/' + store_name + '.h5')
+        store[store_name] = experiment_dataframe
+        store.close()
+        del experiment_dataframe
+
     end_interleaving = time.time()
     time_for_interleaving = end_interleaving - start_interleaving
     print('Time for interleaving: ' + str(time_for_interleaving))
 
+    # Clean unuseful files on disk
+    utils.clean_folder(output_dir, "start.h5")
+
+    # Compute clicks on the splitted dataframe uploading only one at a time
     # At this point we have the interleaved list in a column, we should calculate the clicks
     print('\nGenerating Clicks')
     start_generating_clicks = time.time()
-    experiment_dataframe['clicks'] = np.vectorize(utils.simulate_clicks)(experiment_dataframe['interleaved_list'], seed)
-    experiment_dataframe.drop(columns=['interleaved_list'], inplace=True)
-    experiment_dataframe.rename(columns={'clicks': 'clicked_interleaved_list'}, inplace=True)
+    for i in range(1, 11):
+
+        store_name = 'store' + str(i) + '_interleaved'
+        experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
+        experiment_dataframe = experiment_dataframe_store[store_name]
+        experiment_dataframe_store.close()
+
+        experiment_dataframe['clicks'] = np.vectorize(utils.simulate_clicks)(experiment_dataframe['interleaved_list'],
+                                                                             seed)
+        experiment_dataframe.drop(columns=['interleaved_list'], inplace=True)
+        experiment_dataframe.rename(columns={'clicks': 'clicked_interleaved_list'}, inplace=True)
+
+        store_name = 'store' + str(i) + '_clicked'
+        store = pd.HDFStore(output_dir + '/' + store_name + '.h5')
+        store[store_name] = experiment_dataframe
+        store.close()
+        del experiment_dataframe
+
     end_generating_clicks = time.time()
     time_generating_clicks = end_generating_clicks - start_generating_clicks
     print('Time for generating clicks: ' + str(time_generating_clicks))
+
+    # Clean unuseful files on disk
+    utils.clean_folder(output_dir, "interleaved.h5")
+
+    # Upload and concat splitted dataframes
+    experiment_dataframe_list = []
+    for i in range(1, 11):
+        store_name = 'store' + str(i) + '_clicked'
+        experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
+        experiment_dataframe_list.append(experiment_dataframe_store[store_name])
+        experiment_dataframe_store.close()
+    experiment_dataframe = pd.concat(experiment_dataframe_list)
+    del experiment_dataframe_list
 
     # Computing the per query winning model/ranker
     print('\nComputing per query winning model')
     start_computing_per_query_winner = time.time()
     experiment_dataframe['clicks_per_ranker'], experiment_dataframe['total_clicks'], experiment_dataframe[
         'per_query_TDI_winning_ranker'] = np.vectorize(utils.compute_winning_model)(experiment_dataframe[
-                                                                                  'clicked_interleaved_list'])
+                                                                                        'clicked_interleaved_list'])
     experiment_dataframe.drop(columns=['clicked_interleaved_list'], inplace=True)
     end_computing_per_query_winner = time.time()
     time_computing_per_query_winner = end_computing_per_query_winner - start_computing_per_query_winner
@@ -189,7 +246,8 @@ def start_experiment(dataset_path, seed, query_set=1000, max_range_pair=137, exp
 
     # Check if ndcg agree with ab_score
     ranker_pair_agree = len(experiment_dataframe[
-        experiment_dataframe['avg_NDCG_winning_ranker'] == experiment_dataframe['TDI_winning_ranker']])
+                                experiment_dataframe['avg_NDCG_winning_ranker'] == experiment_dataframe[
+                                    'TDI_winning_ranker']])
 
     # Computing pruning ab_score
     if not experiment_dataframe_pruned.empty:

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy.stats as scistat
 import sys
+import os
 from sklearn.datasets import load_svmlight_file
 
 
@@ -25,17 +26,9 @@ def load_dataframe(dataset_path):
 
 
 def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
-    # print('Memory usage inside precompute:')
-    # print(h.heap())
-    # print()
-
     # Create id column
     dataset.reset_index(drop=False, inplace=True)
     dataset.rename(columns={'index': 'query_doc_id'}, inplace=True)
-
-    # print('Memory usage after reset index:')
-    # print(h.heap())
-    # print()
 
     ranked_table_lists = []
     ndcg_per_query_ranker_list = []
@@ -50,27 +43,10 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
             ndcg_per_query_ranker = compute_ndcg(ranked_list)
             ndcg_per_query_ranker_list.append([ranker, chosen_query_id, ndcg_per_query_ranker])
 
-            # print('Memory usage for ranker ' + str(ranker) + ' and query ' + str(set_of_queries[query_index])
-            #       + ' of for loop:')
-            # print(h.heap())
-            # print()
-
-    # print('Memory usage end for loop:')
-    # print(h.heap())
-    # print()
-
     ranked_table = pd.concat(ranked_table_lists, ignore_index=True, sort=True)
-
-    # print('Memory usage after concat:')
-    # print(h.heap())
-    # print()
 
     ndcg_ranked_table = pd.DataFrame(ndcg_per_query_ranker_list)
     ndcg_ranked_table.rename(columns={0: 'ranker', 1: 'queryId', 2: 'ndcg'}, inplace=True)
-
-    # print('Memory usage after ranked table creation:')
-    # print(h.heap())
-    # print()
 
     # Reorder columns
     cols = ranked_table.columns.tolist()
@@ -290,3 +266,11 @@ def compute_ab_per_group(per_group_interleaving_dataset):
         return 'b'
     else:
         return 't'
+
+
+def clean_folder(output_dir, end_string):
+    files_in_directory = os.listdir(output_dir)
+    filtered_files = [file for file in files_in_directory if file.endswith(end_string)]
+    for file in filtered_files:
+        path_to_file = os.path.join(output_dir, file)
+        os.remove(path_to_file)
