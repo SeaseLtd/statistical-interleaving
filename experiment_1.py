@@ -5,7 +5,8 @@ import time
 from datetime import datetime
 
 
-def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_pair=137, experiment_one_bis=False):
+def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_pair=137, num_split=100,
+                     experiment_one_bis=False):
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
     print()
@@ -135,7 +136,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     print('Time for ranked lists and ratings: ' + str(time_for_interleaving))
 
     # Splitting the dataframe in 10 pieces and save all on disk
-    splitted_dataframe = np.array_split(experiment_dataframe, 10)
+    splitted_dataframe = np.array_split(experiment_dataframe, num_split)
     i = 1
     for dataframe in splitted_dataframe:
         store_name = 'store' + str(i) + '_start'
@@ -150,7 +151,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     # Compute interleaving on the splitted dataframe uploading only one at a time
     print('\nComputing Interleaving')
     start_interleaving = time.time()
-    for i in range(1, 11):
+    for i in range(1, num_split + 1):
         store_name = 'store' + str(i) + '_start'
         experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
         experiment_dataframe = experiment_dataframe_store[store_name]
@@ -179,7 +180,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     # At this point we have the interleaved list in a column, we should calculate the clicks
     print('\nGenerating Clicks')
     start_generating_clicks = time.time()
-    for i in range(1, 11):
+    for i in range(1, num_split + 1):
 
         store_name = 'store' + str(i) + '_interleaved'
         experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
@@ -206,7 +207,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
 
     # Upload and concat splitted dataframes
     experiment_dataframe_list = []
-    for i in range(1, 11):
+    for i in range(1, num_split + 1):
         store_name = 'store' + str(i) + '_clicked'
         experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
         experiment_dataframe_list.append(experiment_dataframe_store[store_name])
