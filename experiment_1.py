@@ -120,16 +120,20 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         set_of_queries, single_avg_ndcg, training_dataset
 
     experiment_dataframe.drop(columns=['rankerA_NDCG', 'rankerB_NDCG'], inplace=True)
+    # model A wins -> 1
     indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] > experiment_dataframe[
         'rankerB_avg_NDCG']].index.values
-    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'a'
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 1
+    # tie -> 0
     indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] == experiment_dataframe[
         'rankerB_avg_NDCG']].index.values
-    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 't'
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 0
+    # model B wins -> -1
     indexes_to_change = experiment_dataframe.loc[experiment_dataframe['rankerA_avg_NDCG'] < experiment_dataframe[
         'rankerB_avg_NDCG']].index.values
-    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 'b'
+    experiment_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = -1
     experiment_dataframe.drop(columns=['rankerA_avg_NDCG', 'rankerB_avg_NDCG'], inplace=True)
+    experiment_dataframe['avg_NDCG_winning_ranker'] = experiment_dataframe['avg_NDCG_winning_ranker'].astype(int)
 
     end_lists = time.time()
     time_for_interleaving = end_lists - start_lists
@@ -157,11 +161,11 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         experiment_dataframe = experiment_dataframe_store[store_name]
         experiment_dataframe_store.close()
 
-        experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving)(
+        experiment_dataframe['interleaved_list'] = np.vectorize(utils.execute_tdi_interleaving, otypes=[pd.DataFrame])(
             experiment_dataframe['rankerA_list'], experiment_dataframe['rankerA_ratings'],
             experiment_dataframe['rankerB_list'], experiment_dataframe['rankerB_ratings'], seed)
-        experiment_dataframe.drop(columns=['rankerA_list', 'rankerA_ratings', 'rankerB_list', 'rankerB_ratings'], axis=1,
-                                  inplace=True)
+        experiment_dataframe.drop(columns=['rankerA_list', 'rankerA_ratings', 'rankerB_list', 'rankerB_ratings'],
+                                  axis=1, inplace=True)
 
         store_name = 'store' + str(i) + '_interleaved'
         store = pd.HDFStore(output_dir + '/' + store_name + '.h5')
@@ -187,8 +191,8 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         experiment_dataframe = experiment_dataframe_store[store_name]
         experiment_dataframe_store.close()
 
-        experiment_dataframe['clicks'] = np.vectorize(utils.simulate_clicks)(experiment_dataframe['interleaved_list'],
-                                                                             seed)
+        experiment_dataframe['clicks'] = np.vectorize(utils.simulate_clicks, otypes=[pd.DataFrame])(
+            experiment_dataframe['interleaved_list'], seed)
         experiment_dataframe.drop(columns=['interleaved_list'], inplace=True)
         experiment_dataframe.rename(columns={'clicks': 'clicked_interleaved_list'}, inplace=True)
 

@@ -17,7 +17,7 @@ def load_dataframe(dataset_path):
     dataset.rename(columns=new_columns_name, inplace=True)
     dataset['relevance'] = relevance
     dataset['queryId'] = query_id
-    dataset['relevance'] = dataset['relevance'].astype('float32')
+    dataset['relevance'] = dataset['relevance'].astype('int32')
     dataset['queryId'] = dataset['queryId'].astype('int32')
     print_memory_status(dataset)
     print()
@@ -119,14 +119,14 @@ def execute_tdi_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings,
             index_a = update_index(already_added, index_a, ranked_list_a)
             k = ranked_list_a[index_a]
             already_added.append(k)
-            interleaved_list.append([k, a_ratings[index_a], 'a'])
+            interleaved_list.append([k, a_ratings[index_a], 1])
             team_a.append(k)
             index_a += 1
         else:
             index_b = update_index(already_added, index_b, ranked_list_b)
             k = ranked_list_b[index_b]
             already_added.append(k)
-            interleaved_list.append([k, b_ratings[index_b], 'b'])
+            interleaved_list.append([k, b_ratings[index_b], -1])
             team_b.append(k)
             index_b += 1
 
@@ -186,15 +186,15 @@ def simulate_clicks(interleaved_list, seed, realistic_model=False):
 
 
 def compute_winning_model(interleaved_list):
-    click_per_a = interleaved_list[interleaved_list['model'] == 'a'].shape[0]
-    click_per_b = interleaved_list[interleaved_list['model'] == 'b'].shape[0]
+    click_per_a = interleaved_list[interleaved_list['model'] == 1].shape[0]
+    click_per_b = interleaved_list[interleaved_list['model'] == -1].shape[0]
     total_clicks = click_per_a + click_per_b
     if click_per_a > click_per_b:
-        return click_per_a, total_clicks, 'a'
+        return click_per_a, total_clicks, 1
     elif click_per_b > click_per_a:
-        return click_per_b, total_clicks, 'b'
+        return click_per_b, total_clicks, -1
     else:
-        return click_per_a, total_clicks, 't'
+        return click_per_a, total_clicks, 0
 
 
 def statistical_significance_computation(interactions, overall_diff):
@@ -238,19 +238,19 @@ def computing_winning_model_ab_score(interleaving_dataset):
 
 def compute_ab_per_group(per_group_interleaving_dataset):
     winner_a = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 'a']['per_ranker_wins']
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 1]['per_ranker_wins']
     if winner_a.empty:
         winner_a = 0
     else:
         winner_a = int(winner_a)
     winner_b = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 'b']['per_ranker_wins']
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == -1]['per_ranker_wins']
     if winner_b.empty:
         winner_b = 0
     else:
         winner_b = int(winner_b)
     ties = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 't']['per_ranker_wins']
+        per_group_interleaving_dataset['per_query_TDI_winning_ranker'] == 0]['per_ranker_wins']
     if ties.empty:
         ties = 0
     else:
@@ -261,11 +261,11 @@ def compute_ab_per_group(per_group_interleaving_dataset):
 
     # Computing winning model for ab_score
     if round(delta_ab, 3) > 0:
-        return 'a'
+        return 1
     elif round(delta_ab, 3) < 0:
-        return 'b'
+        return -1
     else:
-        return 't'
+        return 0
 
 
 def clean_folder(output_dir, end_string):
