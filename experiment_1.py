@@ -1,3 +1,5 @@
+import gc
+
 import utils
 import pandas as pd
 import numpy as np
@@ -40,6 +42,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
 
     # Clean unuseful data structures
     del experiment_data
+    gc.collect()
 
     experiment_dataframe['rankerA_list'] = np.nan
     experiment_dataframe['rankerA_list'] = experiment_dataframe['rankerA_list'].astype(object)
@@ -118,6 +121,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     # Clean unuseful data structures
     del query_selected_documents, ranked_list, ranked_list_ids, ranked_list_ratings, ndcg_per_query_ranker, \
         set_of_queries, single_avg_ndcg, training_dataset
+    gc.collect()
 
     experiment_dataframe.drop(columns=['rankerA_NDCG', 'rankerB_NDCG'], inplace=True)
     # model A wins -> 1
@@ -151,6 +155,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
 
     # Clean unuseful data structures
     del splitted_dataframe, experiment_dataframe, dataframe, indexes_to_change
+    gc.collect()
 
     # Compute interleaving on the splitted dataframe uploading only one at a time
     print('\nComputing Interleaving')
@@ -172,6 +177,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         store[store_name] = experiment_dataframe
         store.close()
         del experiment_dataframe
+    gc.collect()
 
     end_interleaving = time.time()
     time_for_interleaving = end_interleaving - start_interleaving
@@ -201,6 +207,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         store[store_name] = experiment_dataframe
         store.close()
         del experiment_dataframe
+    gc.collect()
 
     end_generating_clicks = time.time()
     time_generating_clicks = end_generating_clicks - start_generating_clicks
@@ -218,6 +225,7 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
         experiment_dataframe_store.close()
     experiment_dataframe = pd.concat(experiment_dataframe_list)
     del experiment_dataframe_list
+    gc.collect()
 
     # Computing the per query winning model/ranker
     print('\nComputing per query winning model')
