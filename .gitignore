@@ -50,3 +50,6 @@ Thumbs.db
 
 # Results folder
 our_implementation/paper_results
+
+# Results folder
+script_for_memory.sh

@@ -191,7 +191,6 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     print('\nGenerating Clicks')
     start_generating_clicks = time.time()
     for i in range(1, num_split + 1):
-
         store_name = 'store' + str(i) + '_interleaved'
         experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
         experiment_dataframe = experiment_dataframe_store[store_name]
@@ -213,30 +212,44 @@ def start_experiment(dataset_path, seed, output_dir, query_set=1000, max_range_p
     time_generating_clicks = end_generating_clicks - start_generating_clicks
     print('Time for generating clicks: ' + str(time_generating_clicks))
 
+    # Computing the per query winning model/ranker
+    print('\nComputing per query winning model')
+    start_computing_per_query_winner = time.time()
+    for i in range(1, num_split + 1):
+        store_name = 'store' + str(i) + '_clicked'
+        experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
+        experiment_dataframe = experiment_dataframe_store[store_name]
+        experiment_dataframe_store.close()
+
+        experiment_dataframe['clicks_per_ranker'], experiment_dataframe['total_clicks'], experiment_dataframe[
+            'per_query_TDI_winning_ranker'] = np.vectorize(utils.compute_winning_model)(experiment_dataframe[
+                                                                                            'clicked_interleaved_list'])
+        experiment_dataframe.drop(columns=['clicked_interleaved_list'], inplace=True)
+
+        store_name = 'store' + str(i) + '_won'
+        store = pd.HDFStore(output_dir + '/' + store_name + '.h5')
+        store[store_name] = experiment_dataframe
+        store.close()
+        del experiment_dataframe
+    gc.collect()
+
+    end_computing_per_query_winner = time.time()
+    time_computing_per_query_winner = end_computing_per_query_winner - start_computing_per_query_winner
+    print('Time for computing per query winning model: ' + str(time_computing_per_query_winner))
+
     # Clean unuseful files on disk
-    utils.clean_folder(output_dir, "interleaved.h5")
+    utils.clean_folder(output_dir, "clicked.h5")
 
     # Upload and concat splitted dataframes
     experiment_dataframe_list = []
     for i in range(1, num_split + 1):
-        store_name = 'store' + str(i) + '_clicked'
+        store_name = 'store' + str(i) + '_won'
         experiment_dataframe_store = pd.HDFStore(output_dir + '/' + store_name + '.h5', 'r')
         experiment_dataframe_list.append(experiment_dataframe_store[store_name])
         experiment_dataframe_store.close()
     experiment_dataframe = pd.concat(experiment_dataframe_list)
     del experiment_dataframe_list
     gc.collect()
-
-    # Computing the per query winning model/ranker
-    print('\nComputing per query winning model')
-    start_computing_per_query_winner = time.time()
-    experiment_dataframe['clicks_per_ranker'], experiment_dataframe['total_clicks'], experiment_dataframe[
-        'per_query_TDI_winning_ranker'] = np.vectorize(utils.compute_winning_model)(experiment_dataframe[
-                                                                                        'clicked_interleaved_list'])
-    experiment_dataframe.drop(columns=['clicked_interleaved_list'], inplace=True)
-    end_computing_per_query_winner = time.time()
-    time_computing_per_query_winner = end_computing_per_query_winner - start_computing_per_query_winner
-    print('Time for computing per query winning model: ' + str(time_computing_per_query_winner))
 
     # Pruning
     print('\nPruning')
