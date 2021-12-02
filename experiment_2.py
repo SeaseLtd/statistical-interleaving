@@ -100,7 +100,7 @@ def repetition_1000_times(dataset, query_set_size, ranker_a, ranker_b, seed, rea
             list_ndcg_model_b.append(utils.compute_ndcg(ranked_list_model_b))
 
             # Creating interleaved list
-            interleaved_list = utils.execute_tdi_interleaving(ranked_list_model_a, ranked_list_model_b, seed)
+            interleaved_list = utils.execute_team_draft_interleaving(ranked_list_model_a, ranked_list_model_b, seed)
 
             # Simulate clicks
             interleaved_list = utils.simulate_clicks(interleaved_list, seed, realistic_model)
