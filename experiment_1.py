@@ -10,7 +10,8 @@ from pympler.asizeof import asizeof
 
 # Model A = 0 , Model B = 1, 2 means a tie
 def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers_to_evaluate_count=136,
-                     solr_aggregation_json_path=None, users_scaling_factor=1.0, experiment_one_long_tail=False):
+                     solr_aggregation_json_path=None, users_scaling_factor=1.0, ndcg_top_k=0, click_generation_top_k=0,
+                     click_generation_realistic=False, experiment_one_long_tail=False):
     np.random.seed(seed)
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
@@ -77,7 +78,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
             ranked_list = query_selected_documents.sort_values(by=[ranker], ascending=False)
             ranked_list_ids = ranked_list.index.values
             ranked_list_ratings = ranked_list['relevance'].values
-            ndcg_per_query_ranker = utils.compute_ndcg(ranked_list_ratings)
+            ndcg_per_query_ranker = utils.compute_ndcg(ranked_list_ratings, ndcg_top_k)
             ranked_list_cache[str(ranker) + '_' + str(chosen_query_id)] = [ranked_list_ids, ranked_list_ratings]
             ndcg_per_ranker.append(ndcg_per_query_ranker)
         avg_ndcg = sum(ndcg_per_ranker) / len(ndcg_per_ranker)
@@ -125,7 +126,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     print('Current memory for the DataFrame: ' + str(asizeof(experiment_dataframe)))
     print(experiment_dataframe.info(memory_usage='deep', verbose=False))
     start_generating_clicks = time.time()
-    clicked_interleaved = iterate_clicks_generation(interleaving_column)
+    clicked_interleaved = iterate_clicks_generation(interleaving_column, click_generation_top_k, click_generation_realistic)
     end_generating_clicks = time.time()
     time_generating_clicks = end_generating_clicks - start_generating_clicks
     # Clean unuseful data structures
@@ -275,10 +276,10 @@ def iterate_interleaving(dataframe_array, ranked_list_cache):
     return interleaving_column
 
 
-def iterate_clicks_generation(interleaving_column):
+def iterate_clicks_generation(interleaving_column, click_generation_top_k, click_generation_realistic):
     clicks_column = []
     for idx in range(0, len(interleaving_column)):
-        clicks_column.append(utils.simulate_clicks(interleaving_column[idx]))
+        clicks_column.append(utils.simulate_clicks(interleaving_column[idx], click_generation_top_k, click_generation_realistic))
         if idx % 100000 == 0:
             print(str(idx)+' clicks column size: ' + str(asizeof(clicks_column)))
     print('final clicks column size: ' + str(asizeof(clicks_column)))

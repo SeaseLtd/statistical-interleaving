@@ -4,7 +4,6 @@ import scipy.stats as scistat
 import sys
 import os
 from sklearn.datasets import load_svmlight_file
-from pympler.asizeof import asizeof
 
 
 def print_memory_status(dataset):
@@ -64,17 +63,22 @@ def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
     print()
     return ranked_table, ndcg_ranked_table
 
+
 def from_solr_aggregations_dataset(solr_aggregation_json_path):
     realistic_industry_long_tail_dataframe = pd.read_json(solr_aggregation_json_path)
-    realistic_industry_long_tail_dataframe = pd.json_normalize(realistic_industry_long_tail_dataframe['parent_buckets'], record_path=['users'], meta=['val', 'count'],
-                                 meta_prefix='query_')
-    realistic_industry_long_tail_dataframe.rename(columns={'val': 'userId', 'count': 'click_per_userId', 'query_val': 'query_id',
-                             'query_count': 'click_per_query'}, inplace=True)
+    realistic_industry_long_tail_dataframe = pd.json_normalize(realistic_industry_long_tail_dataframe['parent_buckets'],
+                                                               record_path=['users'], meta=['val', 'count'],
+                                                               meta_prefix='query_')
+    realistic_industry_long_tail_dataframe.rename(
+        columns={'val': 'userId', 'count': 'click_per_userId', 'query_val': 'query_id',
+                 'query_count': 'click_per_query'}, inplace=True)
     return realistic_industry_long_tail_dataframe
 
 
 def generate_set_with_search_demand_curve(dataset, realistic_industry_long_tail_dataframe, users_scaling_factor=1):
-    query_id_to_users = (realistic_industry_long_tail_dataframe.groupby(['query_id']).size().nlargest(n=1000, keep='first') * users_scaling_factor).astype(int)
+    query_id_to_users = (realistic_industry_long_tail_dataframe.groupby(['query_id']).size().nlargest(n=1000,
+                                                                                                      keep='first') * users_scaling_factor).astype(
+        int)
     query_id_to_users = query_id_to_users.reset_index()
     long_tail = query_id_to_users.rename(columns={0: "queryExecutions"})
     long_tail = long_tail.loc[long_tail['queryExecutions'] > 0]
@@ -93,15 +97,17 @@ def generate_set_with_search_demand_curve(dataset, realistic_industry_long_tail_
     return np.array(set_of_queries, dtype=int)
 
 
-def compute_ndcg(ratings_list):
-    idcg = dcg_at_k(sorted(ratings_list, reverse=True), 10)
+def compute_ndcg(ratings_list, top_k):
+    if top_k == 0:
+        top_k = len(ratings_list)
+    idcg = dcg_at_k(sorted(ratings_list, reverse=True), top_k)
     if not idcg:
         return 0.
-    return round(dcg_at_k(ratings_list, 10) / idcg, 3)
+    return round(dcg_at_k(ratings_list, top_k) / idcg, 3)
 
 
-def dcg_at_k(rating_list, topK):
-    rating_list = np.asfarray(rating_list)[:topK]
+def dcg_at_k(rating_list, top_k):
+    rating_list = np.asfarray(rating_list)[:top_k]
     if rating_list.size:
         dcg_array = np.subtract(np.power(2, rating_list), 1) / np.log2(np.arange(2, rating_list.size + 2))
         return np.sum(dcg_array)
@@ -160,47 +166,59 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     return np.array([interleaved_ratings, interleaved_models])
 
 
-def simulate_clicks(interleaved_list, realistic_model=False):
+def simulate_clicks(interleaved_list, top_k, realistic_model):
     # from various points of the original paper it's evident clicks were generated only on the top 10 per query
     # see par 5.1 and 6.3
-    top_k = 10
-    ratings = interleaved_list[0][:top_k]
-    interleaved_models = interleaved_list[1][:top_k]
+    ratings = interleaved_list[0]
+    interleaved_models = interleaved_list[1]
+    if top_k > 0:
+        ratings = interleaved_list[0][:top_k]
+        interleaved_models = interleaved_list[1][:top_k]
     clicks_column = np.empty(len(ratings), dtype=np.dtype('u1'))
     to_continue_column = np.empty(len(ratings), dtype=np.dtype('u1'))
 
     if realistic_model:
-        # this dictionary models the probability p of clicking a <query,document> with relevance <key>
-        # relevance -> probability of click
-        click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
         # this dictionary models the probability s of stopping after having clicked a <query,document> with relevance
         # <key> relevance -> probability of click
         continue_probabilities = {0: 1, 1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2}
-        continue_probabilities_vector = np.vectorize(to_probability_vector)(continue_probabilities, ratings)
-        to_continue_column = np.vectorize(np.random.choice)(2, [1 - continue_probabilities_vector,
-                                                                continue_probabilities_vector])
+        continue_probabilities_vector = to_probability_vector(continue_probabilities, ratings)
+        to_continue_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(continue_probabilities_vector)
         # first we click the document and then we decide to stop or continue, so we always check the first
+        # the to_continue_column at index i means if you visualize or not the document at index i
         to_continue_column = np.roll(to_continue_column, 1)
         to_continue_column[0] = 1
-        click_probabilities_vector = np.vectorize(to_probability_click)(click_probabilities, ratings)
+        stopping_points = np.where(to_continue_column == 0)
+        # this dictionary models the probability p of clicking a <query,document> with relevance <key>
+        # relevance -> probability of click
+        click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
+        click_probabilities_vector = to_probability_vector(click_probabilities, ratings)
         clicks_column = np.vectorize(will_click)(click_probabilities_vector)
-        clicks_column = clicks_column * to_continue_column
+
+        stopping_point = identify_stop_after_click(clicks_column, stopping_points[0])
+        to_continue_mask_array = np.zeros(len(ratings), dtype=np.dtype('u1'))
+        for idx in range(0, stopping_point):
+            to_continue_mask_array[idx] = 1
+
+        clicks_column = clicks_column * to_continue_mask_array
     else:
-        click_probabilities = {1: 0.2, 2: 0.4, 3: 0.8, 4: 1}
-        click_probabilities_vector = np.vectorize(to_probability_click)(click_probabilities, ratings)
+        click_probabilities = {0: 0, 1: 0.2, 2: 0.4, 3: 0.8, 4: 1}
+        click_probabilities_vector = to_probability_vector(click_probabilities, ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
     return np.array([interleaved_models, clicks_column])
 
 
-def to_probability_vector(probabilities, rating):
-    return probabilities.get(rating)
+def identify_stop_after_click(clicks_column, stopping_points):
+    for stopping_point in stopping_points:
+        if clicks_column[stopping_point - 1] == 1:
+            return stopping_point
+    return len(clicks_column)
 
 
-def to_probability_click(click_probabilities, rating):
-    if rating > 0:
-        return click_probabilities.get(rating)
-    else:
-        return rating
+def to_probability_vector(probabilities, ratings):
+    probability_vector = np.empty(len(ratings), dtype=np.float)
+    for idx in range(0, len(ratings)):
+        probability_vector[idx] = probabilities.get(ratings[idx])
+    return probability_vector
 
 
 def will_click(click_probability):
