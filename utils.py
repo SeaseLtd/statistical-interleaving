@@ -174,14 +174,11 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
     if top_k > 0:
         ratings = interleaved_list[0][:top_k]
         interleaved_models = interleaved_list[1][:top_k]
-    clicks_column = np.empty(len(ratings), dtype=np.dtype('u1'))
-    to_continue_column = np.empty(len(ratings), dtype=np.dtype('u1'))
-
     if realistic_model:
         # this dictionary models the probability s of stopping after having clicked a <query,document> with relevance
         # <key> relevance -> probability of click
         continue_probabilities = {0: 1, 1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2}
-        continue_probabilities_vector = to_probability_vector(continue_probabilities, ratings)
+        continue_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(continue_probabilities, ratings)
         to_continue_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(continue_probabilities_vector)
         # first we click the document and then we decide to stop or continue, so we always check the first
         # the to_continue_column at index i means if you visualize or not the document at index i
@@ -191,8 +188,8 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
         # this dictionary models the probability p of clicking a <query,document> with relevance <key>
         # relevance -> probability of click
         click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
-        click_probabilities_vector = to_probability_vector(click_probabilities, ratings)
-        clicks_column = np.vectorize(will_click)(click_probabilities_vector)
+        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities, ratings)
+        clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
 
         stopping_point = identify_stop_after_click(clicks_column, stopping_points[0])
         to_continue_mask_array = np.zeros(len(ratings), dtype=np.dtype('u1'))
@@ -202,7 +199,7 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
         clicks_column = clicks_column * to_continue_mask_array
     else:
         click_probabilities = {0: 0, 1: 0.2, 2: 0.4, 3: 0.8, 4: 1}
-        click_probabilities_vector = to_probability_vector(click_probabilities, ratings)
+        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities, ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
     return np.array([interleaved_models, clicks_column])
 
@@ -214,11 +211,8 @@ def identify_stop_after_click(clicks_column, stopping_points):
     return len(clicks_column)
 
 
-def to_probability_vector(probabilities, ratings):
-    probability_vector = np.empty(len(ratings), dtype=np.float)
-    for idx in range(0, len(ratings)):
-        probability_vector[idx] = probabilities.get(ratings[idx])
-    return probability_vector
+def to_probability_vectorized(click_probabilities, rating):
+    return click_probabilities.get(rating)
 
 
 def will_click(click_probability):
