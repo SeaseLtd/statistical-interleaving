@@ -25,46 +25,7 @@ def load_dataframe(dataset_path):
     return dataset
 
 
-def precompute_ranked_table(dataset, max_range_pair, set_of_queries):
-    # Create id column
-    dataset.reset_index(drop=False, inplace=True)
-    dataset.rename(columns={'index': 'query_doc_id'}, inplace=True)
-
-    ranked_table_lists = []
-    ndcg_per_query_ranker_list = []
-    for ranker in range(1, max_range_pair):
-        for query_index in range(0, len(set_of_queries)):
-            chosen_query_id = set_of_queries[query_index]
-            query_selected_documents = dataset[dataset['query_id'] == chosen_query_id]
-            ranked_list = query_selected_documents.sort_values(by=[ranker], ascending=False)
-            ranked_list['ranker'] = ranker
-            ranked_table_lists.append(ranked_list)
-
-            ndcg_per_query_ranker = compute_ndcg(ranked_list)
-            ndcg_per_query_ranker_list.append([ranker, chosen_query_id, ndcg_per_query_ranker])
-
-    ranked_table = pd.concat(ranked_table_lists, ignore_index=True, sort=True)
-
-    ndcg_ranked_table = pd.DataFrame(ndcg_per_query_ranker_list)
-    ndcg_ranked_table.rename(columns={0: 'ranker', 1: 'query_id', 2: 'ndcg'}, inplace=True)
-
-    # Reorder columns
-    cols = ranked_table.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    ranked_table = ranked_table[cols]
-
-    # Set multiindex
-    ranked_table.set_index(['ranker', 'query_doc_id'], inplace=True, verify_integrity=True)
-    ndcg_ranked_table.set_index(['ranker', 'query_id'], inplace=True, verify_integrity=True)
-
-    print('Precomputed dataframes:')
-    print_memory_status(ranked_table)
-    print_memory_status(ndcg_ranked_table)
-    print()
-    return ranked_table, ndcg_ranked_table
-
-
-def from_solr_aggregations_dataset(solr_aggregation_json_path):
+def parse_solr_json_facet_dataset(solr_aggregation_json_path):
     realistic_industry_long_tail_dataframe = pd.read_json(solr_aggregation_json_path)
     realistic_industry_long_tail_dataframe = pd.json_normalize(realistic_industry_long_tail_dataframe['parent_buckets'],
                                                                record_path=['users'], meta=['val', 'count'],
@@ -75,7 +36,7 @@ def from_solr_aggregations_dataset(solr_aggregation_json_path):
     return realistic_industry_long_tail_dataframe
 
 
-def generate_set_with_search_demand_curve(dataset, realistic_industry_long_tail_dataframe, users_scaling_factor=1):
+def get_long_tail_query_set(query_document_pairs, realistic_industry_long_tail_dataframe, users_scaling_factor=1):
     query_id_to_users = (realistic_industry_long_tail_dataframe.groupby(['query_id']).size().nlargest(n=1000,
                                                                                                       keep='first') * users_scaling_factor).astype(
         int)
@@ -87,7 +48,7 @@ def generate_set_with_search_demand_curve(dataset, realistic_industry_long_tail_
     long_tail = (long_tail['queryExecutions'].value_counts() / 2).sort_index().astype(int)
     long_tail = long_tail.loc[long_tail > 0]
 
-    total_set_of_queries = dataset['query_id'].unique()
+    total_set_of_queries = query_document_pairs['query_id'].unique()
     set_of_queries = []
     query_id_index = 0
     for repetitions, unique_queries_to_repeat in long_tail.items():
@@ -95,6 +56,29 @@ def generate_set_with_search_demand_curve(dataset, realistic_industry_long_tail_
             total_set_of_queries[query_id_index:query_id_index + unique_queries_to_repeat], repetitions))
         query_id_index = query_id_index + unique_queries_to_repeat
     return np.array(set_of_queries, dtype=int)
+
+
+def cache_ndcg_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs, rankers_to_evaluate_count,
+                          set_of_queries):
+    ranked_list_cache = {}
+    for ranker in range(1, rankers_to_evaluate_count + 1):
+        ndcg_per_ranker = []
+        for query_id in set_of_queries:
+            matching_documents = query_document_pairs.loc[query_document_pairs['query_id'] == query_id]
+            ranked_list = matching_documents.sort_values(by=[ranker, 0], ascending=False)
+            ranked_list_ids = ranked_list.index.values
+            ranked_list_ratings = ranked_list['relevance'].values
+            ndcg_per_query_ranker = compute_ndcg(ranked_list_ratings, ndcg_top_k)
+            ranked_list_cache[str(ranker) + '_' + str(query_id)] = [ranked_list_ids, ranked_list_ratings]
+            ndcg_per_ranker.append(ndcg_per_query_ranker)
+        avg_ndcg = sum(ndcg_per_ranker) / len(ndcg_per_ranker)
+        print('\nRanker[' + str(ranker) + '] AVG NDCG:' + str(avg_ndcg))
+        experiment_results_dataframe.loc[
+            (experiment_results_dataframe['rankerA_id'] == ranker), 'rankerA_avg_NDCG'] = avg_ndcg
+        experiment_results_dataframe.loc[
+            (experiment_results_dataframe['rankerB_id'] == ranker), 'rankerB_avg_NDCG'] = avg_ndcg
+
+    return ranked_list_cache
 
 
 def compute_ndcg(ratings_list, top_k):
