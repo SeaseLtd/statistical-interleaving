@@ -63,10 +63,6 @@ def main(argv):
         experiment_1.start_experiment(**para_dict)
     elif chosen_experiment == '1_long_tail':
         experiment_1.start_experiment(**para_dict, experiment_one_long_tail=True)
-    elif chosen_experiment == '2':
-        experiment_2.start_experiment(**para_dict)
-    elif chosen_experiment == '3':
-        experiment_2.start_experiment(**para_dict, realistic_model=True)
     else:
         print('Error. The selected experiment doesn\'t exist')
 
