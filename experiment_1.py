@@ -71,14 +71,18 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
 
     print('\nComputing ranked lists and NDCG')
     start_lists = time.time()
-    ranked_list_cache = utils.cache_ndcg_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs,
-                                              rankers_to_evaluate_count, set_of_queries)
+    # This cache contains:
+    # key = <ranker_id>_<query_id>
+    # value = ranked list ( each search result has a documentId and relevance label)
+    ranked_list_cache = utils.cache_ranked_lists_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs,
+                                                            rankers_to_evaluate_count, set_of_queries)
 
+    # Assign the NDCG winners
     # model A wins -> 0
     indexes_to_change = experiment_results_dataframe.loc[experiment_results_dataframe['rankerA_avg_NDCG'] > experiment_results_dataframe[
         'rankerB_avg_NDCG']].index.values
     experiment_results_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 0
-    # tie -> -1
+    # tie -> 2
     indexes_to_change = experiment_results_dataframe.loc[experiment_results_dataframe['rankerA_avg_NDCG'] == experiment_results_dataframe[
         'rankerB_avg_NDCG']].index.values
     experiment_results_dataframe.loc[indexes_to_change, 'avg_NDCG_winning_ranker'] = 2
@@ -91,13 +95,13 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
 
     end_lists = time.time()
     time_for_interleaving = end_lists - start_lists
-    print('Time for ranked lists and ratings: ' + str(time_for_interleaving))
+    print('Time to calculate Ranked Lists and NDCG: ' + str(time_for_interleaving))
     print(experiment_results_dataframe.info(memory_usage='deep', verbose=False))
 
     print('\nComputing Interleaving')
     start_interleaving = time.time()
-    dataframe_array = experiment_results_dataframe.to_numpy()
-    interleaving_column = iterate_interleaving(dataframe_array, ranked_list_cache)
+    experiment_results_array = experiment_results_dataframe.to_numpy()
+    interleaved_ranked_lists = interleave_iteration(experiment_results_array, ranked_list_cache)
     # Clean unuseful data structures
     gc.collect()
     end_interleaving = time.time()
@@ -108,11 +112,11 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     print('Current memory for the DataFrame: ' + str(asizeof(experiment_results_dataframe)))
     print(experiment_results_dataframe.info(memory_usage='deep', verbose=False))
     start_generating_clicks = time.time()
-    clicked_interleaved = iterate_clicks_generation(interleaving_column, click_generation_top_k, click_generation_realistic)
+    interleaved_ranked_lists_clicks = clicks_generation_iteration(interleaved_ranked_lists, click_generation_top_k, click_generation_realistic)
     end_generating_clicks = time.time()
     time_generating_clicks = end_generating_clicks - start_generating_clicks
     # Clean unuseful data structures
-    del interleaving_column
+    del interleaved_ranked_lists
     gc.collect()
     print('Time for generating clicks: ' + str(time_generating_clicks))
     print('Current memory for the DataFrame: ' + str(asizeof(experiment_results_dataframe)))
@@ -121,14 +125,14 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     # Computing the per query winning model/ranker
     print('\nComputing per query sum of clicks')
     start_computing_per_query_winner = time.time()
-    counted_clicks = iterate_winner_calculation(clicked_interleaved).T
-    experiment_results_dataframe['interleaving_a_clicks'] = pd.Series(counted_clicks[0])
-    experiment_results_dataframe['interleaving_b_clicks'] = pd.Series(counted_clicks[1])
-    experiment_results_dataframe['interleaving_total_clicks'] = pd.Series(counted_clicks[2])
+    aggregated_clicks_per_model = aggregate_interleaving_clicks_per_model_iteration(interleaved_ranked_lists_clicks).T
+    experiment_results_dataframe['interleaving_a_clicks'] = pd.Series(aggregated_clicks_per_model[0])
+    experiment_results_dataframe['interleaving_b_clicks'] = pd.Series(aggregated_clicks_per_model[1])
+    experiment_results_dataframe['interleaving_total_clicks'] = pd.Series(aggregated_clicks_per_model[2])
 
     end_computing_per_query_winner = time.time()
     time_computing_per_query_winner = end_computing_per_query_winner - start_computing_per_query_winner
-    del clicked_interleaved, counted_clicks
+    del interleaved_ranked_lists_clicks, aggregated_clicks_per_model
     gc.collect()
     print('Current memory for the DataFrame: ' + str(asizeof(experiment_results_dataframe)))
     print(experiment_results_dataframe.info(memory_usage='deep', verbose=False))
@@ -141,6 +145,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     print('Ranker combinations:' + str(experiment_results_dataframe.groupby(['rankerA_id', 'rankerB_id']).ngroups))
     # Calculate Winner
     print('\nCalculate Winner')
+    # in the long tail scenario, certain queries are repeated many times, so we must accumulate the clicks
     if experiment_one_long_tail:
         experiment_results_dataframe = pd.DataFrame(experiment_results_dataframe.groupby(['rankerA_id','rankerB_id','query_id']).agg({'avg_NDCG_winning_ranker':'first','interleaving_a_clicks': 'sum', 'interleaving_b_clicks': 'sum', 'interleaving_total_clicks':'sum'})).reset_index()
 
@@ -153,17 +158,17 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
         experiment_results_dataframe['interleaving_a_clicks'] > experiment_results_dataframe['interleaving_b_clicks'],
         0,
         1)
-
+    # tie
     experiment_results_dataframe['interleaving_winner'] = np.where(
         experiment_results_dataframe['interleaving_a_clicks'] == experiment_results_dataframe['interleaving_b_clicks'],
         2,
         experiment_results_dataframe['interleaving_winner'])
 
     experiment_results_dataframe.drop(columns=['interleaving_a_clicks', 'interleaving_b_clicks'], inplace=True)
-    # Pruning
+    # Statistical Pruning
     print('\nPruning')
     start_pruning = time.time()
-    only_statistical_significant_queries = utils.pruning(experiment_results_dataframe)
+    only_statistical_significant_queries = utils.statistical_significance_pruning(experiment_results_dataframe)
     experiment_results_dataframe.drop(columns=['interleaving_winner_clicks', 'interleaving_total_clicks'], inplace=True)
     end_pruning = time.time()
     time_pruning = end_pruning - start_pruning
@@ -224,15 +229,15 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
         print('Time for ab score pruning: ' + str(time_ab_pruning))
 
         # Check if ndcg agree with pruning ab_score
-        paper_correctly_guessed_winner_rankers = len(
+        statistical_pruning_correctly_guessed_winner_rankers = len(
             only_statistical_significant_queries[
                 only_statistical_significant_queries['avg_NDCG_winning_ranker'] == only_statistical_significant_queries[
                     'control_interleaving_winner']])
 
-        accuracy_pruning_tdi = paper_correctly_guessed_winner_rankers / len(experiment_results_dataframe)
-        print('\nOUR PAPER approach got: ' + str(paper_correctly_guessed_winner_rankers) + '/' + str(
+        accuracy_pruning_tdi = statistical_pruning_correctly_guessed_winner_rankers / len(experiment_results_dataframe)
+        print('\nSTAT PRUNING approach got: ' + str(statistical_pruning_correctly_guessed_winner_rankers) + '/' + str(
             len(experiment_results_dataframe)) + ' pairs right!')
-        print('\nAccuracy of OUR PAPER approach: ' + str(accuracy_pruning_tdi))
+        print('\nAccuracy of STAT PRUNING approach: ' + str(accuracy_pruning_tdi))
     else:
         print('\n!!!!!!!!! The pruning removes all the queries for all the rankers !!!!!!!!!!')
 
@@ -241,35 +246,39 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     print('Total experiment time: ' + str(end_total - start_total))
 
 
-def iterate_interleaving(dataframe_array, ranked_list_cache):
-    interleaving_column = []
+def interleave_iteration(dataframe_array, ranked_list_cache):
+    interleaving_column_result = []
     for idx in range(0, len(dataframe_array)):
         ranker_a = dataframe_array[idx][0]
         ranker_b = dataframe_array[idx][1]
         query_id = dataframe_array[idx][2]
-        ranker_a_row = ranked_list_cache[str(ranker_a) + '_' + str(query_id)]
-        ranker_b_row = ranked_list_cache[str(ranker_b) + '_' + str(query_id)]
-        interleaving_column.append(utils.execute_team_draft_interleaving(
-            ranker_a_row[0], ranker_a_row[1],
-            ranker_b_row[0], ranker_b_row[1]))
+        # a ranked list is an array [document_ids, ratings]
+        # ranked_list_a[0] is the list of ordered document Ids
+        # ranked_list_a[1] is the list of ordered ratings
+        ranked_list_a = ranked_list_cache[str(ranker_a) + '_' + str(query_id)]
+        ranked_list_b = ranked_list_cache[str(ranker_b) + '_' + str(query_id)]
+        interleaving_column_result.append(utils.execute_team_draft_interleaving(
+            ranked_list_a[0], ranked_list_a[1],
+            ranked_list_b[0], ranked_list_b[1]))
         if idx % 100000 == 0:
-            print(str(idx)+' interleaving column size: ' + str(asizeof(interleaving_column)))
-    print('final interleaving column size: ' + str(asizeof(interleaving_column)))
-    return interleaving_column
+            print(str(idx)+' interleaving column size: ' + str(asizeof(interleaving_column_result)))
+    print('final interleaving column size: ' + str(asizeof(interleaving_column_result)))
+    return interleaving_column_result
 
 
-def iterate_clicks_generation(interleaving_column, click_generation_top_k, click_generation_realistic):
-    clicks_column = []
-    for idx in range(0, len(interleaving_column)):
-        clicks_column.append(utils.simulate_clicks(interleaving_column[idx], click_generation_top_k, click_generation_realistic))
+def clicks_generation_iteration(interleaved_ranked_lists, click_generation_top_k, click_generation_realistic):
+    clicks_results = []
+    for idx in range(0, len(interleaved_ranked_lists)):
+        clicks_results.append(utils.simulate_clicks(interleaved_ranked_lists[idx], click_generation_top_k, click_generation_realistic))
         if idx % 100000 == 0:
-            print(str(idx)+' clicks column size: ' + str(asizeof(clicks_column)))
-    print('final clicks column size: ' + str(asizeof(clicks_column)))
-    return clicks_column
+            print(str(idx)+' clicks column size: ' + str(asizeof(clicks_results)))
+    print('final clicks column size: ' + str(asizeof(clicks_results)))
+    return clicks_results
 
-def iterate_winner_calculation(clicked_interleaved):
-    aggregated_clicks_column = np.empty([len(clicked_interleaved), 3], dtype="uint16")
-    for idx in range(0, len(clicked_interleaved)):
-        aggregated_clicks_column[idx] = utils.compute_winning_model(clicked_interleaved[idx])
+
+def aggregate_interleaving_clicks_per_model_iteration(interleaved_ranked_lists_clicks):
+    aggregated_clicks_column = np.empty([len(interleaved_ranked_lists_clicks), 3], dtype="uint16")
+    for idx in range(0, len(interleaved_ranked_lists_clicks)):
+        aggregated_clicks_column[idx] = utils.aggregate_clicks_per_model(interleaved_ranked_lists_clicks[idx])
     print('final clicks column size: ' + str(asizeof(aggregated_clicks_column)))
     return aggregated_clicks_column

@@ -58,19 +58,24 @@ def get_long_tail_query_set(query_document_pairs, realistic_industry_long_tail_d
     return np.array(set_of_queries, dtype=int)
 
 
-def cache_ndcg_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs, rankers_to_evaluate_count,
-                          set_of_queries):
+def cache_ranked_lists_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs,
+                                  rankers_to_evaluate_count,
+                                  set_of_queries):
     ranked_list_cache = {}
     for ranker in range(1, rankers_to_evaluate_count + 1):
         ndcg_per_ranker = []
         for query_id in set_of_queries:
             matching_documents = query_document_pairs.loc[query_document_pairs['query_id'] == query_id]
-            ranked_list = matching_documents.sort_values(by=[ranker, 0], ascending=False)
+            # Pandas internally uses quick-sort which means ties don't guarantee an ordering following the original index
+            # in our case the index order (the occurrence of the document in the judgement list doesn't mean much)
+            # in case you want to enforce index to sort ties:
+            # ranked_list = matching_documents.iloc[np.lexsort((matching_documents.index, -matching_documents[ranker].values))]
+            ranked_list = matching_documents.sort_values(by=[ranker], ascending=False)
             ranked_list_ids = ranked_list.index.values
             ranked_list_ratings = ranked_list['relevance'].values
-            ndcg_per_query_ranker = compute_ndcg(ranked_list_ratings, ndcg_top_k)
+            ndcgAtK = compute_ndcg(ranked_list_ratings, ndcg_top_k)
             ranked_list_cache[str(ranker) + '_' + str(query_id)] = [ranked_list_ids, ranked_list_ratings]
-            ndcg_per_ranker.append(ndcg_per_query_ranker)
+            ndcg_per_ranker.append(ndcgAtK)
         avg_ndcg = sum(ndcg_per_ranker) / len(ndcg_per_ranker)
         print('\nRanker[' + str(ranker) + '] AVG NDCG:' + str(avg_ndcg))
         experiment_results_dataframe.loc[
@@ -114,7 +119,8 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     interleaved_models = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
     elements_same_position = ranked_list_a - ranked_list_b
     already_added = set()
-    turn = 0
+    # -1 means we need to draw a model randomly, 0 means model A turn, 1 means model B
+    model_turn = -1
     index_a = 0
     index_b = 0
     result_index = 0
@@ -122,47 +128,63 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     while (result_index < len(ranked_list_a)) and index_a < len(ranked_list_a) and \
             index_b < len(ranked_list_b):
         random_model_choice = np.random.randint(2, size=1)
-        if (turn == -1) or ((turn == 0) and (random_model_choice == 0)):
+        if (model_turn == 0) or ((model_turn == -1) and (random_model_choice == 0)):
             index_a = update_index(already_added, index_a, ranked_list_a)
             already_added.add(ranked_list_a[index_a])
             interleaved_ratings[result_index] = a_ratings[index_a]
             interleaved_models[result_index] = 0
-            result_index += 1
-            if turn == 0:
-                turn = 1
+            if model_turn == -1:  # we drew A , next turn is B
+                model_turn = 1
             else:
-                turn = 0
+                model_turn = -1
             index_a += 1
+            result_index += 1
         else:
             index_b = update_index(already_added, index_b, ranked_list_b)
             already_added.add(ranked_list_b[index_b])
             interleaved_ratings[result_index] = b_ratings[index_b]
             interleaved_models[result_index] = 1
-            result_index += 1
-            if turn == 0:
-                turn = -1
+            if model_turn == -1:  # we drew B , next turn is A
+                model_turn = 0
             else:
-                turn = 0
+                model_turn = -1
             index_b += 1
-    # we have only model 0 and model 1, interleaved. Value=2 means the rankings got the same element in same position
-    # this will make possible to ignore such clicks
+            result_index += 1
+    # we have only model 0(A) and model 1(B), interleaved.
+    # Value=2 means the rankings got the same element in same position this will make possible to ignore such clicks
     interleaved_models[np.where(elements_same_position == 0)] = 2
     return np.array([interleaved_ratings, interleaved_models])
 
 
 def simulate_clicks(interleaved_list, top_k, realistic_model):
-    # from various points of the original paper it's evident clicks were generated only on the top 10 per query
-    # see par 5.1 and 6.3
+    """
+    :param interleaved_list:
+    interleaved_list[0] is the array of ordered ratings(originally associated to the document Ids) in the interleaved ranked list
+    interleaved_list[1] is the array of ordered models picked by interleaving
+    :param top_k:
+    clicks are generated only for the top K items in the interleaved list
+    :param realistic_model:
+    True - a user stops viewing search results after his/her information need is satisfied
+    False - a user checks all search results (and potentially click them)
+    :return:
+    """
+
+    # from various points of the <reproducibility_target_paper>
+    # it's evident clicks were generated only on the top 10 per query, see paragraph 5.1 and 6.3
     ratings = interleaved_list[0]
     interleaved_models = interleaved_list[1]
     if top_k > 0:
         ratings = interleaved_list[0][:top_k]
         interleaved_models = interleaved_list[1][:top_k]
+    # from  <reproducibility_target_paper> paragraph 5.1
     if realistic_model:
-        # this dictionary models the probability s of stopping after having clicked a <query,document> with relevance
-        # <key> relevance -> probability of click
+        # this dictionary models the probability c of continuing after having clicked a <query,document> with such relevance<key>
+        # relevance -> probability of continuing
+        # if the user clicked on a document with relevance 4/4
+        # there's a low probability(0.2) of continuing exploring the results, his/her information need is likely satisfied
         continue_probabilities = {0: 1, 1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2}
-        continue_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(continue_probabilities, ratings)
+        continue_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(
+            continue_probabilities, ratings)
         to_continue_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(continue_probabilities_vector)
         # first we click the document and then we decide to stop or continue, so we always check the first
         # the to_continue_column at index i means if you visualize or not the document at index i
@@ -172,18 +194,19 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
         # this dictionary models the probability p of clicking a <query,document> with relevance <key>
         # relevance -> probability of click
         click_probabilities = {0: 0.05, 1: 0.1, 2: 0.2, 3: 0.4, 4: 0.8}
-        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities, ratings)
+        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities,
+                                                                                                ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
 
         stopping_point = identify_stop_after_click(clicks_column, stopping_points[0])
         to_continue_mask_array = np.zeros(len(ratings), dtype=np.dtype('u1'))
         for idx in range(0, stopping_point):
             to_continue_mask_array[idx] = 1
-
         clicks_column = clicks_column * to_continue_mask_array
     else:
         click_probabilities = {0: 0, 1: 0.2, 2: 0.4, 3: 0.8, 4: 1}
-        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities, ratings)
+        click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities,
+                                                                                                ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
     return np.array([interleaved_models, clicks_column])
 
@@ -195,29 +218,32 @@ def identify_stop_after_click(clicks_column, stopping_points):
     return len(clicks_column)
 
 
-def to_probability_vectorized(click_probabilities, rating):
-    return click_probabilities.get(rating)
+def to_probability_vectorized(probability_dictionary, rating):
+    return probability_dictionary.get(rating)
 
 
-def will_click(click_probability):
-    if click_probability == 0 or click_probability == 1:
-        return click_probability
+def will_click(probability):
+    if probability == 0 or probability == 1:
+        return probability
     else:
-        return np.random.choice([0, 1], size=1, p=[1.0 - click_probability, click_probability])
+        return np.random.choice([0, 1], size=1, p=[1.0 - probability, probability])
 
 
-def compute_winning_model(interleaved_list):
+def aggregate_clicks_per_model(interleaved_list):
     interleaved_models = interleaved_list[0]
     clicks = interleaved_list[1]
-    click_count = count_click(interleaved_models, clicks)
-    # clicks in click_count[2] are ignored,
+    per_model_clicks = count_clicks_per_model(interleaved_models, clicks)
+    # clicks in per_model_clicks[2] are ignored,
     # they represent clicks on results that were at the same position for both rankers
-    # see [Paragraph 9] O. Chapelle, T. Joachims, F. Radlinski, and Y. Yue. Large scale validation and analysis of interleaved search evaluation. ACM Transactions on Information Science, 30(1), 2012.
-    total_clicks = click_count[0] + click_count[1]
-    return np.array([click_count[0], click_count[1], total_clicks], dtype="uint16")
+    # see [Paragraph 9]
+    # O. Chapelle, T. Joachims, F. Radlinski, and Y. Yue.
+    # Large scale validation and analysis of interleaved search evaluation.
+    # ACM Transactions on Information Science, 30(1), 2012.
+    total_clicks = per_model_clicks[0] + per_model_clicks[1]
+    return np.array([per_model_clicks[0], per_model_clicks[1], total_clicks], dtype="uint16")
 
 
-def count_click(interleaved_models, clicks):
+def count_clicks_per_model(interleaved_models, clicks):
     click_count = np.zeros(3, dtype=np.int)
     for idx in range(0, len(clicks)):
         if clicks[idx] == 1:
@@ -248,61 +274,61 @@ def statistical_significance_computation(queries_with_clicks, zero_hypothesis_pr
     return queries_with_clicks
 
 
-def pruning(interleaving_dataset):
+def statistical_significance_pruning(experiment_results_dataframe):
     # given a click this is the zero hypothesis probability the winner ranker was clicked
     # given a click only ranker A or ranker B is clicked so zero_hypothesis_probability = 0.5
     zero_hypothesis_probability = 0.5
-    statistical_significance_computation(interleaving_dataset, zero_hypothesis_probability)
+    statistical_significance_computation(experiment_results_dataframe, zero_hypothesis_probability)
 
-    # Remove interactions with significance higher than 5% threshold
-    only_statistical_significant_queries = interleaving_dataset[
-        interleaving_dataset.statistical_significance < 0.05]
+    # Remove queries with significance higher than 5% threshold
+    only_statistical_significant_queries = experiment_results_dataframe[
+        experiment_results_dataframe.statistical_significance < 0.05]
     only_statistical_significant_queries = only_statistical_significant_queries.drop(columns='statistical_significance')
 
     return only_statistical_significant_queries
 
 
-def computing_winning_model_ab_score(interleaving_dataset, statistical_weight=False):
+def computing_winning_model_ab_score(experiment_results_dataframe, statistical_weight=False):
     if statistical_weight:
-        interleaving_dataset['statistical_weight'] = 1 - interleaving_dataset['statistical_significance']
-        interleaving_dataset_tdi_stats = \
-            interleaving_dataset.groupby(['rankerA_id', 'rankerB_id', 'interleaving_winner'])[
+        experiment_results_dataframe['statistical_weight'] = 1 - experiment_results_dataframe['statistical_significance']
+        per_ranker_pair_models_wins = \
+            experiment_results_dataframe.groupby(['rankerA_id', 'rankerB_id', 'interleaving_winner'])[
                 'statistical_weight'].sum()
-        interleaving_dataset_tdi_stats = pd.DataFrame(interleaving_dataset_tdi_stats).reset_index()
-        interleaving_dataset_tdi_stats = interleaving_dataset_tdi_stats.rename(
+        per_ranker_pair_models_wins = pd.DataFrame(per_ranker_pair_models_wins).reset_index()
+        per_ranker_pair_models_wins = per_ranker_pair_models_wins.rename(
             columns={'statistical_weight': 'per_ranker_wins'})
     else:
-        interleaving_dataset_tdi_stats = interleaving_dataset.groupby(
+        per_ranker_pair_models_wins = experiment_results_dataframe.groupby(
             ['rankerA_id', 'rankerB_id', 'interleaving_winner']).size()
-        interleaving_dataset_tdi_stats = pd.DataFrame(interleaving_dataset_tdi_stats).reset_index().rename(
+        per_ranker_pair_models_wins = pd.DataFrame(per_ranker_pair_models_wins).reset_index().rename(
             columns={0: 'per_ranker_wins'})
 
-    per_pair_winner = pd.DataFrame(interleaving_dataset_tdi_stats.groupby(['rankerA_id', 'rankerB_id']).apply(
-        lambda x: compute_ab_per_group(x))).reset_index()
+    per_pair_winner = pd.DataFrame(per_ranker_pair_models_wins.groupby(['rankerA_id', 'rankerB_id']).apply(
+        lambda x: compute_ab_per_pair_of_rankers(x))).reset_index()
     if statistical_weight:
         per_pair_winner.rename(columns={0: 'stat_weight_interleaving_winner'}, inplace=True)
     else:
         per_pair_winner.rename(columns={0: 'control_interleaving_winner'}, inplace=True)
-    interleaving_dataset = pd.merge(interleaving_dataset, per_pair_winner, how='left', on=['rankerA_id', 'rankerB_id'])
+    experiment_results_dataframe = pd.merge(experiment_results_dataframe, per_pair_winner, how='left', on=['rankerA_id', 'rankerB_id'])
 
-    return interleaving_dataset
+    return experiment_results_dataframe
 
 
-def compute_ab_per_group(per_group_interleaving_dataset):
-    winner_a = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['interleaving_winner'] == 0]['per_ranker_wins']
+def compute_ab_per_pair_of_rankers(rankers_pair_model_wins):
+    winner_a = rankers_pair_model_wins[
+        rankers_pair_model_wins['interleaving_winner'] == 0]['per_ranker_wins']
     if winner_a.empty:
         winner_a = 0
     else:
         winner_a = int(winner_a)
-    winner_b = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['interleaving_winner'] == 1]['per_ranker_wins']
+    winner_b = rankers_pair_model_wins[
+        rankers_pair_model_wins['interleaving_winner'] == 1]['per_ranker_wins']
     if winner_b.empty:
         winner_b = 0
     else:
         winner_b = int(winner_b)
-    ties = per_group_interleaving_dataset[
-        per_group_interleaving_dataset['interleaving_winner'] == 2]['per_ranker_wins']
+    ties = rankers_pair_model_wins[
+        rankers_pair_model_wins['interleaving_winner'] == 2]['per_ranker_wins']
     if ties.empty:
         ties = 0
     else:
