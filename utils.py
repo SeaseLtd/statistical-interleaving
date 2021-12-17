@@ -11,22 +11,34 @@ def print_memory_status(dataset):
 
 
 def load_dataframe(dataset_path):
+    """
+    Load the <query,document> judgements as a pandas dataframe
+    :param dataset_path: the path of the dataset file
+    :return: the related pandas dataframe
+    """
     features, relevance, query_id = load_svmlight_file(dataset_path, query_id=True, dtype="float32")
-    dataset = pd.DataFrame(features.todense())
+    dataframe = pd.DataFrame(features.todense())
     new_columns_name = {key: value for key, value in zip(range(0, 136), range(1, 137))}
-    dataset.rename(columns=new_columns_name, inplace=True)
-    dataset['relevance'] = relevance
-    dataset['query_id'] = query_id
-    dataset['relevance'] = dataset['relevance'].astype('int32')
-    dataset['query_id'] = dataset['query_id'].astype('int32')
-    print_memory_status(dataset)
+    dataframe.rename(columns=new_columns_name, inplace=True)
+    dataframe['relevance'] = relevance
+    dataframe['query_id'] = query_id
+    dataframe['relevance'] = dataframe['relevance'].astype('int32')
+    dataframe['query_id'] = dataframe['query_id'].astype('int32')
+    print_memory_status(dataframe)
     print()
 
-    return dataset
+    return dataframe
 
 
-def parse_solr_json_facet_dataset(solr_aggregation_json_path):
-    realistic_industry_long_tail_dataframe = pd.read_json(solr_aggregation_json_path)
+def parse_solr_json_facet_dataset(solr_json_facet_path):
+    """
+    Load the dataset in the Solr JSON facets format as a pandas dataframe.
+    This is useful to get an approximate distribution of queries in a real-world
+    long tail scenario.
+    :param solr_json_facet_path: the path of the JSON file
+    :return: the related pandas dataframe
+    """
+    realistic_industry_long_tail_dataframe = pd.read_json(solr_json_facet_path)
     realistic_industry_long_tail_dataframe = pd.json_normalize(realistic_industry_long_tail_dataframe['parent_buckets'],
                                                                record_path=['users'], meta=['val', 'count'],
                                                                meta_prefix='query_')
@@ -36,9 +48,19 @@ def parse_solr_json_facet_dataset(solr_aggregation_json_path):
     return realistic_industry_long_tail_dataframe
 
 
-def get_long_tail_query_set(query_document_pairs, realistic_industry_long_tail_dataframe, users_scaling_factor=1):
-    query_id_to_users = (realistic_industry_long_tail_dataframe.groupby(['query_id']).size().nlargest(n=1000,
-                                                                                                      keep='first') * users_scaling_factor).astype(
+def get_long_tail_query_set(query_document_pairs, real_word_long_tail_query_distribution, scaling_factor=1):
+    """
+    Returns an array of repeated queries id.
+    Each query is repeated according to a distribution extracted from a real-world
+    long tail dataset.
+    :param query_document_pairs: the input experimental dataset with <query,document> pairs with judgement
+    :param real_word_long_tail_query_distribution: a <query,user> real world distribution,
+     each row is a query executed once by a user
+    :param scaling_factor: to reduce the amount of repetitions for the queries, but keeping a similarly shaped long tail
+    :return: an array of query ids that contains repetitions (a repetition means the query is executed multiple times)
+    """
+    query_id_to_users = (real_word_long_tail_query_distribution.groupby(['query_id']).size().nlargest(n=1000,
+                                                                                                      keep='first') * scaling_factor).astype(
         int)
     query_id_to_users = query_id_to_users.reset_index()
     long_tail = query_id_to_users.rename(columns={0: "queryExecutions"})
@@ -61,6 +83,17 @@ def get_long_tail_query_set(query_document_pairs, realistic_industry_long_tail_d
 def cache_ranked_lists_per_ranker(experiment_results_dataframe, ndcg_top_k, query_document_pairs,
                                   rankers_to_evaluate_count,
                                   set_of_queries):
+    """
+    Calculates the ranked list of search results for each ranker and query.
+    :param experiment_results_dataframe: each row is a <ranker_a, ranker_b> combination
+    :param ndcg_top_k: NDCG@k is calculated for each ranker
+    :param query_document_pairs: the input experimental dataset with <query,document> pairs with judgement
+    :param rankers_to_evaluate_count: the number of ranker to evaluate
+    :param set_of_queries: the queries to run for each ranker
+    :return: a dictionary with
+    <key> = <ranker_id>_<query_id>
+    <value> = the ranked list of document ids with relevance judgement rating associated
+    """
     ranked_list_cache = {}
     for ranker in range(1, rankers_to_evaluate_count + 1):
         ndcg_per_ranker = []
@@ -82,17 +115,22 @@ def cache_ranked_lists_per_ranker(experiment_results_dataframe, ndcg_top_k, quer
             (experiment_results_dataframe['rankerA_id'] == ranker), 'rankerA_avg_NDCG'] = avg_ndcg
         experiment_results_dataframe.loc[
             (experiment_results_dataframe['rankerB_id'] == ranker), 'rankerB_avg_NDCG'] = avg_ndcg
-
     return ranked_list_cache
 
 
 def compute_ndcg(ratings_list, top_k):
+    """
+    Calculated NDCG@k for the ranked list of ratings
+    :param ratings_list: an ordered list of relevance judgements ratings
+    :param top_k: only top k elements are considered for the list
+    :return: NDCG@k metric value
+    """
     if top_k == 0:
         top_k = len(ratings_list)
-    idcg = dcg_at_k(sorted(ratings_list, reverse=True), top_k)
-    if not idcg:
+    ideal_dcg = dcg_at_k(sorted(ratings_list, reverse=True), top_k)
+    if not ideal_dcg:
         return 0.
-    return round(dcg_at_k(ratings_list, top_k) / idcg, 3)
+    return round(dcg_at_k(ratings_list, top_k) / ideal_dcg, 3)
 
 
 def dcg_at_k(rating_list, top_k):
@@ -101,6 +139,61 @@ def dcg_at_k(rating_list, top_k):
         dcg_array = np.subtract(np.power(2, rating_list), 1) / np.log2(np.arange(2, rating_list.size + 2))
         return np.sum(dcg_array)
     return 0.
+
+
+def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings):
+    """
+    Team Draft Interleaving
+    Interleaves two ranker lists selecting at random a team captain per turn.
+    It has been introduced in [1] and [2].
+    [1] T. Joachims. Optimizing search engines using clickthrough data. KDD (2002)
+    [2] T.Joachims.Evaluatingretrievalperformanceusingclickthroughdata.InJ.Franke, G. Nakhaeizadeh, and I. Renz, editors,
+    Text Mining, pages 79–96. Physica/Springer (2003)
+    :param ranked_list_a: the ordered list of document ids from ranker A
+    :param a_ratings: the ordered list of relevance judgements ratings associated to each document id from ranker A
+    :param ranked_list_b: the ordered list of document ids from ranker B
+    :param b_ratings: the ordered list of relevance judgements ratings associated to each document id from ranker B
+    :return: an ordered interleaved list with the relevance judgements and an ordered list of interleaved rankers picks
+    """
+    interleaved_ratings = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
+    interleaved_rankers = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
+    elements_same_position = ranked_list_a - ranked_list_b
+    already_added = set()
+    # -1 means we need to draw a model randomly, 0 means model A turn, 1 means model B
+    ranker_turn = -1
+    index_a = 0
+    index_b = 0
+    result_index = 0
+
+    while (result_index < len(ranked_list_a)) and index_a < len(ranked_list_a) and \
+            index_b < len(ranked_list_b):
+        random_ranker_choice = np.random.randint(2, size=1)
+        if (ranker_turn == 0) or ((ranker_turn == -1) and (random_ranker_choice == 0)):
+            index_a = update_index(already_added, index_a, ranked_list_a)
+            already_added.add(ranked_list_a[index_a])
+            interleaved_ratings[result_index] = a_ratings[index_a]
+            interleaved_rankers[result_index] = 0
+            if ranker_turn == -1:  # we drew A , next turn is B
+                ranker_turn = 1
+            else:
+                ranker_turn = -1
+            index_a += 1
+            result_index += 1
+        else:
+            index_b = update_index(already_added, index_b, ranked_list_b)
+            already_added.add(ranked_list_b[index_b])
+            interleaved_ratings[result_index] = b_ratings[index_b]
+            interleaved_rankers[result_index] = 1
+            if ranker_turn == -1:  # we drew B , next turn is A
+                ranker_turn = 0
+            else:
+                ranker_turn = -1
+            index_b += 1
+            result_index += 1
+    # we have only ranker 0(A) and ranker 1(B), interleaved.
+    # Value=2 means the rankings got the same element in same position this will make possible to ignore such clicks
+    interleaved_rankers[np.where(elements_same_position == 0)] = 2
+    return np.array([interleaved_ratings, interleaved_rankers])
 
 
 def update_index(already_added, index, ranked_list):
@@ -114,72 +207,32 @@ def update_index(already_added, index, ranked_list):
     return index
 
 
-def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings):
-    interleaved_ratings = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
-    interleaved_models = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
-    elements_same_position = ranked_list_a - ranked_list_b
-    already_added = set()
-    # -1 means we need to draw a model randomly, 0 means model A turn, 1 means model B
-    model_turn = -1
-    index_a = 0
-    index_b = 0
-    result_index = 0
-
-    while (result_index < len(ranked_list_a)) and index_a < len(ranked_list_a) and \
-            index_b < len(ranked_list_b):
-        random_model_choice = np.random.randint(2, size=1)
-        if (model_turn == 0) or ((model_turn == -1) and (random_model_choice == 0)):
-            index_a = update_index(already_added, index_a, ranked_list_a)
-            already_added.add(ranked_list_a[index_a])
-            interleaved_ratings[result_index] = a_ratings[index_a]
-            interleaved_models[result_index] = 0
-            if model_turn == -1:  # we drew A , next turn is B
-                model_turn = 1
-            else:
-                model_turn = -1
-            index_a += 1
-            result_index += 1
-        else:
-            index_b = update_index(already_added, index_b, ranked_list_b)
-            already_added.add(ranked_list_b[index_b])
-            interleaved_ratings[result_index] = b_ratings[index_b]
-            interleaved_models[result_index] = 1
-            if model_turn == -1:  # we drew B , next turn is A
-                model_turn = 0
-            else:
-                model_turn = -1
-            index_b += 1
-            result_index += 1
-    # we have only model 0(A) and model 1(B), interleaved.
-    # Value=2 means the rankings got the same element in same position this will make possible to ignore such clicks
-    interleaved_models[np.where(elements_same_position == 0)] = 2
-    return np.array([interleaved_ratings, interleaved_models])
-
-
 def simulate_clicks(interleaved_list, top_k, realistic_model):
     """
+    Simulates users clicking on the search result interleaved lists.
+    For more details see paragraph 5.1 and 6.3 from the <reproducibility_target_paper>
+    From various points of the <reproducibility_target_paper>
+    it's evident clicks were generated only on the top 10 per query, see paragraph 5.1 and 6.3
     :param interleaved_list:
     interleaved_list[0] is the array of ordered ratings(originally associated to the document Ids) in the interleaved ranked list
-    interleaved_list[1] is the array of ordered models picked by interleaving
+    interleaved_list[1] is the array of ordered rankers picked by interleaving
     :param top_k:
     clicks are generated only for the top K items in the interleaved list
     :param realistic_model:
     True - a user stops viewing search results after his/her information need is satisfied
     False - a user checks all search results (and potentially click them)
-    :return:
+    :return: the simulated clicks associated to the interleaved list of rankers
     """
-
-    # from various points of the <reproducibility_target_paper>
-    # it's evident clicks were generated only on the top 10 per query, see paragraph 5.1 and 6.3
     ratings = interleaved_list[0]
-    interleaved_models = interleaved_list[1]
+    interleaved_rankers = interleaved_list[1]
     if top_k > 0:
         ratings = interleaved_list[0][:top_k]
-        interleaved_models = interleaved_list[1][:top_k]
+        interleaved_rankers = interleaved_list[1][:top_k]
     # from  <reproducibility_target_paper> paragraph 5.1
     if realistic_model:
         # this dictionary models the probability c of continuing after having clicked a <query,document> with such relevance<key>
         # relevance -> probability of continuing
+        # e.g.
         # if the user clicked on a document with relevance 4/4
         # there's a low probability(0.2) of continuing exploring the results, his/her information need is likely satisfied
         continue_probabilities = {0: 1, 1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2}
@@ -208,7 +261,7 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
         click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities,
                                                                                                 ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
-    return np.array([interleaved_models, clicks_column])
+    return np.array([interleaved_rankers, clicks_column])
 
 
 def identify_stop_after_click(clicks_column, stopping_points):
@@ -229,21 +282,31 @@ def will_click(probability):
         return np.random.choice([0, 1], size=1, p=[1.0 - probability, probability])
 
 
-def aggregate_clicks_per_model(interleaved_list):
-    interleaved_models = interleaved_list[0]
-    clicks = interleaved_list[1]
-    per_model_clicks = count_clicks_per_model(interleaved_models, clicks)
-    # clicks in per_model_clicks[2] are ignored,
+def aggregate_clicks_per_ranker(interleaved_rankers_with_clicks):
+    """
+    Counts how many clicks ranker A got, how many ranker B got and
+    how many clicks must be ignored because they happened on a document id
+    that both ranker A and ranker B puts at the same position
+    :param interleaved_rankers_with_clicks:
+    the simulated clicks associated to the interleaved list of rankers
+    :return: the clicks count per ranker
+    """
+    interleaved_rankers = interleaved_rankers_with_clicks[0]
+    clicks = interleaved_rankers_with_clicks[1]
+    per_ranker_clicks = count_clicks_per_ranker(interleaved_rankers, clicks)
+    # clicks in per_ranker_clicks[2] are ignored,
     # they represent clicks on results that were at the same position for both rankers
-    # see [Paragraph 9]
+    # see
+    # [Paragraph 5.3] from the <reproducibility_target_paper>
+    # and [Paragraph 9]
     # O. Chapelle, T. Joachims, F. Radlinski, and Y. Yue.
     # Large scale validation and analysis of interleaved search evaluation.
     # ACM Transactions on Information Science, 30(1), 2012.
-    total_clicks = per_model_clicks[0] + per_model_clicks[1]
-    return np.array([per_model_clicks[0], per_model_clicks[1], total_clicks], dtype="uint16")
+    total_clicks = per_ranker_clicks[0] + per_ranker_clicks[1]
+    return np.array([per_ranker_clicks[0], per_ranker_clicks[1], total_clicks], dtype="uint16")
 
 
-def count_clicks_per_model(interleaved_models, clicks):
+def count_clicks_per_ranker(interleaved_models, clicks):
     click_count = np.zeros(3, dtype=np.int)
     for idx in range(0, len(clicks)):
         if clicks[idx] == 1:
@@ -252,6 +315,14 @@ def count_clicks_per_model(interleaved_models, clicks):
 
 
 def statistical_significance_computation(queries_with_clicks, zero_hypothesis_probability):
+    """
+    Calculates the two tailed p-value for each query with clicks.
+    This value means to measure the probability of obtaining results as extreme as the ones observed, by chance.
+    :param queries_with_clicks:
+    for each query it contains the total number of clicks received and the number of clicks the ranker that got the most
+    :param zero_hypothesis_probability: the default probability for ranker A to be better of ranker B
+    :return:  the two tailed p-value for each query with clicks.
+    """
     p = zero_hypothesis_probability
     # probability that given interleaving_total_clicks tries, we get <= interleaving_winner_clicks by chance
     queries_with_clicks['cumulative_distribution_left'] = scistat.binom.cdf(
@@ -275,6 +346,12 @@ def statistical_significance_computation(queries_with_clicks, zero_hypothesis_pr
 
 
 def statistical_significance_pruning(experiment_results_dataframe):
+    """
+    Given the experiment clicks simulation, this function removes the queries for the ranker pairs <ranker_a, ranker_b>
+    that don't bring a statistically significant contribute
+    :param experiment_results_dataframe: each row is a <ranker_a, ranker_b, query_id> with all the experimental data so far
+    :return: only the rows that have a statistically significant contribute
+    """
     # given a click this is the zero hypothesis probability the winner ranker was clicked
     # given a click only ranker A or ranker B is clicked so zero_hypothesis_probability = 0.5
     zero_hypothesis_probability = 0.5
@@ -288,7 +365,16 @@ def statistical_significance_pruning(experiment_results_dataframe):
     return only_statistical_significant_queries
 
 
-def computing_winning_model_ab_score(experiment_results_dataframe, statistical_weight=False):
+def computing_winning_ranker_ab_score(experiment_results_dataframe, statistical_weight=False):
+    """
+    Calculates the ab score to identify the overall winner between two rankers.
+    For each pair of rankers <ranker_a,ranker_b> it uses all the available queries.
+    :param experiment_results_dataframe: each row is a <ranker_a, ranker_b, query_id> with all the experimental data so far
+    :param statistical_weight:
+    True - this is our contribution, explained in our paper in details
+    False - classic AB score
+    :return the winner ranker in each pair, according to the clicks on the interleaved lists
+    """
     if statistical_weight:
         experiment_results_dataframe['statistical_weight'] = 1 - experiment_results_dataframe['statistical_significance']
         per_ranker_pair_models_wins = \
@@ -333,14 +419,12 @@ def compute_ab_per_pair_of_rankers(rankers_pair_model_wins):
         ties = 0
     else:
         ties = int(ties)
-
     # In the unlikely event that all queries for a pair of rankers have no significance at all p-value=1
     # we can't say anything
     if winner_a + winner_b + ties == 0:
         return 2
     # Delta score
     delta_ab = (winner_a + 1 / 2 * ties) / (winner_a + winner_b + ties) - 0.5
-
     # Computing winning model for ab_score
     if round(delta_ab, 3) > 0:
         return 0

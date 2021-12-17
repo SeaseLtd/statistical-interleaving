@@ -8,10 +8,37 @@ from datetime import datetime
 from pympler.asizeof import asizeof
 
 
-# Model A = 0 , Model B = 1, 2 means a tie
 def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers_to_evaluate_count=136,
                      long_tail_dataset_path=None, long_tail_scaling_factor=1.0, ndcg_top_k=0, click_generation_top_k=0,
                      click_generation_realistic=False, experiment_one_long_tail=False):
+    """
+    This experiment has been designed to reproduce the Experiment 1 in the <reproducibility_target_paper>.
+    All the details of this experiment are described in our paper.
+    Let's briefly list the phases of the experiment:
+    - It calculates for each ranker and query in the query set,
+      the NDCG@k based on the <query,document> with relevance judgements in input
+    - It runs Team Draft Interleaving for each ranker_a VS ranker_b pair, on each query from the query set
+    - It generates clicks simulating both a perfect and realistic group of users
+    - It calculates the AB score using the simulated clicks
+    - It compares the AB scores winners with the NDCG winners, to identify the accuracy of the interleaving approach
+    :param dataset_path: <query,document> pairs with relevance judgements ratings, in svmlight format
+    :param seed: this is the key to reproducibility, it regulates all the randomic events in the experiment
+    :param queries_to_evaluate_count: how many queries to evaluate per ranker_a VS ranker_b pair, taken in order from the dataset
+    :param rankers_to_evaluate_count: how many ranker to evaluate, each ranker is a feature in the <query,document> dataset
+    :param long_tail_dataset_path: a real-world query distribution, expected in the solr JSON facet format
+    :param long_tail_scaling_factor: a float value to multiply how many repetitions per query in the long tail
+    :param ndcg_top_k: to calculate the ground truth of a ranker, NDCG@k is calculated
+    0 means NDCG is calculated over the entire ranked list
+    :param click_generation_top_k: clicks are generated up to the top K position of the ranked list
+    0 menas clicks are generated over the entire ranked list
+    :param click_generation_realistic:
+    True - a user stops viewing search results after his/her information need is satisfied
+    False - a user checks all search results (and potentially click them)
+    :param experiment_one_long_tail:
+    True - queries are repeated with a distribution that happens in the real-world
+    False - each query is executed once
+    :return:
+    """
     np.random.seed(seed)
     start_total = time.time()
     print("Experiment started at:", datetime.now().strftime("%H:%M:%S"))
@@ -179,7 +206,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     # Computing standard ab_score
     print('\nComputing standard AB score')
     start_ab = time.time()
-    experiment_results_dataframe = utils.computing_winning_model_ab_score(experiment_results_dataframe)
+    experiment_results_dataframe = utils.computing_winning_ranker_ab_score(experiment_results_dataframe)
     end_ab = time.time()
     time_ab = end_ab - start_ab
     print('Time for ab score: ' + str(time_ab))
@@ -187,7 +214,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     # Computing Statistical weighted ab_score
     print('\nComputing Statistical Weighted AB score')
     start_ab_stat = time.time()
-    experiment_results_dataframe = utils.computing_winning_model_ab_score(experiment_results_dataframe, True)
+    experiment_results_dataframe = utils.computing_winning_ranker_ab_score(experiment_results_dataframe, True)
     end_ab_stat = time.time()
     time_ab_stat = end_ab_stat - start_ab_stat
     print('Time for ab stat score: ' + str(time_ab_stat))
@@ -220,7 +247,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
         start_ab_pruning = time.time()
         only_statistical_significant_queries.drop(columns=['interleaving_winner_clicks', 'interleaving_total_clicks'],
                                                   inplace=True)
-        only_statistical_significant_queries = utils.computing_winning_model_ab_score(
+        only_statistical_significant_queries = utils.computing_winning_ranker_ab_score(
             only_statistical_significant_queries)
         only_statistical_significant_queries.drop(columns=['query_id', 'interleaving_winner'], inplace=True)
         only_statistical_significant_queries = only_statistical_significant_queries.drop_duplicates()
@@ -279,6 +306,6 @@ def clicks_generation_iteration(interleaved_ranked_lists, click_generation_top_k
 def aggregate_interleaving_clicks_per_model_iteration(interleaved_ranked_lists_clicks):
     aggregated_clicks_column = np.empty([len(interleaved_ranked_lists_clicks), 3], dtype="uint16")
     for idx in range(0, len(interleaved_ranked_lists_clicks)):
-        aggregated_clicks_column[idx] = utils.aggregate_clicks_per_model(interleaved_ranked_lists_clicks[idx])
+        aggregated_clicks_column[idx] = utils.aggregate_clicks_per_ranker(interleaved_ranked_lists_clicks[idx])
     print('final clicks column size: ' + str(asizeof(aggregated_clicks_column)))
     return aggregated_clicks_column
