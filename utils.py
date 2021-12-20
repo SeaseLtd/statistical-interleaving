@@ -207,7 +207,7 @@ def update_index(already_added, index, ranked_list):
     return index
 
 
-def simulate_clicks(interleaved_list, top_k, realistic_model):
+def simulate_clicks(interleaved_list, top_k, realistic_model, click_distribution_per_rating):
     """
     Simulates users clicking on the search result interleaved lists.
     For more details see paragraph 5.1 and 6.3 from the <reproducibility_target_paper>
@@ -261,6 +261,10 @@ def simulate_clicks(interleaved_list, top_k, realistic_model):
         click_probabilities_vector = np.vectorize(to_probability_vectorized, otypes=[np.float])(click_probabilities,
                                                                                                 ratings)
         clicks_column = np.vectorize(will_click, otypes=[np.dtype('u1')])(click_probabilities_vector)
+    for idx in range(0, len(clicks_column)):
+        if interleaved_rankers[idx] != 2:
+            click_distribution_per_rating[ratings[idx]] += clicks_column[idx]
+
     return np.array([interleaved_rankers, clicks_column])
 
 

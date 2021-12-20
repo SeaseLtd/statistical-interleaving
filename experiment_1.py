@@ -56,6 +56,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     print('Query-Document Pairs: ' + str(len(query_document_pairs)))
     print('Unique Queries: ' + str(len(query_document_pairs['query_id'].unique())))
     print('Avg judged documents per query: ' + str(query_document_pairs['query_id'].value_counts().mean()))
+    print('Relevance label distribution: ' + str(query_document_pairs.groupby(['relevance']).size()))
     print(query_document_pairs.info(memory_usage='deep', verbose=False))
     # Retrieve a set of queries to use for the experiment
     print('Selecting queries')
@@ -295,11 +296,20 @@ def interleave_iteration(dataframe_array, ranked_list_cache):
 
 def clicks_generation_iteration(interleaved_ranked_lists, click_generation_top_k, click_generation_realistic):
     clicks_results = []
+    click_distribution_per_rating = np.zeros(5, dtype=np.int)
     for idx in range(0, len(interleaved_ranked_lists)):
-        clicks_results.append(utils.simulate_clicks(interleaved_ranked_lists[idx], click_generation_top_k, click_generation_realistic))
+        clicks_results.append(utils.simulate_clicks(interleaved_ranked_lists[idx], click_generation_top_k,                                            click_generation_realistic, click_distribution_per_rating))
         if idx % 100000 == 0:
             print(str(idx)+' clicks column size: ' + str(asizeof(clicks_results)))
     print('final clicks column size: ' + str(asizeof(clicks_results)))
+    total_clicks = np.sum(click_distribution_per_rating)
+    print('Total Clicks: ' + str(total_clicks))
+    print('Click Distribution per rating: ' + str(click_distribution_per_rating))
+    print('Relevance 0: ' + str(click_distribution_per_rating[0]/total_clicks))
+    print('Relevance 1: ' + str(click_distribution_per_rating[1]/total_clicks))
+    print('Relevance 2: ' + str(click_distribution_per_rating[2]/total_clicks))
+    print('Relevance 3: ' + str(click_distribution_per_rating[3]/total_clicks))
+    print('Relevance 4: ' + str(click_distribution_per_rating[4]/total_clicks))
     return clicks_results
 
 
