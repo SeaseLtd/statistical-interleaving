@@ -70,7 +70,13 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     else:
         # Getting the first <queries_to_evaluate_count> encountered in the dataset.
         # N.B. the order is important here, the order of query IDS as they appear in the query_document_pairs is preserved
-        set_of_queries = query_document_pairs['query_id'].unique()[:queries_to_evaluate_count]
+        unique_queries_to_repeat = query_document_pairs['query_id'].unique()[:queries_to_evaluate_count]
+        repetition_count = long_tail_scaling_factor
+        set_of_queries = []
+        for query_id in unique_queries_to_repeat:
+            set_of_queries = np.append(set_of_queries, np.repeat(
+                query_id, repetition_count))
+        set_of_queries = np.array(set_of_queries, dtype=int)
     print('\nEach ranker is evaluated on queries: ' + str(len(set_of_queries)))
     # Set up the experiment dataframe, each row is a triple <rankerA,rankerB,query_id>
     # Rankers goes from 1 to 136 max(therefore our range goes from 1 to 137)
