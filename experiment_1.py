@@ -180,7 +180,7 @@ def start_experiment(dataset_path, seed, queries_to_evaluate_count=1000, rankers
     # Calculate Winner
     print('\nCalculate Winner')
     # in the long tail scenario, certain queries are repeated many times, so we must accumulate the clicks
-    if experiment_one_long_tail:
+    if experiment_one_long_tail or long_tail_scaling_factor > 1:
         experiment_results_dataframe = pd.DataFrame(experiment_results_dataframe.groupby(['rankerA_id','rankerB_id','query_id']).agg({'avg_NDCG_winning_ranker':'first','interleaving_a_clicks': 'sum', 'interleaving_b_clicks': 'sum', 'interleaving_total_clicks':'sum'})).reset_index()
 
     experiment_results_dataframe['interleaving_winner_clicks'] = np.where(
