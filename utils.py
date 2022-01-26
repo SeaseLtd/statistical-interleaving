@@ -410,19 +410,19 @@ def compute_ab_per_pair_of_rankers(rankers_pair_model_wins):
     if winner_a.empty:
         winner_a = 0
     else:
-        winner_a = int(winner_a)
+        winner_a = float(winner_a)
     winner_b = rankers_pair_model_wins[
         rankers_pair_model_wins['interleaving_winner'] == 1]['per_ranker_wins']
     if winner_b.empty:
         winner_b = 0
     else:
-        winner_b = int(winner_b)
+        winner_b = float(winner_b)
     ties = rankers_pair_model_wins[
         rankers_pair_model_wins['interleaving_winner'] == 2]['per_ranker_wins']
     if ties.empty:
         ties = 0
     else:
-        ties = int(ties)
+        ties = float(ties)
     # In the unlikely event that all queries for a pair of rankers have no significance at all p-value=1
     # we can't say anything
     if winner_a + winner_b + ties == 0:
