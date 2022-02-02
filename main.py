@@ -8,9 +8,9 @@ import experiment_1
 
 def main(argv):
     unix_options = "hp:s:q:m:e:a:u:n:c:r:"
-    gnu_options = ["help", "dataset_path=", "seed=", "query_set=", "max_range_pair=",
-                   "experiment=", "long_tail_dataset_path=", "long_tail_scaling_factor",
-                   "ndcg_top_k", "click_generation_top_k", "click_generation_realistic"]
+    gnu_options = ["help", "dataset_path=", "seed=", "query_set=", "max_range_pair=", "experiment=",
+                   "long_tail_dataset_path=", "long_tail_scaling_factor", "ndcg_top_k", "click_generation_top_k",
+                   "click_generation_realistic"]
     para_dict = dict()
     chosen_experiment = '1'
 
@@ -24,11 +24,11 @@ def main(argv):
     for currentArgument, currentValue in arguments:
         if currentArgument in ("-h", "--help"):
             print("'main.py -p <dataset_path> -s <seed> -q <queries_to_evaluate_count> -m <rankers_to_evaluate_count> "
-                  "-e <experiment> -a <long_tail_dataset_path> -u <long_tail_scaling_factor>' "
-                  "-n <ndcg_top_k>' -c <click_generation_top_k>' -r <click_generation_realistic>'")
+                  "-e <experiment> -a <long_tail_dataset_path> -u <long_tail_scaling_factor> -n <ndcg_top_k>"
+                  " -c <click_generation_top_k>' -r <click_generation_realistic>'")
             sys.exit(1)
         elif currentArgument in ("-p", "--dataset_path"):
-            print("dataset_path= "+ currentValue)
+            print("dataset_path= " + currentValue)
             para_dict['dataset_path'] = currentValue
         elif currentArgument in ("-s", "--seed"):
             print("seed= " + currentValue)
