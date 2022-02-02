@@ -2,7 +2,9 @@ import os
 import numpy as np
 import pandas as pd
 import utils
+from io import StringIO
 from unittest import TestCase
+from unittest.mock import patch
 from pandas.util.testing import assert_frame_equal, assert_numpy_array_equal
 
 EXEC_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,14 +16,13 @@ class UtilsTest(TestCase):
         processed_data_frame = utils.load_dataframe(input_dir)
 
         # Expected dataframe
-        expected_dataframe = pd.DataFrame()
-        expected_dataframe[1] = [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]
-        expected_dataframe[2] = [3.0, 0.0, 0.11, 0.0, 0.0, 0.0, 3.0, 0.0, 0.11, 0.0, 0.0, 0.0]
-        expected_dataframe[3] = [0.0, 3.0, 2.0, 3.0, 3.0, 3.0, 0.0, 3.0, 2.0, 3.0, 3.0, 3.0]
-        expected_dataframe[4] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        expected_dataframe[5] = [3.45, 3.0, 3.0, 3.0, 3.0, 3.0, 3.45, 3.0, 3.0, 3.0, 3.0, 3.0]
-        expected_dataframe['relevance'] = [2, 2, 0, 2, 1, 1, 2, 2, 0, 2, 1, 1]
-        expected_dataframe['query_id'] = [1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 3]
+        expected_dataframe = pd.DataFrame({1: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0],
+                                           2: [3.0, 0.0, 0.11, 0.0, 0.0, 0.0, 3.0, 0.0, 0.11, 0.0, 0.0, 0.0],
+                                           3: [0.0, 3.0, 2.0, 3.0, 3.0, 3.0, 0.0, 3.0, 2.0, 3.0, 3.0, 3.0],
+                                           4: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                           5: [3.45, 3.0, 3.0, 3.0, 3.0, 3.0, 3.45, 3.0, 3.0, 3.0, 3.0, 3.0],
+                                           'relevance': [2, 2, 0, 2, 1, 1, 2, 2, 0, 2, 1, 1],
+                                           'query_id': [1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 3]})
 
         for column_name in [1, 2, 3, 4, 5]:
             expected_dataframe[column_name] = expected_dataframe[column_name].astype('float32')
@@ -36,20 +37,20 @@ class UtilsTest(TestCase):
         processed_data_frame = utils.parse_solr_json_facet_dataset(input_dir)
 
         # Expected dataframe
-        expected_dataframe = pd.DataFrame()
-        expected_dataframe['userId'] = ['0d7dca79487741cb22c0525d2c227a1d832cfeb4dcaa94f26fbb7ab2a61a719d',
-                                        '6ddaf4574436fe1b1cd31286e7aaff209cb0e17330c97f95c54032d7c8df11d4',
-                                        '8fbdcf068f7b35bc7f64d0d4594d056ae7127f294347c19bd4d67e23c84fe6a2',
-                                        '70d224c5794db00100d367973056d3e69184f99d61eab80b3bcf004b2cbaae4c',
-                                        'e45993176582c22eb0266561878ae18688e131a7ccdd4774b6e87d49d62c46b2',
-                                        'f195c9a0ffd8717db412082a8c6ee6c25bcf474a316d2857261120c9483bf2a7',
-                                        '3d468e5c64be793bf966ae8e34315de374ba51898a161d93383215fc3540dc3d',
-                                        '87822d68c93f22b3af89dd0e2d8152686b6212f6e9f11e279693e96dd0148afb',
-                                        'ffd883b352042b6ee7a15cc95a023175306612eb5d7a287150e02cb25af4ccba']
-        expected_dataframe['click_per_userId'] = [151, 106, 68, 65, 85, 47, 36, 1, 1]
-        expected_dataframe['query_id'] = [4577, 4577, 4577, 4577, 4403, 4403, 4403, 5989, 5992]
+        expected_dataframe = pd.DataFrame({
+            'userId': ['0d7dca79487741cb22c0525d2c227a1d832cfeb4dcaa94f26fbb7ab2a61a719d',
+                       '6ddaf4574436fe1b1cd31286e7aaff209cb0e17330c97f95c54032d7c8df11d4',
+                       '8fbdcf068f7b35bc7f64d0d4594d056ae7127f294347c19bd4d67e23c84fe6a2',
+                       '70d224c5794db00100d367973056d3e69184f99d61eab80b3bcf004b2cbaae4c',
+                       'e45993176582c22eb0266561878ae18688e131a7ccdd4774b6e87d49d62c46b2',
+                       'f195c9a0ffd8717db412082a8c6ee6c25bcf474a316d2857261120c9483bf2a7',
+                       '3d468e5c64be793bf966ae8e34315de374ba51898a161d93383215fc3540dc3d',
+                       '87822d68c93f22b3af89dd0e2d8152686b6212f6e9f11e279693e96dd0148afb',
+                       'ffd883b352042b6ee7a15cc95a023175306612eb5d7a287150e02cb25af4ccba'],
+            'click_per_userId': [151, 106, 68, 65, 85, 47, 36, 1, 1],
+            'query_id': [4577, 4577, 4577, 4577, 4403, 4403, 4403, 5989, 5992],
+            'click_per_query': [4, 4, 4, 4, 3, 3, 3, 1, 1]})
         expected_dataframe['query_id'] = expected_dataframe['query_id'].astype('object')
-        expected_dataframe['click_per_query'] = [4, 4, 4, 4, 3, 3, 3, 1, 1]
         expected_dataframe['click_per_query'] = expected_dataframe['click_per_query'].astype('object')
 
         # Asserting
@@ -57,14 +58,13 @@ class UtilsTest(TestCase):
 
     def test_get_long_tail_query_set(self):
         # Query document pairs
-        input_dataframe = pd.DataFrame()
-        input_dataframe[1] = [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0]
-        input_dataframe[2] = [3.0, 0.0, 0.11, 0.0, 0.0, 0.0, 3.0, 0.0, 0.11, 0.0, 0.0, 0.0]
-        input_dataframe[3] = [0.0, 3.0, 2.0, 3.0, 3.0, 3.0, 0.0, 3.0, 2.0, 3.0, 3.0, 3.0]
-        input_dataframe[4] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        input_dataframe[5] = [3.45, 3.0, 3.0, 3.0, 3.0, 3.0, 3.45, 3.0, 3.0, 3.0, 3.0, 3.0]
-        input_dataframe['relevance'] = [2, 2, 0, 2, 1, 1, 2, 2, 0, 2, 1, 1]
-        input_dataframe['query_id'] = [1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 3]
+        input_dataframe = pd.DataFrame({1: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0],
+                                        2: [3.0, 0.0, 0.11, 0.0, 0.0, 0.0, 3.0, 0.0, 0.11, 0.0, 0.0, 0.0],
+                                        3: [0.0, 3.0, 2.0, 3.0, 3.0, 3.0, 0.0, 3.0, 2.0, 3.0, 3.0, 3.0],
+                                        4: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                        5: [3.45, 3.0, 3.0, 3.0, 3.0, 3.0, 3.45, 3.0, 3.0, 3.0, 3.0, 3.0],
+                                        'relevance': [2, 2, 0, 2, 1, 1, 2, 2, 0, 2, 1, 1],
+                                        'query_id': [1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 3]})
 
         # Industrial dataset
         input_dir = EXEC_DIR + '/resources/query_click_user_big.json'
@@ -77,3 +77,59 @@ class UtilsTest(TestCase):
 
         # Asserting
         assert_numpy_array_equal(result_set_of_queries, expected_set_of_queries)
+
+    def test_cache_ranked_lists_per_ranker(self):
+        # Input dataframe
+        input_dataframe = pd.DataFrame({'rankerA_id': [1, 1, 1, 1, 1, 2, 2],
+                                        'rankerB_id': [2, 2, 2, 2, 2, 3, 3],
+                                        'query_id': [1, 1, 1, 6, 6, 4, 5],
+                                        'rankerA_avg_NDCG': [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+                                        'rankerB_avg_NDCG': [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+                                        'avg_NDCG_winning_ranker': [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                                                    np.nan]})
+
+        # Query document pairs
+        query_document_pairs = pd.DataFrame({1: [3, 3, 5, 1, 0, 2, 4.56],
+                                             2: [3, 0, 23, 0.6, 1, -45, 4],
+                                             3: [0, 3.4, 1, 2, -3, 0, 2],
+                                             4: [0, 80, 2, 3, 1, 2, 34],
+                                             'relevance': [2, 3, 2, 0, 1, 3, 2],
+                                             'query_id': [1, 1, 1, 6, 6, 4, 5]})
+
+        # Expected ranked list cache
+        expected_ranked_list_cache = pd.DataFrame(dict({
+            '1_1': [np.array([2, 0, 1]), np.array([2, 2, 3])],
+            '1_6': [np.array([3, 4]), np.array([0, 1])],
+            '1_4': [np.array([5]), np.array([3])],
+            '1_5': [np.array([6]), np.array([2])],
+            '2_1': [np.array([2, 0, 1]), np.array([2, 2, 3])],
+            '2_6': [np.array([4, 3]), np.array([1, 0])],
+            '2_4': [np.array([5]), np.array([3])],
+            '2_5': [np.array([6]), np.array([2])],
+            '3_1': [np.array([1, 2, 0]), np.array([3, 2, 2])],
+            '3_6': [np.array([3, 4]), np.array([0, 1])],
+            '3_4': [np.array([5]), np.array([3])],
+            '3_5': [np.array([6]), np.array([2])]}))
+
+        # Expected input dataframe
+        expected_input_dataframe = pd.DataFrame({
+            'rankerA_id': [1, 1, 1, 1, 1, 2, 2],
+            'rankerB_id': [2, 2, 2, 2, 2, 3, 3],
+            'query_id': [1, 1, 1, 6, 6, 4, 5],
+            'rankerA_avg_NDCG': [0.81229, 0.81229, 0.81229, 0.81229, 0.81229, 0.91771,
+                                 0.91771],
+            'rankerB_avg_NDCG': [0.91771, 0.91771, 0.91771, 0.91771, 0.91771, 0.89457,
+                                 0.89457],
+            'avg_NDCG_winning_ranker': [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                        np.nan]})
+
+        # Asserting
+        with patch('sys.stdout', new=StringIO()) as fake_out:
+            result_ranked_list = utils.cache_ranked_lists_per_ranker(input_dataframe, 0, query_document_pairs, 3,
+                                                                     np.array([1, 1, 1, 6, 6, 4, 5]))
+            self.assertEqual(fake_out.getvalue(),
+                             '\nRanker[1] AVG NDCG:0.8122857142857144\n\nRanker[2] AVG NDCG:0.9177142857142858\n\nRanker[3] AVG NDCG:0.8945714285714287\n')
+
+        result_ranked_list = pd.DataFrame(result_ranked_list)
+        assert_frame_equal(result_ranked_list, expected_ranked_list_cache)
+        assert_frame_equal(input_dataframe, expected_input_dataframe)
