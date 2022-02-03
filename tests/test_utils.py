@@ -166,3 +166,48 @@ class UtilsTest(TestCase):
 
         # Asserting
         assert_numpy_array_equal(returned_list, expected_list)
+
+    def test_simulate_clicks(self):
+        np.random.seed(100)
+
+        # Interleaved list
+        interleaved_list = np.array([[2, 1, 4, 0, 3, 0, 3], [2, 1, 1, 0, 1, 0, 2]], dtype='uint8')
+
+        top_k = 0
+        realistic_model = False
+
+        # Click distribution per rating
+        click_distribution_per_rating = np.zeros(5, dtype='int')
+
+        # Expected clicks
+        expected_clicks = np.array([[2, 1, 1, 0, 1, 0, 2], [0, 0, 1, 0, 1, 0, 1]], dtype='uint8')
+
+        # Expected click distribution
+        expected_clicks_distribution = np.array([0, 0, 0, 1, 1])
+
+        result_clicks = utils.simulate_clicks(interleaved_list, top_k, realistic_model, click_distribution_per_rating)
+
+        # Asserting
+        assert_numpy_array_equal(result_clicks, expected_clicks)
+        assert_numpy_array_equal(click_distribution_per_rating, expected_clicks_distribution)
+
+        # --------------------------- REALISTIC MODEL TEST ---------------------
+        realistic_model = True
+
+        # Click distribution per rating
+        click_distribution_per_rating = np.zeros(5, dtype='int')
+
+        # Expected clicks
+        expected_clicks = np.array([[2, 1, 1, 0, 1, 0, 2], [0, 0, 1, 0, 0, 0, 0]], dtype='uint8')
+
+        # Expected click distribution
+        expected_clicks_distribution = np.array([0, 0, 0, 0, 1])
+
+        result_clicks = utils.simulate_clicks(interleaved_list, top_k, realistic_model, click_distribution_per_rating)
+
+        # Asserting
+        assert_numpy_array_equal(result_clicks, expected_clicks)
+        assert_numpy_array_equal(click_distribution_per_rating, expected_clicks_distribution)
+
+    def test_aggregate_clicks_per_ranker(self):
+        print()
