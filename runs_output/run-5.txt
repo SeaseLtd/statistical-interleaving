@@ -1,0 +1,417 @@
+dataset_path= ./train.txt
+seed= 173
+queries_to_evaluate_count= 100
+rankers_to_evaluate_count= 136
+-experiment 1
+ndcg_top_k= 10
+click_generation_top_k= 10
+Experiment started at: 19:17:58
+
+Loading dataframe
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2270296 entries, 0 to 2270295
+Columns: 138 entries, 1 to query_id
+dtypes: float32(136), int32(2)
+memory usage: 1.2 GB
+None
+
+Time for loading dataframe: 157.80863118171692
+Query-Document Pairs: 2269598
+Unique Queries: 18919
+Avg judged documents per query: 119.96395158306464
+Relevance label distribution: relevance
+0    1169685
+1     736899
+2     303445
+3      41361
+4      18208
+dtype: int64
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 2269598 entries, 0 to 2270295
+Columns: 138 entries, 1 to query_id
+dtypes: float32(136), int32(2)
+memory usage: 1.2 GB
+None
+Selecting queries
+
+Each ranker is evaluated on queries: 100
+
+Computing experiment results dataframe
+136
+Time for computing experiment results dataframe: 1.5368309020996094
+
+Computing ranked lists and NDCG
+
+Ranker[1] AVG NDCG:0.17946000000000006
+
+Ranker[2] AVG NDCG:0.24233000000000002
+
+Ranker[3] AVG NDCG:0.28156000000000003
+
+Ranker[4] AVG NDCG:0.24848000000000003
+
+Ranker[5] AVG NDCG:0.18395000000000003
+
+Ranker[6] AVG NDCG:0.17946000000000006
+
+Ranker[7] AVG NDCG:0.24233000000000002
+
+Ranker[8] AVG NDCG:0.28156000000000003
+
+Ranker[9] AVG NDCG:0.24848000000000003
+
+Ranker[10] AVG NDCG:0.18395000000000003
+
+Ranker[11] AVG NDCG:0.09942000000000001
+
+Ranker[12] AVG NDCG:0.1954599999999999
+
+Ranker[13] AVG NDCG:0.13613999999999996
+
+Ranker[14] AVG NDCG:0.17495000000000008
+
+Ranker[15] AVG NDCG:0.09910999999999999
+
+Ranker[16] AVG NDCG:0.16211999999999996
+
+Ranker[17] AVG NDCG:0.16211999999999996
+
+Ranker[18] AVG NDCG:0.16211999999999996
+
+Ranker[19] AVG NDCG:0.16211999999999996
+
+Ranker[20] AVG NDCG:0.16211999999999996
+
+Ranker[21] AVG NDCG:0.19891999999999999
+
+Ranker[22] AVG NDCG:0.26063
+
+Ranker[23] AVG NDCG:0.25740999999999997
+
+Ranker[24] AVG NDCG:0.23951
+
+Ranker[25] AVG NDCG:0.20323000000000008
+
+Ranker[26] AVG NDCG:0.2528000000000001
+
+Ranker[27] AVG NDCG:0.2316600000000001
+
+Ranker[28] AVG NDCG:0.24396
+
+Ranker[29] AVG NDCG:0.20184999999999997
+
+Ranker[30] AVG NDCG:0.26159999999999994
+
+Ranker[31] AVG NDCG:0.18382999999999997
+
+Ranker[32] AVG NDCG:0.24755000000000005
+
+Ranker[33] AVG NDCG:0.20628
+
+Ranker[34] AVG NDCG:0.2035100000000001
+
+Ranker[35] AVG NDCG:0.18533999999999992
+
+Ranker[36] AVG NDCG:0.19891999999999999
+
+Ranker[37] AVG NDCG:0.26063
+
+Ranker[38] AVG NDCG:0.25740999999999997
+
+Ranker[39] AVG NDCG:0.23951
+
+Ranker[40] AVG NDCG:0.20323000000000008
+
+Ranker[41] AVG NDCG:0.15822999999999995
+
+Ranker[42] AVG NDCG:0.20089
+
+Ranker[43] AVG NDCG:0.16635000000000003
+
+Ranker[44] AVG NDCG:0.20809000000000005
+
+Ranker[45] AVG NDCG:0.15906999999999996
+
+Ranker[46] AVG NDCG:0.21307999999999996
+
+Ranker[47] AVG NDCG:0.24924000000000002
+
+Ranker[48] AVG NDCG:0.27081
+
+Ranker[49] AVG NDCG:0.26441999999999993
+
+Ranker[50] AVG NDCG:0.23724
+
+Ranker[51] AVG NDCG:0.27338
+
+Ranker[52] AVG NDCG:0.2205600000000001
+
+Ranker[53] AVG NDCG:0.26877
+
+Ranker[54] AVG NDCG:0.22766000000000017
+
+Ranker[55] AVG NDCG:0.29251000000000005
+
+Ranker[56] AVG NDCG:0.19265999999999997
+
+Ranker[57] AVG NDCG:0.23247000000000004
+
+Ranker[58] AVG NDCG:0.22990000000000013
+
+Ranker[59] AVG NDCG:0.22704999999999997
+
+Ranker[60] AVG NDCG:0.2153800000000001
+
+Ranker[61] AVG NDCG:0.21307999999999996
+
+Ranker[62] AVG NDCG:0.24924000000000002
+
+Ranker[63] AVG NDCG:0.27081
+
+Ranker[64] AVG NDCG:0.26441999999999993
+
+Ranker[65] AVG NDCG:0.23724
+
+Ranker[66] AVG NDCG:0.17584999999999998
+
+Ranker[67] AVG NDCG:0.20064000000000004
+
+Ranker[68] AVG NDCG:0.20512999999999995
+
+Ranker[69] AVG NDCG:0.20718000000000003
+
+Ranker[70] AVG NDCG:0.18297999999999986
+
+Ranker[71] AVG NDCG:0.20061999999999997
+
+Ranker[72] AVG NDCG:0.26350000000000007
+
+Ranker[73] AVG NDCG:0.25207
+
+Ranker[74] AVG NDCG:0.23881000000000005
+
+Ranker[75] AVG NDCG:0.20572000000000001
+
+Ranker[76] AVG NDCG:0.25456
+
+Ranker[77] AVG NDCG:0.23387000000000005
+
+Ranker[78] AVG NDCG:0.2528
+
+Ranker[79] AVG NDCG:0.20163000000000003
+
+Ranker[80] AVG NDCG:0.2621300000000001
+
+Ranker[81] AVG NDCG:0.18502000000000007
+
+Ranker[82] AVG NDCG:0.25423
+
+Ranker[83] AVG NDCG:0.2170300000000001
+
+Ranker[84] AVG NDCG:0.2194400000000001
+
+Ranker[85] AVG NDCG:0.18923
+
+Ranker[86] AVG NDCG:0.20061999999999997
+
+Ranker[87] AVG NDCG:0.26350000000000007
+
+Ranker[88] AVG NDCG:0.25207
+
+Ranker[89] AVG NDCG:0.23881000000000005
+
+Ranker[90] AVG NDCG:0.20572000000000001
+
+Ranker[91] AVG NDCG:0.16508
+
+Ranker[92] AVG NDCG:0.22607000000000013
+
+Ranker[93] AVG NDCG:0.17503999999999997
+
+Ranker[94] AVG NDCG:0.19217000000000004
+
+Ranker[95] AVG NDCG:0.16439
+
+Ranker[96] AVG NDCG:0.17821
+
+Ranker[97] AVG NDCG:0.21500000000000002
+
+Ranker[98] AVG NDCG:0.24724000000000004
+
+Ranker[99] AVG NDCG:0.20665999999999995
+
+Ranker[100] AVG NDCG:0.18387
+
+Ranker[101] AVG NDCG:0.21860000000000002
+
+Ranker[102] AVG NDCG:0.24152000000000004
+
+Ranker[103] AVG NDCG:0.2918400000000001
+
+Ranker[104] AVG NDCG:0.2469299999999999
+
+Ranker[105] AVG NDCG:0.21907999999999994
+
+Ranker[106] AVG NDCG:0.27665
+
+Ranker[107] AVG NDCG:0.26626999999999995
+
+Ranker[108] AVG NDCG:0.30729999999999996
+
+Ranker[109] AVG NDCG:0.26632000000000006
+
+Ranker[110] AVG NDCG:0.2984
+
+Ranker[111] AVG NDCG:0.28321999999999997
+
+Ranker[112] AVG NDCG:0.27354999999999996
+
+Ranker[113] AVG NDCG:0.29944
+
+Ranker[114] AVG NDCG:0.25860999999999995
+
+Ranker[115] AVG NDCG:0.30041999999999996
+
+Ranker[116] AVG NDCG:0.26105999999999996
+
+Ranker[117] AVG NDCG:0.26385000000000003
+
+Ranker[118] AVG NDCG:0.2805500000000001
+
+Ranker[119] AVG NDCG:0.25244000000000005
+
+Ranker[120] AVG NDCG:0.27245999999999987
+
+Ranker[121] AVG NDCG:0.2729999999999999
+
+Ranker[122] AVG NDCG:0.24994999999999995
+
+Ranker[123] AVG NDCG:0.30954000000000004
+
+Ranker[124] AVG NDCG:0.26148999999999994
+
+Ranker[125] AVG NDCG:0.29742
+
+Ranker[126] AVG NDCG:0.16946999999999995
+
+Ranker[127] AVG NDCG:0.17743000000000003
+
+Ranker[128] AVG NDCG:0.20937
+
+Ranker[129] AVG NDCG:0.20330000000000012
+
+Ranker[130] AVG NDCG:0.21130999999999997
+
+Ranker[131] AVG NDCG:0.18494
+
+Ranker[132] AVG NDCG:0.14635999999999996
+
+Ranker[133] AVG NDCG:0.13470999999999997
+
+Ranker[134] AVG NDCG:0.30725
+
+Ranker[135] AVG NDCG:0.22459000000000004
+
+Ranker[136] AVG NDCG:0.19398000000000007
+Time to calculate Ranked Lists and NDCG: 34.446396589279175
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 918000 entries, 0 to 917999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 28.0 MB
+None
+
+Computing Interleaving
+0 interleaving column size: 392
+100000 interleaving column size: 35312760
+200000 interleaving column size: 70648088
+300000 interleaving column size: 106142392
+400000 interleaving column size: 141341856
+500000 interleaving column size: 176730312
+600000 interleaving column size: 211754608
+700000 interleaving column size: 247524696
+800000 interleaving column size: 282776288
+900000 interleaving column size: 318123336
+final interleaving column size: 324330888
+Time for interleaving: 1597.0854473114014
+
+Generating Clicks
+Current memory for the DataFrame: 95482600
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 918000 entries, 0 to 917999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 28.0 MB
+None
+0 clicks column size: 240
+100000 clicks column size: 14424608
+200000 clicks column size: 28871936
+300000 clicks column size: 43478240
+400000 clicks column size: 57789704
+500000 clicks column size: 72290160
+600000 clicks column size: 86426456
+700000 clicks column size: 101308544
+800000 clicks column size: 115672136
+900000 clicks column size: 130131184
+final clicks column size: 132579048
+Total Clicks: 1202866
+Click Distribution per rating: [     0 471092 525926 128446  77402]
+Relevance 0: 0.0
+Relevance 1: 0.39164129670304093
+Relevance 2: 0.4372274218408368
+Relevance 3: 0.10678329922036203
+Relevance 4: 0.06434798223576026
+Time for generating clicks: 293.99777388572693
+Current memory for the DataFrame: 95482600
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 918000 entries, 0 to 917999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 28.0 MB
+None
+
+Computing per query sum of clicks
+final clicks column size: 5508128
+Current memory for the DataFrame: 112012360
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 918000 entries, 0 to 917999
+Columns: 7 entries, rankerA_id to interleaving_total_clicks
+dtypes: int64(4), uint16(3)
+memory usage: 33.3 MB
+None
+Time for computing per query winning model: 24.241859674453735
+Ranker combinations:9180
+
+After the removal of queries that didn't show any click
+Ranker combinations:9150
+
+Calculate Winner
+
+Pruning
+Time for pruning: 0.18849992752075195
+Only stat relevant rows
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 0 entries
+Columns: 7 entries, rankerA_id to interleaving_winner
+dtypes: int64(5), uint16(2)
+memory usage: 0.0 bytes
+None
+
+Computing standard AB score
+Time for ab score: 14.620134353637695
+
+Computing Statistical Weighted AB score
+Time for ab stat score: 16.169997930526733
+
+The CONTROL approach got: 7395/9150 pairs right!
+
+Accuracy of CONTROL approach: 0.8081967213114755
+
+The STAT WEIGHT approach got: 7217/9150 pairs right!
+
+Accuracy of STAT WEIGHT approach: 0.7887431693989071
+
+!!!!!!!!! The pruning removes all the queries for all the rankers !!!!!!!!!!
+
+Experiment ended at: 19:54:18
+Total experiment time: 2179.8674664497375

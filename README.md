@@ -23,10 +23,19 @@ python3 -u ./main.py -p ./train.txt -s 347 -q 1000 -m 136 -e 1 > runs_output/run
 ```
 
 3-4:
+```
+python3 -u ./main.py -p ./train.txt -s 333 -q 1000 -m 136 -e 1 -n 10 -c 10 > runs_output/run-3-4.txt
+```
 
 5:
+```
+python3 -u ./main.py -p ./train.txt -s 173 -q 100 -m 136 -e 1 -n 10 -c 10 > runs_output/run-5.txt
+```
 
 6:
+```
+python3 -u ./main.py -p ./train.txt -s 193 -q 100 -m 136 -e 1 -n 10 -c 10 -u 10 > runs_output/run-6.txt
+```
 
 7:
 
