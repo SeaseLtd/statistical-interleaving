@@ -158,7 +158,7 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     interleaved_ratings = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
     interleaved_rankers = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
     elements_same_position = ranked_list_a - ranked_list_b
-    elements_to_ignore_for_clicks = set(np.where(elements_same_position == 0))
+    elements_to_ignore_for_clicks = set(np.where(elements_same_position == 0)[0])
     already_added = set()
     # -1 means we need to draw a model randomly, 0 means model A turn, 1 means model B
     ranker_turn = -1

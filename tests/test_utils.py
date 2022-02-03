@@ -160,7 +160,7 @@ class UtilsTest(TestCase):
         b_ratings = np.array([2, 1, 1, 0, 1, 0, 1])
 
         # Expected list
-        expected_list = np.array([[2, 1, 1, 1, 0, 0, 0], [2, 1, 1, 0, 1, 0, 1]], dtype='uint8')
+        expected_list = np.array([[2, 1, 1, 1, 0, 0, 1], [2, 1, 1, 0, 1, 0, 2]], dtype='uint8')
 
         returned_list = utils.execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings)
 
