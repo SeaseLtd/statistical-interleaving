@@ -133,3 +133,36 @@ class UtilsTest(TestCase):
         result_ranked_list = pd.DataFrame(result_ranked_list)
         assert_frame_equal(result_ranked_list, expected_ranked_list_cache)
         assert_frame_equal(input_dataframe, expected_input_dataframe)
+
+    def test_compute_ndcg(self):
+        ratings_list = np.array([2, 0, 0, 1, 2, 3, 2])
+        top_k = 0
+
+        result_ndcg = utils.compute_ndcg(ratings_list, top_k)
+        expected_ndcg = 0.670
+
+        self.assertEqual(result_ndcg, expected_ndcg)
+
+        top_k = 3
+
+        result_ndcg = utils.compute_ndcg(ratings_list, top_k)
+        expected_ndcg = 0.289
+
+        self.assertEqual(result_ndcg, expected_ndcg)
+
+    def test_execute_team_draft_interleaving(self):
+        np.random.seed(0)
+
+        # Input lists
+        ranked_list_a = np.array([0, 40, 61, 10, 2, 35, 21])
+        ranked_list_b = np.array([0, 20, 83, 11, 2, 3, 75])
+        a_ratings = np.array([2, 1, 0, 0, 1, 0, 3])
+        b_ratings = np.array([2, 1, 1, 0, 1, 0, 1])
+
+        # Expected list
+        expected_list = np.array([[2, 1, 1, 1, 0, 0, 0], [2, 1, 1, 0, 1, 0, 1]], dtype='uint8')
+
+        returned_list = utils.execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_ratings)
+
+        # Asserting
+        assert_numpy_array_equal(returned_list, expected_list)
