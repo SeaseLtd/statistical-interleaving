@@ -158,6 +158,7 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     interleaved_ratings = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
     interleaved_rankers = np.empty(len(ranked_list_a), dtype=np.dtype('u1'))
     elements_same_position = ranked_list_a - ranked_list_b
+    elements_to_ignore_for_clicks = set(np.where(elements_same_position == 0))
     already_added = set()
     # -1 means we need to draw a model randomly, 0 means model A turn, 1 means model B
     ranker_turn = -1
@@ -172,7 +173,10 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
             index_a = update_index(already_added, index_a, ranked_list_a)
             already_added.add(ranked_list_a[index_a])
             interleaved_ratings[result_index] = a_ratings[index_a]
-            interleaved_rankers[result_index] = 0
+            if index_a in elements_to_ignore_for_clicks:
+                interleaved_rankers[result_index] = 2
+            else:
+                interleaved_rankers[result_index] = 0
             if ranker_turn == -1:  # we drew A , next turn is B
                 ranker_turn = 1
             else:
@@ -183,7 +187,10 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
             index_b = update_index(already_added, index_b, ranked_list_b)
             already_added.add(ranked_list_b[index_b])
             interleaved_ratings[result_index] = b_ratings[index_b]
-            interleaved_rankers[result_index] = 1
+            if index_b in elements_to_ignore_for_clicks:
+                interleaved_rankers[result_index] = 2
+            else:
+                interleaved_rankers[result_index] = 1
             if ranker_turn == -1:  # we drew B , next turn is A
                 ranker_turn = 0
             else:
@@ -192,7 +199,6 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
             result_index += 1
     # we have only ranker 0(A) and ranker 1(B), interleaved.
     # Value=2 means the rankings got the same element in same position this will make possible to ignore such clicks
-    interleaved_rankers[np.where(elements_same_position == 0)] = 2
     return np.array([interleaved_ratings, interleaved_rankers])
 
 
