@@ -308,3 +308,43 @@ class UtilsTest(TestCase):
 
         # Asserting
         assert_frame_equal(result_dataframe, expected_dataframe)
+
+    def test_compute_ab_per_pair_of_rankers(self):
+        # Input dataframe winner 1
+        input_dataframe_1 = pd.DataFrame({'rankerA_id': [1, 1, 1],
+                                          'rankerB_id': [2, 2, 2],
+                                          'interleaving_winner': [1, 0, 2],
+                                          'per_ranker_wins': [4, 1, 1]})
+
+        # Input dataframe winner 0
+        input_dataframe_0 = pd.DataFrame({'rankerA_id': [1, 1, 1],
+                                          'rankerB_id': [2, 2, 2],
+                                          'interleaving_winner': [1, 0, 2],
+                                          'per_ranker_wins': [2, 3, 1]})
+
+        # Input dataframe winner 2
+        input_dataframe_2 = pd.DataFrame({'rankerA_id': [1, 1, 1],
+                                          'rankerB_id': [2, 2, 2],
+                                          'interleaving_winner': [1, 0, 2],
+                                          'per_ranker_wins': [3, 3, 4]})
+
+        # Expected winner
+        expected_winner = 1
+
+        result_winner = utils.compute_ab_per_pair_of_rankers(input_dataframe_1)
+
+        self.assertEqual(result_winner, expected_winner)
+
+        # Expected winner
+        expected_winner = 0
+
+        result_winner = utils.compute_ab_per_pair_of_rankers(input_dataframe_0)
+
+        self.assertEqual(result_winner, expected_winner)
+
+        # Expected winner
+        expected_winner = 2
+
+        result_winner = utils.compute_ab_per_pair_of_rankers(input_dataframe_2)
+
+        self.assertEqual(result_winner, expected_winner)
