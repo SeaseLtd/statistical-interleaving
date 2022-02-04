@@ -220,3 +220,32 @@ class UtilsTest(TestCase):
 
         # Asserting
         assert_numpy_array_equal(result_clicks_count_per_ranker, expected_clicks_count_per_ranker)
+
+    def test_statistical_significance_computation(self):
+        # Input dataframe
+        input_dataframe = pd.DataFrame({'rankerA_id': [1, 1, 1, 1, 1, 2, 2],
+                                        'rankerB_id': [2, 2, 2, 2, 2, 3, 3],
+                                        'query_id': [1, 2, 3, 6, 8, 3, 4],
+                                        'avg_NDCG_winning_ranker': [1, 0.8, 1, 1, 0.7, 0.9, 0.68],
+                                        'interleaving_total_clicks': [2, 3, 1, 3, 1, 2, 2],
+                                        'interleaving_winner_clicks': [2, 2, 1, 1, 1, 1, 2],
+                                        'interleaving_winner': [1, 0, 0, 2, 2, 0, 1]})
+
+        zero_hypothesis_probability = 0.5
+
+        # Expected input dataframe
+        expected_dataframe = pd.DataFrame({'rankerA_id': [1, 1, 1, 1, 1, 2, 2],
+                                           'rankerB_id': [2, 2, 2, 2, 2, 3, 3],
+                                           'query_id': [1, 2, 3, 6, 8, 3, 4],
+                                           'avg_NDCG_winning_ranker': [1, 0.8, 1, 1, 0.7, 0.9, 0.68],
+                                           'interleaving_total_clicks': [2, 3, 1, 3, 1, 2, 2],
+                                           'interleaving_winner_clicks': [2, 2, 1, 1, 1, 1, 2],
+                                           'interleaving_winner': [1, 0, 0, 2, 2, 0, 1],
+                                           'statistical_significance': [0.5000000000000002, 1.0000000000000004,
+                                                                        1.0000000000000002, 0.3750000000000001,
+                                                                        0.5, 1.5000000000000002, 0.5000000000000002]})
+
+        result_dataframe = utils.statistical_significance_computation(input_dataframe, zero_hypothesis_probability)
+
+        # Asserting
+        assert_frame_equal(result_dataframe, expected_dataframe)
