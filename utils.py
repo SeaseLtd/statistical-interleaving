@@ -149,6 +149,13 @@ def execute_team_draft_interleaving(ranked_list_a, a_ratings, ranked_list_b, b_r
     [1] T. Joachims. Optimizing search engines using clickthrough data. KDD (2002)
     [2] T.Joachims.Evaluatingretrievalperformanceusingclickthroughdata.InJ.Franke, G. Nakhaeizadeh, and I. Renz, editors,
     Text Mining, pages 79–96. Physica/Springer (2003)
+    Documents on the same position for both rankers are marked as picked from ranker 2 because clicks on them will be ignored
+    see
+    [Paragraph 5.3] from the <reproducibility_target_paper>
+    and [Paragraph 9]
+    O. Chapelle, T. Joachims, F. Radlinski, and Y. Yue.
+    Large scale validation and analysis of interleaved search evaluation.
+    ACM Transactions on Information Science, 30(1), 2012.
     :param ranked_list_a: the ordered list of document ids from ranker A
     :param a_ratings: the ordered list of relevance judgements ratings associated to each document id from ranker A
     :param ranked_list_b: the ordered list of document ids from ranker B

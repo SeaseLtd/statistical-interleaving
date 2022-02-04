@@ -210,4 +210,13 @@ class UtilsTest(TestCase):
         assert_numpy_array_equal(click_distribution_per_rating, expected_clicks_distribution)
 
     def test_aggregate_clicks_per_ranker(self):
-        print()
+        # Interleaved rankers with clicks
+        interleaved_rankers_with_clicks = np.array([[2, 0, 0, 1, 1, 0, 2], [1, 0, 0, 1, 1, 1, 0]])
+
+        # Expected clicks count
+        expected_clicks_count_per_ranker = np.array([1, 2, 3], dtype='uint16')
+
+        result_clicks_count_per_ranker = utils.aggregate_clicks_per_ranker(interleaved_rankers_with_clicks)
+
+        # Asserting
+        assert_numpy_array_equal(result_clicks_count_per_ranker, expected_clicks_count_per_ranker)
