@@ -352,7 +352,7 @@ def statistical_significance_computation(queries_with_clicks, zero_hypothesis_pr
     queries_with_clicks['cumulative_distribution_right'] = 1 - queries_with_clicks[
         'cumulative_distribution_left'] + queries_with_clicks['pmf']
     # our statistical significance is two tailed, because we have interleaving_winner_clicks which could be Model A or Model B
-    queries_with_clicks['statistical_significance'] = 2 * queries_with_clicks['cumulative_distribution_right'] + sys.float_info.epsilon
+    queries_with_clicks['statistical_significance'] = queries_with_clicks['cumulative_distribution_right'] + sys.float_info.epsilon
     queries_with_clicks['statistical_significance'] = np.where(queries_with_clicks['interleaving_winner'] == 2,
                                                                queries_with_clicks['pmf'],
                                                                queries_with_clicks['statistical_significance'])
