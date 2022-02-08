@@ -241,9 +241,9 @@ class UtilsTest(TestCase):
                                            'interleaving_total_clicks': [2, 3, 1, 3, 1, 2, 2],
                                            'interleaving_winner_clicks': [2, 2, 1, 1, 1, 1, 2],
                                            'interleaving_winner': [1, 0, 0, 2, 2, 0, 1],
-                                           'statistical_significance': [0.5000000000000002, 1.0000000000000004,
-                                                                        1.0000000000000002, 0.3750000000000001,
-                                                                        0.5, 1.5000000000000002, 0.5000000000000002]})
+                                           'statistical_significance': [0.2500000000000002, 0.5000000000000003,
+                                                                        0.5000000000000002, 0.3750000000000001,
+                                                                        0.5, 0.7500000000000004, 0.2500000000000002]})
 
         result_dataframe = utils.statistical_significance_computation(input_dataframe, zero_hypothesis_probability)
 
