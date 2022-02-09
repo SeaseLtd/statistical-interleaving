@@ -351,7 +351,6 @@ def statistical_significance_computation(queries_with_clicks, zero_hypothesis_pr
     # probability that given interleaving_total_clicks tries, we get >= interleaving_winner_clicks by chance
     queries_with_clicks['cumulative_distribution_right'] = 1 - queries_with_clicks[
         'cumulative_distribution_left'] + queries_with_clicks['pmf']
-    # our statistical significance is two tailed, because we have interleaving_winner_clicks which could be Model A or Model B
     queries_with_clicks['statistical_significance'] = queries_with_clicks['cumulative_distribution_right'] + sys.float_info.epsilon
     queries_with_clicks['statistical_significance'] = np.where(queries_with_clicks['interleaving_winner'] == 2,
                                                                queries_with_clicks['pmf'],
@@ -392,6 +391,10 @@ def computing_winning_ranker_ab_score(experiment_results_dataframe, statistical_
     :return the winner ranker in each pair, according to the clicks on the interleaved lists
     """
     if statistical_weight:
+        grouper = experiment_results_dataframe.groupby(['rankerA_id', 'rankerB_id'])['statistical_significance']
+        maxes = grouper.transform('max')
+        mins = grouper.transform('min')
+        experiment_results_dataframe = experiment_results_dataframe.assign(statistical_significance=(experiment_results_dataframe['statistical_significance'] - mins) / (maxes - mins))
         experiment_results_dataframe['statistical_weight'] = 1 - experiment_results_dataframe['statistical_significance']
         per_ranker_pair_models_wins = \
             experiment_results_dataframe.groupby(['rankerA_id', 'rankerB_id', 'interleaving_winner'])[
