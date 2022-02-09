@@ -286,10 +286,9 @@ class UtilsTest(TestCase):
                                         'query_id': [1, 2, 3, 6, 8, 3, 4, 1, 5, 3],
                                         'avg_NDCG_winning_ranker': [1, 0.8, 1, 1, 0.7, 0.9, 0.68, 0.6, 0.7, 0.8],
                                         'interleaving_winner': [1, 0, 0, 2, 2, 0, 1, 0, 1, 1],
-                                        'statistical_significance': [0.5000000000000002, 1.0000000000000004,
-                                                                     1.0000000000000002, 0.3750000000000001,
-                                                                     0.5, 1.5000000000000002, 0.5000000000000002,
-                                                                     0.5, 1.6, 1]})
+                                        'statistical_significance': [0.5, 1.0, 1.0, 0.1, 0.5,
+                                                                     1.0, 0.5,
+                                                                     0.5, 0.9, 1]})
 
         # Expected dataframe
         expected_dataframe = pd.DataFrame({'rankerA_id': [1, 1, 1, 1, 1, 2, 2, 3, 3, 3],
@@ -297,12 +296,15 @@ class UtilsTest(TestCase):
                                            'query_id': [1, 2, 3, 6, 8, 3, 4, 1, 5, 3],
                                            'avg_NDCG_winning_ranker': [1, 0.8, 1, 1, 0.7, 0.9, 0.68, 0.6, 0.7, 0.8],
                                            'interleaving_winner': [1, 0, 0, 2, 2, 0, 1, 0, 1, 1],
-                                           'statistical_significance': [0.5000000000000002, 1.0000000000000004,
-                                                                        1.0000000000000002, 0.3750000000000001,
-                                                                        0.5, 1.5000000000000002, 0.5000000000000002,
-                                                                        0.5, 1.6, 1],
-                                           'statistical_weight': [0.5, -0, -0, 0.625, 0.5, -0.5, 0.5, 0.5, -0.6, 0],
-                                           'stat_weight_interleaving_winner': [1, 1, 1, 1, 1, 0, 0, 1, 1, 1]})
+                                           'statistical_significance': [0.4444444444444445, 1.0, 1.0, 0.0, 0.4444444444444445,
+                                                                        1.0, 0.0,
+                                                                        0.0, 0.8, 1],
+                                           'statistical_weight': [0.5555555555555556, 0, 0, 1.0, 0.5555555555555556,
+                                                                  0.0, 1.0,
+                                                                  1.0, 0.2, 0],
+                                           'stat_weight_interleaving_winner': [1, 1, 1, 1, 1,
+                                                                               1, 1,
+                                                                               0, 0, 0]})
 
         result_dataframe = utils.computing_winning_ranker_ab_score(input_dataframe, True)
 
