@@ -1,11 +1,11 @@
-dataset_path= ./train.txt
+dataset_path= data/MSLR-WEB30k/Fold1/train.txt
 seed= 173
 queries_to_evaluate_count= 100
 rankers_to_evaluate_count= 136
 -experiment 1
 ndcg_top_k= 10
 click_generation_top_k= 10
-Experiment started at: 19:17:58
+Experiment started at: 15:46:51
 
 Loading dataframe
 <class 'pandas.core.frame.DataFrame'>
@@ -15,7 +15,7 @@ dtypes: float32(136), int32(2)
 memory usage: 1.2 GB
 None
 
-Time for loading dataframe: 157.80863118171692
+Time for loading dataframe: 123.38902282714844
 Query-Document Pairs: 2269598
 Unique Queries: 18919
 Avg judged documents per query: 119.96395158306464
@@ -38,7 +38,7 @@ Each ranker is evaluated on queries: 100
 
 Computing experiment results dataframe
 136
-Time for computing experiment results dataframe: 1.5368309020996094
+Time for computing experiment results dataframe: 1.2853529453277588
 
 Computing ranked lists and NDCG
 
@@ -313,7 +313,7 @@ Ranker[134] AVG NDCG:0.30725
 Ranker[135] AVG NDCG:0.22459000000000004
 
 Ranker[136] AVG NDCG:0.19398000000000007
-Time to calculate Ranked Lists and NDCG: 34.446396589279175
+Time to calculate Ranked Lists and NDCG: 28.45292854309082
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 918000 entries, 0 to 917999
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
@@ -322,47 +322,47 @@ memory usage: 28.0 MB
 None
 
 Computing Interleaving
-0 interleaving column size: 392
-100000 interleaving column size: 35312760
-200000 interleaving column size: 70648088
-300000 interleaving column size: 106142392
-400000 interleaving column size: 141341856
-500000 interleaving column size: 176730312
-600000 interleaving column size: 211754608
-700000 interleaving column size: 247524696
-800000 interleaving column size: 282776288
-900000 interleaving column size: 318123336
-final interleaving column size: 324330888
-Time for interleaving: 1597.0854473114014
+0 interleaving column size: 400
+100000 interleaving column size: 36112768
+200000 interleaving column size: 72248096
+300000 interleaving column size: 108542400
+400000 interleaving column size: 144541864
+500000 interleaving column size: 180730320
+600000 interleaving column size: 216554616
+700000 interleaving column size: 253124704
+800000 interleaving column size: 289176296
+900000 interleaving column size: 325323344
+final interleaving column size: 331674888
+Time for interleaving: 1277.1595013141632
 
 Generating Clicks
-Current memory for the DataFrame: 95482600
+Current memory for the DataFrame: 66105760
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 918000 entries, 0 to 917999
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
 dtypes: int64(4)
 memory usage: 28.0 MB
 None
-0 clicks column size: 240
-100000 clicks column size: 14424608
-200000 clicks column size: 28871936
-300000 clicks column size: 43478240
-400000 clicks column size: 57789704
-500000 clicks column size: 72290160
-600000 clicks column size: 86426456
-700000 clicks column size: 101308544
-800000 clicks column size: 115672136
-900000 clicks column size: 130131184
-final clicks column size: 132579048
-Total Clicks: 1202866
-Click Distribution per rating: [     0 471092 525926 128446  77402]
+0 clicks column size: 248
+100000 clicks column size: 15224616
+200000 clicks column size: 30471944
+300000 clicks column size: 45878248
+400000 clicks column size: 60989712
+500000 clicks column size: 76290168
+600000 clicks column size: 91226464
+700000 clicks column size: 106908552
+800000 clicks column size: 122072144
+900000 clicks column size: 137331192
+final clicks column size: 139923048
+Total Clicks: 1209207
+Click Distribution per rating: [     0 473952 528778 128663  77814]
 Relevance 0: 0.0
-Relevance 1: 0.39164129670304093
-Relevance 2: 0.4372274218408368
-Relevance 3: 0.10678329922036203
-Relevance 4: 0.06434798223576026
-Time for generating clicks: 293.99777388572693
-Current memory for the DataFrame: 95482600
+Relevance 1: 0.3919527425825355
+Relevance 2: 0.4372932012467675
+Relevance 3: 0.10640279125079494
+Relevance 4: 0.06435126491990205
+Time for generating clicks: 223.59479975700378
+Current memory for the DataFrame: 66105760
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 918000 entries, 0 to 917999
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
@@ -371,15 +371,15 @@ memory usage: 28.0 MB
 None
 
 Computing per query sum of clicks
-final clicks column size: 5508128
-Current memory for the DataFrame: 112012360
+final clicks column size: 5508136
+Current memory for the DataFrame: 77127032
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 918000 entries, 0 to 917999
 Columns: 7 entries, rankerA_id to interleaving_total_clicks
 dtypes: int64(4), uint16(3)
 memory usage: 33.3 MB
 None
-Time for computing per query winning model: 24.241859674453735
+Time for computing per query winning model: 20.994007349014282
 Ranker combinations:9180
 
 After the removal of queries that didn't show any click
@@ -388,7 +388,7 @@ Ranker combinations:9150
 Calculate Winner
 
 Pruning
-Time for pruning: 0.18849992752075195
+Time for pruning: 0.29711318016052246
 Only stat relevant rows
 <class 'pandas.core.frame.DataFrame'>
 Int64Index: 0 entries
@@ -398,20 +398,20 @@ memory usage: 0.0 bytes
 None
 
 Computing standard AB score
-Time for ab score: 14.620134353637695
+Time for ab score: 7.9195396900177
 
 Computing Statistical Weighted AB score
-Time for ab stat score: 16.169997930526733
+Time for ab stat score: 7.783615350723267
 
-The CONTROL approach got: 7395/9150 pairs right!
+The CONTROL approach got: 7432/9150 pairs right!
 
-Accuracy of CONTROL approach: 0.8081967213114755
+Accuracy of CONTROL approach: 0.8122404371584699
 
-The STAT WEIGHT approach got: 7217/9150 pairs right!
+The STAT WEIGHT approach got: 7230/9150 pairs right!
 
-Accuracy of STAT WEIGHT approach: 0.7887431693989071
+Accuracy of STAT WEIGHT approach: 0.7901639344262295
 
 !!!!!!!!! The pruning removes all the queries for all the rankers !!!!!!!!!!
 
-Experiment ended at: 19:54:18
-Total experiment time: 2179.8674664497375
+Experiment ended at: 16:15:30
+Total experiment time: 1718.547577381134
