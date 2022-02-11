@@ -1,5 +1,17 @@
 # README #
+To replicate this work just install the requirements.txt in your python environment.
 
+e.g.
+
+using pip
+```
+pip install -r requirements.txt
+```
+
+using Conda
+```
+conda create --name <env_name> --file requirements.txt
+```
 ### Datasets ###
 
 * The <query,document> judgements dataset used in this paper is /MSLR-WEB30k/Fold1/train.txt
@@ -12,6 +24,10 @@
 * if you want to run the experiments with a custom long tail distribution, feel free to use the same json structure(Apache Solr JSON facets response)
 
 ### Runs ###
+Run 9 and 10 have been executed on  Amazon Ec2 machines Z1d 2Xlarge.
+All other runs have been executed on Amazon Ec2 machines T2 Xlarge.
+The detailed output of each run is in the runs_output folder.
+
 1:
 ```
 python3 -u ./main.py -p ./train.txt -s 234 -q 1000 -m 136 -e 1 -c 10 > runs_output/run-1.txt
@@ -38,6 +54,9 @@ python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 193 -q 100 -m 136 -e
 ```
 
 7:
+```
+python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 777 -q 100 -m 136 -e 1 -c 10 -u 10 > runs_output/run-7.txt
+```
 
 8:
 ```
@@ -46,12 +65,12 @@ python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 33 -q 1000 -m 136 -e
 
 9:
 ```
-python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 337 -q 1000 -m 65 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.125 -n 10 -c 10 > runs_output/run-9.txt
+python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 337 -q 1000 -m 70 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.125 -n 10 -c 10 > runs_output/run-9.txt
 ```
 
 10:
 ```
-python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 97 -q 1000 -m 45 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.25 -n 10 -c 10 > runs_output/run-10.txt
+python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 571 -q 1000 -m 70 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.250 -n 10 -c 10 > runs_output/run-10.txt
 ```
 
 11:
