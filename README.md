@@ -65,7 +65,7 @@ python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 33 -q 1000 -m 136 -e
 
 9:
 ```
-python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 337 -q 1000 -m 70 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.125 -n 10 -c 10 > runs_output/run-9.txt
+python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 937 -q 1000 -m 136 -e 1_long_tail -a data/long-tail-1/query_click_user.json -u 0.125 -n 10 -c 10 > runs_output/run-9.txt
 ```
 
 10:

@@ -1,13 +1,13 @@
 dataset_path= ./train.txt
-seed= 337
+seed= 937
 queries_to_evaluate_count= 1000
-rankers_to_evaluate_count= 70
+rankers_to_evaluate_count= 136
 -experiment 1_long_tail
 long_tail_dataset_path= query_click_user.json
 long_tail_scaling_factor= 0.125
 ndcg_top_k= 10
 click_generation_top_k= 10
-Experiment started at: 09:12:34
+Experiment started at: 23:14:53
 
 Loading dataframe
 <class 'pandas.core.frame.DataFrame'>
@@ -17,7 +17,7 @@ dtypes: float32(136), int32(2)
 memory usage: 1.2 GB
 None
 
-Time for loading dataframe: 97.07971096038818
+Time for loading dataframe: 110.73322129249573
 Query-Document Pairs: 2269598
 Unique Queries: 18919
 Avg judged documents per query: 119.96395158306464
@@ -39,8 +39,8 @@ Selecting queries
 Each ranker is evaluated on queries: 7681
 
 Computing experiment results dataframe
-70
-Time for computing experiment results dataframe: 24.610156059265137
+136
+Time for computing experiment results dataframe: 90.97270250320435
 
 Computing ranked lists and NDCG
 
@@ -183,12 +183,144 @@ Ranker[68] AVG NDCG:0.19249407629215434
 Ranker[69] AVG NDCG:0.22656789480536837
 
 Ranker[70] AVG NDCG:0.19625387319359508
-Time to calculate Ranked Lists and NDCG: 1187.4633648395538
+
+Ranker[71] AVG NDCG:0.22638784012498345
+
+Ranker[72] AVG NDCG:0.2573903137612218
+
+Ranker[73] AVG NDCG:0.25273310766826773
+
+Ranker[74] AVG NDCG:0.2641179533914799
+
+Ranker[75] AVG NDCG:0.22770160135399242
+
+Ranker[76] AVG NDCG:0.27391394349693343
+
+Ranker[77] AVG NDCG:0.23663312068741416
+
+Ranker[78] AVG NDCG:0.2538601744564456
+
+Ranker[79] AVG NDCG:0.24983621924228272
+
+Ranker[80] AVG NDCG:0.2809682333029526
+
+Ranker[81] AVG NDCG:0.2167935164692129
+
+Ranker[82] AVG NDCG:0.25101262856399037
+
+Ranker[83] AVG NDCG:0.22397357114958905
+
+Ranker[84] AVG NDCG:0.2507243848457211
+
+Ranker[85] AVG NDCG:0.21668675953652214
+
+Ranker[86] AVG NDCG:0.22638784012498345
+
+Ranker[87] AVG NDCG:0.2573903137612218
+
+Ranker[88] AVG NDCG:0.25273310766826773
+
+Ranker[89] AVG NDCG:0.2641179533914799
+
+Ranker[90] AVG NDCG:0.22770160135399242
+
+Ranker[91] AVG NDCG:0.19139890639240692
+
+Ranker[92] AVG NDCG:0.2215883348522368
+
+Ranker[93] AVG NDCG:0.19876214034631448
+
+Ranker[94] AVG NDCG:0.20896992579091478
+
+Ranker[95] AVG NDCG:0.18983752115609953
+
+Ranker[96] AVG NDCG:0.19685913292540103
+
+Ranker[97] AVG NDCG:0.23401380028641655
+
+Ranker[98] AVG NDCG:0.26206301262855886
+
+Ranker[99] AVG NDCG:0.25201432105195115
+
+Ranker[100] AVG NDCG:0.19122757453456682
+
+Ranker[101] AVG NDCG:0.22501601353990683
+
+Ranker[102] AVG NDCG:0.2592538731935917
+
+Ranker[103] AVG NDCG:0.2744215596927463
+
+Ranker[104] AVG NDCG:0.26755813045176446
+
+Ranker[105] AVG NDCG:0.21802044004686627
+
+Ranker[106] AVG NDCG:0.27460304647832184
+
+Ranker[107] AVG NDCG:0.2593442260122321
+
+Ranker[108] AVG NDCG:0.28854198672047515
+
+Ranker[109] AVG NDCG:0.29660356724385006
+
+Ranker[110] AVG NDCG:0.2876302564770343
+
+Ranker[111] AVG NDCG:0.2652034891290192
+
+Ranker[112] AVG NDCG:0.26296836349433367
+
+Ranker[113] AVG NDCG:0.28749733107668274
+
+Ranker[114] AVG NDCG:0.29403280822809547
+
+Ranker[115] AVG NDCG:0.27958729332117926
+
+Ranker[116] AVG NDCG:0.27809412836870945
+
+Ranker[117] AVG NDCG:0.2590870980341119
+
+Ranker[118] AVG NDCG:0.272829319099076
+
+Ranker[119] AVG NDCG:0.2885388621273272
+
+Ranker[120] AVG NDCG:0.29064054159613684
+
+Ranker[121] AVG NDCG:0.25542129930999385
+
+Ranker[122] AVG NDCG:0.26414412185912695
+
+Ranker[123] AVG NDCG:0.2902495768780083
+
+Ranker[124] AVG NDCG:0.3065369092565957
+
+Ranker[125] AVG NDCG:0.2648026298659094
+
+Ranker[126] AVG NDCG:0.16213006118994586
+
+Ranker[127] AVG NDCG:0.18138614763702862
+
+Ranker[128] AVG NDCG:0.21049720088529955
+
+Ranker[129] AVG NDCG:0.2435931519333418
+
+Ranker[130] AVG NDCG:0.19812303085535818
+
+Ranker[131] AVG NDCG:0.17936961333159915
+
+Ranker[132] AVG NDCG:0.17060421820075694
+
+Ranker[133] AVG NDCG:0.15322366879312682
+
+Ranker[134] AVG NDCG:0.3251419086056622
+
+Ranker[135] AVG NDCG:0.24016260903527706
+
+Ranker[136] AVG NDCG:0.21953834136180106
+Time to calculate Ranked Lists and NDCG: 2422.6641523838043
 <class 'pandas.core.frame.DataFrame'>
-RangeIndex: 18549615 entries, 0 to 18549614
+RangeIndex: 70511580 entries, 0 to 70511579
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
 dtypes: int64(4)
-memory usage: 566.1 MB
+memory usage: 2.1 GB
 None
 
 Computing Interleaving
@@ -378,16 +510,536 @@ Computing Interleaving
 18300000 interleaving column size: 6201535520
 18400000 interleaving column size: 6252996624
 18500000 interleaving column size: 6286077616
-final interleaving column size: 6302452992
-Time for interleaving: 25010.630352020264
+18600000 interleaving column size: 6319162816
+18700000 interleaving column size: 6352240488
+18800000 interleaving column size: 6385331144
+18900000 interleaving column size: 6418417368
+19000000 interleaving column size: 6451492832
+19100000 interleaving column size: 6484590752
+19200000 interleaving column size: 6517683408
+19300000 interleaving column size: 6550769760
+19400000 interleaving column size: 6583849144
+19500000 interleaving column size: 6616918480
+19600000 interleaving column size: 6649986208
+19700000 interleaving column size: 6683084736
+19800000 interleaving column size: 6716200248
+19900000 interleaving column size: 6749276384
+20000000 interleaving column size: 6782360632
+20100000 interleaving column size: 6815433656
+20200000 interleaving column size: 6848512120
+20300000 interleaving column size: 6881596656
+20400000 interleaving column size: 6914679944
+20500000 interleaving column size: 6947762592
+20600000 interleaving column size: 6980838216
+20700000 interleaving column size: 7034578832
+20800000 interleaving column size: 7067657832
+20900000 interleaving column size: 7100742408
+21000000 interleaving column size: 7133829816
+21100000 interleaving column size: 7166917568
+21200000 interleaving column size: 7200003128
+21300000 interleaving column size: 7233091288
+21400000 interleaving column size: 7266175096
+21500000 interleaving column size: 7299255808
+21600000 interleaving column size: 7332345752
+21700000 interleaving column size: 7365434800
+21800000 interleaving column size: 7398517760
+21900000 interleaving column size: 7431605208
+22000000 interleaving column size: 7464684136
+22100000 interleaving column size: 7497769896
+22200000 interleaving column size: 7530853432
+22300000 interleaving column size: 7563945688
+22400000 interleaving column size: 7597025272
+22500000 interleaving column size: 7630120528
+22600000 interleaving column size: 7663206088
+22700000 interleaving column size: 7696303096
+22800000 interleaving column size: 7729385656
+22900000 interleaving column size: 7762479056
+23000000 interleaving column size: 7795562568
+23100000 interleaving column size: 7828649296
+23200000 interleaving column size: 7861733992
+23300000 interleaving column size: 7918051072
+23400000 interleaving column size: 7951141176
+23500000 interleaving column size: 7984229120
+23600000 interleaving column size: 8017328832
+23700000 interleaving column size: 8050413656
+23800000 interleaving column size: 8083497080
+23900000 interleaving column size: 8116572120
+24000000 interleaving column size: 8149663848
+24100000 interleaving column size: 8182750416
+24200000 interleaving column size: 8215824136
+24300000 interleaving column size: 8248917112
+24400000 interleaving column size: 8282014968
+24500000 interleaving column size: 8315101568
+24600000 interleaving column size: 8348183672
+24700000 interleaving column size: 8381252152
+24800000 interleaving column size: 8414324024
+24900000 interleaving column size: 8447410120
+25000000 interleaving column size: 8480526120
+25100000 interleaving column size: 8513607216
+25200000 interleaving column size: 8546696672
+25300000 interleaving column size: 8579767328
+25400000 interleaving column size: 8612845496
+25500000 interleaving column size: 8645928256
+25600000 interleaving column size: 8679011712
+25700000 interleaving column size: 8712100112
+25800000 interleaving column size: 8745167448
+25900000 interleaving column size: 8778254688
+26000000 interleaving column size: 8811329840
+26100000 interleaving column size: 8844414120
+26200000 interleaving column size: 8903648216
+26300000 interleaving column size: 8936736240
+26400000 interleaving column size: 8969822704
+26500000 interleaving column size: 9002909216
+26600000 interleaving column size: 9035994936
+26700000 interleaving column size: 9069075328
+26800000 interleaving column size: 9102166048
+26900000 interleaving column size: 9135254176
+27000000 interleaving column size: 9168336336
+27100000 interleaving column size: 9201425600
+27200000 interleaving column size: 9234506112
+27300000 interleaving column size: 9267589280
+27400000 interleaving column size: 9300675608
+27500000 interleaving column size: 9333764168
+27600000 interleaving column size: 9366845760
+27700000 interleaving column size: 9399939184
+27800000 interleaving column size: 9433027008
+27900000 interleaving column size: 9466127264
+28000000 interleaving column size: 9499207848
+28100000 interleaving column size: 9532297416
+28200000 interleaving column size: 9565383336
+28300000 interleaving column size: 9598470456
+28400000 interleaving column size: 9631553680
+28500000 interleaving column size: 9664630296
+28600000 interleaving column size: 9697717336
+28700000 interleaving column size: 9730805352
+28800000 interleaving column size: 9763907448
+28900000 interleaving column size: 9796991112
+29000000 interleaving column size: 9830074424
+29100000 interleaving column size: 9863150064
+29200000 interleaving column size: 9896238832
+29300000 interleaving column size: 9929326552
+29400000 interleaving column size: 9962403616
+29500000 interleaving column size: 10024905184
+29600000 interleaving column size: 10058007688
+29700000 interleaving column size: 10091094288
+29800000 interleaving column size: 10124178760
+29900000 interleaving column size: 10157249472
+30000000 interleaving column size: 10190323552
+30100000 interleaving column size: 10223397216
+30200000 interleaving column size: 10256511144
+30300000 interleaving column size: 10289604080
+30400000 interleaving column size: 10322690728
+30500000 interleaving column size: 10355762712
+30600000 interleaving column size: 10388840584
+30700000 interleaving column size: 10421921568
+30800000 interleaving column size: 10455005912
+30900000 interleaving column size: 10488092536
+31000000 interleaving column size: 10521161752
+31100000 interleaving column size: 10554252440
+31200000 interleaving column size: 10587323744
+31300000 interleaving column size: 10620407728
+31400000 interleaving column size: 10653495216
+31500000 interleaving column size: 10686581024
+31600000 interleaving column size: 10719667920
+31700000 interleaving column size: 10752753312
+31800000 interleaving column size: 10785842304
+31900000 interleaving column size: 10818922272
+32000000 interleaving column size: 10852006296
+32100000 interleaving column size: 10885099360
+32200000 interleaving column size: 10918184048
+32300000 interleaving column size: 10951269000
+32400000 interleaving column size: 10984353824
+32500000 interleaving column size: 11017436368
+32600000 interleaving column size: 11050521152
+32700000 interleaving column size: 11083605144
+32800000 interleaving column size: 11116694112
+32900000 interleaving column size: 11149779224
+33000000 interleaving column size: 11182873800
+33100000 interleaving column size: 11249063184
+33200000 interleaving column size: 11282143408
+33300000 interleaving column size: 11315233232
+33400000 interleaving column size: 11348318888
+33500000 interleaving column size: 11381410520
+33600000 interleaving column size: 11414492576
+33700000 interleaving column size: 11447571072
+33800000 interleaving column size: 11480653400
+33900000 interleaving column size: 11513744504
+34000000 interleaving column size: 11546842800
+34100000 interleaving column size: 11579930848
+34200000 interleaving column size: 11613010688
+34300000 interleaving column size: 11646092768
+34400000 interleaving column size: 11679175312
+34500000 interleaving column size: 11712264248
+34600000 interleaving column size: 11745346216
+34700000 interleaving column size: 11778426624
+34800000 interleaving column size: 11811527664
+34900000 interleaving column size: 11844616288
+35000000 interleaving column size: 11877702352
+35100000 interleaving column size: 11910777128
+35200000 interleaving column size: 11943849632
+35300000 interleaving column size: 11976913328
+35400000 interleaving column size: 12010025184
+35500000 interleaving column size: 12043129960
+35600000 interleaving column size: 12076211280
+35700000 interleaving column size: 12109289480
+35800000 interleaving column size: 12142364808
+35900000 interleaving column size: 12175443896
+36000000 interleaving column size: 12208529128
+36100000 interleaving column size: 12241613976
+36200000 interleaving column size: 12274690000
+36300000 interleaving column size: 12307773688
+36400000 interleaving column size: 12340847496
+36500000 interleaving column size: 12373930352
+36600000 interleaving column size: 12407015512
+36700000 interleaving column size: 12440102200
+36800000 interleaving column size: 12473190032
+36900000 interleaving column size: 12506276784
+37000000 interleaving column size: 12539364896
+37100000 interleaving column size: 12572445904
+37200000 interleaving column size: 12605527992
+37300000 interleaving column size: 12675847792
+37400000 interleaving column size: 12708933896
+37500000 interleaving column size: 12742023336
+37600000 interleaving column size: 12775108312
+37700000 interleaving column size: 12808189344
+37800000 interleaving column size: 12841272336
+37900000 interleaving column size: 12874356384
+38000000 interleaving column size: 12907446928
+38100000 interleaving column size: 12940531496
+38200000 interleaving column size: 12973626040
+38300000 interleaving column size: 13006708552
+38400000 interleaving column size: 13039804288
+38500000 interleaving column size: 13072892632
+38600000 interleaving column size: 13105978240
+38700000 interleaving column size: 13139071344
+38800000 interleaving column size: 13172153296
+38900000 interleaving column size: 13205232592
+39000000 interleaving column size: 13238310936
+39100000 interleaving column size: 13271400768
+39200000 interleaving column size: 13304492024
+39300000 interleaving column size: 13337588784
+39400000 interleaving column size: 13370669936
+39500000 interleaving column size: 13403755088
+39600000 interleaving column size: 13436832688
+39700000 interleaving column size: 13469923376
+39800000 interleaving column size: 13503009688
+39900000 interleaving column size: 13536085024
+40000000 interleaving column size: 13569182848
+40100000 interleaving column size: 13602275616
+40200000 interleaving column size: 13635361976
+40300000 interleaving column size: 13668441488
+40400000 interleaving column size: 13701510736
+40500000 interleaving column size: 13734578576
+40600000 interleaving column size: 13767676768
+40700000 interleaving column size: 13800792544
+40800000 interleaving column size: 13833868536
+40900000 interleaving column size: 13866952952
+41000000 interleaving column size: 13900025912
+41100000 interleaving column size: 13933104368
+41200000 interleaving column size: 13966188856
+41300000 interleaving column size: 13999272120
+41400000 interleaving column size: 14032354952
+41500000 interleaving column size: 14065430352
+41600000 interleaving column size: 14098510968
+41700000 interleaving column size: 14131589864
+41800000 interleaving column size: 14164674432
+41900000 interleaving column size: 14239646048
+42000000 interleaving column size: 14272733640
+42100000 interleaving column size: 14305818920
+42200000 interleaving column size: 14338907424
+42300000 interleaving column size: 14371991152
+42400000 interleaving column size: 14405071944
+42500000 interleaving column size: 14438161848
+42600000 interleaving column size: 14471251096
+42700000 interleaving column size: 14504333832
+42800000 interleaving column size: 14537421384
+42900000 interleaving column size: 14570500336
+43000000 interleaving column size: 14603586024
+43100000 interleaving column size: 14636669688
+43200000 interleaving column size: 14669761896
+43300000 interleaving column size: 14702841536
+43400000 interleaving column size: 14735936672
+43500000 interleaving column size: 14769022232
+43600000 interleaving column size: 14802119256
+43700000 interleaving column size: 14835201872
+43800000 interleaving column size: 14868295232
+43900000 interleaving column size: 14901378768
+44000000 interleaving column size: 14934465408
+44100000 interleaving column size: 14967550264
+44200000 interleaving column size: 15000624560
+44300000 interleaving column size: 15033714648
+44400000 interleaving column size: 15066802560
+44500000 interleaving column size: 15099902288
+44600000 interleaving column size: 15132987200
+44700000 interleaving column size: 15166070576
+44800000 interleaving column size: 15199145576
+44900000 interleaving column size: 15232237224
+45000000 interleaving column size: 15265323824
+45100000 interleaving column size: 15298397552
+45200000 interleaving column size: 15331490384
+45300000 interleaving column size: 15364588376
+45400000 interleaving column size: 15397674976
+45500000 interleaving column size: 15430757144
+45600000 interleaving column size: 15463825632
+45700000 interleaving column size: 15496897616
+45800000 interleaving column size: 15529983376
+45900000 interleaving column size: 15563099320
+46000000 interleaving column size: 15596180736
+46100000 interleaving column size: 15629270216
+46200000 interleaving column size: 15662340808
+46300000 interleaving column size: 15695418968
+46400000 interleaving column size: 15728501680
+46500000 interleaving column size: 15761585160
+46600000 interleaving column size: 15794673512
+46700000 interleaving column size: 15827740808
+46800000 interleaving column size: 15860828232
+46900000 interleaving column size: 15893903280
+47000000 interleaving column size: 15926987552
+47100000 interleaving column size: 15960073504
+47200000 interleaving column size: 16040281216
+47300000 interleaving column size: 16073367592
+47400000 interleaving column size: 16106454032
+47500000 interleaving column size: 16139539912
+47600000 interleaving column size: 16172620312
+47700000 interleaving column size: 16205710560
+47800000 interleaving column size: 16238799240
+47900000 interleaving column size: 16271881472
+48000000 interleaving column size: 16304970560
+48100000 interleaving column size: 16338051144
+48200000 interleaving column size: 16371134256
+48300000 interleaving column size: 16404220768
+48400000 interleaving column size: 16437308840
+48500000 interleaving column size: 16470390872
+48600000 interleaving column size: 16503484240
+48700000 interleaving column size: 16536572072
+48800000 interleaving column size: 16569672352
+48900000 interleaving column size: 16602752912
+49000000 interleaving column size: 16635842344
+49100000 interleaving column size: 16668928272
+49200000 interleaving column size: 16702015488
+49300000 interleaving column size: 16735098648
+49400000 interleaving column size: 16768175368
+49500000 interleaving column size: 16801262312
+49600000 interleaving column size: 16834350328
+49700000 interleaving column size: 16867452504
+49800000 interleaving column size: 16900536128
+49900000 interleaving column size: 16933619336
+50000000 interleaving column size: 16966695096
+50100000 interleaving column size: 16999783784
+50200000 interleaving column size: 17032871520
+50300000 interleaving column size: 17065948712
+50400000 interleaving column size: 17099033608
+50500000 interleaving column size: 17132136120
+50600000 interleaving column size: 17165222720
+50700000 interleaving column size: 17198307256
+50800000 interleaving column size: 17231378064
+50900000 interleaving column size: 17264452168
+51000000 interleaving column size: 17297525496
+51100000 interleaving column size: 17330639368
+51200000 interleaving column size: 17363732624
+51300000 interleaving column size: 17396819128
+51400000 interleaving column size: 17429891280
+51500000 interleaving column size: 17462969080
+51600000 interleaving column size: 17496050016
+51700000 interleaving column size: 17529134384
+51800000 interleaving column size: 17562220960
+51900000 interleaving column size: 17595290360
+52000000 interleaving column size: 17628381008
+52100000 interleaving column size: 17661452208
+52200000 interleaving column size: 17694536184
+52300000 interleaving column size: 17727623616
+52400000 interleaving column size: 17760709544
+52500000 interleaving column size: 17793796192
+52600000 interleaving column size: 17826881816
+52700000 interleaving column size: 17859970864
+52800000 interleaving column size: 17893050720
+52900000 interleaving column size: 17926134600
+53000000 interleaving column size: 17959227696
+53100000 interleaving column size: 18045322088
+53200000 interleaving column size: 18078406952
+53300000 interleaving column size: 18111491912
+53400000 interleaving column size: 18144574488
+53500000 interleaving column size: 18177659232
+53600000 interleaving column size: 18210743200
+53700000 interleaving column size: 18243832200
+53800000 interleaving column size: 18276917160
+53900000 interleaving column size: 18310011888
+54000000 interleaving column size: 18343107384
+54100000 interleaving column size: 18376187912
+54200000 interleaving column size: 18409277688
+54300000 interleaving column size: 18442363184
+54400000 interleaving column size: 18475454960
+54500000 interleaving column size: 18508537072
+54600000 interleaving column size: 18541615504
+54700000 interleaving column size: 18574697760
+54800000 interleaving column size: 18607788928
+54900000 interleaving column size: 18640887064
+55000000 interleaving column size: 18673975280
+55100000 interleaving column size: 18707055088
+55200000 interleaving column size: 18740137296
+55300000 interleaving column size: 18773219648
+55400000 interleaving column size: 18806308624
+55500000 interleaving column size: 18839390744
+55600000 interleaving column size: 18872471008
+55700000 interleaving column size: 18905571968
+55800000 interleaving column size: 18938660704
+55900000 interleaving column size: 18971746776
+56000000 interleaving column size: 19004821680
+56100000 interleaving column size: 19037894096
+56200000 interleaving column size: 19070957904
+56300000 interleaving column size: 19104069368
+56400000 interleaving column size: 19137174464
+56500000 interleaving column size: 19170255640
+56600000 interleaving column size: 19203334008
+56700000 interleaving column size: 19236409272
+56800000 interleaving column size: 19269488304
+56900000 interleaving column size: 19302573560
+57000000 interleaving column size: 19335658360
+57100000 interleaving column size: 19368734568
+57200000 interleaving column size: 19401818032
+57300000 interleaving column size: 19434892024
+57400000 interleaving column size: 19467974768
+57500000 interleaving column size: 19501059960
+57600000 interleaving column size: 19534146520
+57700000 interleaving column size: 19567234528
+57800000 interleaving column size: 19600321104
+57900000 interleaving column size: 19633409216
+58000000 interleaving column size: 19666490376
+58100000 interleaving column size: 19699572280
+58200000 interleaving column size: 19732661792
+58300000 interleaving column size: 19765748096
+58400000 interleaving column size: 19798837552
+58500000 interleaving column size: 19831922296
+58600000 interleaving column size: 19865003216
+58700000 interleaving column size: 19898086472
+58800000 interleaving column size: 19931170456
+58900000 interleaving column size: 19964261024
+59000000 interleaving column size: 19997345656
+59100000 interleaving column size: 20030439992
+59200000 interleaving column size: 20063522824
+59300000 interleaving column size: 20096618456
+59400000 interleaving column size: 20129706704
+59500000 interleaving column size: 20162792480
+59600000 interleaving column size: 20195885496
+59700000 interleaving column size: 20288603136
+59800000 interleaving column size: 20321682560
+59900000 interleaving column size: 20354760808
+60000000 interleaving column size: 20387850536
+60100000 interleaving column size: 20420941584
+60200000 interleaving column size: 20454038608
+60300000 interleaving column size: 20487119920
+60400000 interleaving column size: 20520205024
+60500000 interleaving column size: 20553282552
+60600000 interleaving column size: 20586373272
+60700000 interleaving column size: 20619459672
+60800000 interleaving column size: 20652534880
+60900000 interleaving column size: 20685632608
+61000000 interleaving column size: 20718725488
+61100000 interleaving column size: 20751811856
+61200000 interleaving column size: 20784891496
+61300000 interleaving column size: 20817960656
+61400000 interleaving column size: 20851028608
+61500000 interleaving column size: 20884126464
+61600000 interleaving column size: 20917242504
+61700000 interleaving column size: 20950318352
+61800000 interleaving column size: 20983402936
+61900000 interleaving column size: 21016475832
+62000000 interleaving column size: 21049554280
+62100000 interleaving column size: 21082638720
+62200000 interleaving column size: 21115721960
+62300000 interleaving column size: 21148804976
+62400000 interleaving column size: 21181880152
+62500000 interleaving column size: 21214960952
+62600000 interleaving column size: 21248039744
+62700000 interleaving column size: 21281124304
+62800000 interleaving column size: 21314211904
+62900000 interleaving column size: 21347299336
+63000000 interleaving column size: 21380384336
+63100000 interleaving column size: 21413473088
+63200000 interleaving column size: 21446556832
+63300000 interleaving column size: 21479637704
+63400000 interleaving column size: 21512727568
+63500000 interleaving column size: 21545816712
+63600000 interleaving column size: 21578899528
+63700000 interleaving column size: 21611987184
+63800000 interleaving column size: 21645066160
+63900000 interleaving column size: 21678151728
+64000000 interleaving column size: 21711235568
+64100000 interleaving column size: 21744327728
+64200000 interleaving column size: 21777407424
+64300000 interleaving column size: 21810502440
+64400000 interleaving column size: 21843588000
+64500000 interleaving column size: 21876685040
+64600000 interleaving column size: 21909767712
+64700000 interleaving column size: 21942861032
+64800000 interleaving column size: 21975944592
+64900000 interleaving column size: 22009031144
+65000000 interleaving column size: 22042116160
+65100000 interleaving column size: 22075190376
+65200000 interleaving column size: 22108280448
+65300000 interleaving column size: 22141368328
+65400000 interleaving column size: 22174468072
+65500000 interleaving column size: 22207552968
+65600000 interleaving column size: 22240636400
+65700000 interleaving column size: 22273711360
+65800000 interleaving column size: 22306802928
+65900000 interleaving column size: 22339889560
+66000000 interleaving column size: 22372963296
+66100000 interleaving column size: 22406055984
+66200000 interleaving column size: 22439154112
+66300000 interleaving column size: 22472240712
+66400000 interleaving column size: 22505322944
+66500000 interleaving column size: 22538391440
+66600000 interleaving column size: 22571463536
+66700000 interleaving column size: 22604548960
+66800000 interleaving column size: 22637664848
+66900000 interleaving column size: 22670746584
+67000000 interleaving column size: 22703836088
+67100000 interleaving column size: 22803996864
+67200000 interleaving column size: 22837075016
+67300000 interleaving column size: 22870157680
+67400000 interleaving column size: 22903241184
+67500000 interleaving column size: 22936329488
+67600000 interleaving column size: 22969396744
+67700000 interleaving column size: 23002484352
+67800000 interleaving column size: 23035559296
+67900000 interleaving column size: 23068643560
+68000000 interleaving column size: 23101729544
+68100000 interleaving column size: 23134817568
+68200000 interleaving column size: 23167903856
+68300000 interleaving column size: 23200990224
+68400000 interleaving column size: 23234076264
+68500000 interleaving column size: 23267156672
+68600000 interleaving column size: 23300246448
+68700000 interleaving column size: 23333335680
+68800000 interleaving column size: 23366417984
+68900000 interleaving column size: 23399506896
+69000000 interleaving column size: 23432587552
+69100000 interleaving column size: 23465670608
+69200000 interleaving column size: 23498757304
+69300000 interleaving column size: 23531844888
+69400000 interleaving column size: 23564927360
+69500000 interleaving column size: 23598020672
+69600000 interleaving column size: 23631108512
+69700000 interleaving column size: 23664208816
+69800000 interleaving column size: 23697289352
+69900000 interleaving column size: 23730378648
+70000000 interleaving column size: 23763464584
+70100000 interleaving column size: 23796551896
+70200000 interleaving column size: 23829635008
+70300000 interleaving column size: 23862711816
+70400000 interleaving column size: 23895798664
+70500000 interleaving column size: 23928886680
+final interleaving column size: 23932688832
+Time for interleaving: 141309.7922565937
 
 Generating Clicks
-Current memory for the DataFrame: 1929170560
+Current memory for the DataFrame: 7333214920
 <class 'pandas.core.frame.DataFrame'>
-RangeIndex: 18549615 entries, 0 to 18549614
+RangeIndex: 70511580 entries, 0 to 70511579
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
 dtypes: int64(4)
-memory usage: 566.1 MB
+memory usage: 2.1 GB
 None
 0 clicks column size: 240
 100000 clicks column size: 14424608
@@ -575,70 +1227,590 @@ None
 18300000 clicks column size: 2635716640
 18400000 clicks column size: 2667681248
 18500000 clicks column size: 2681281248
-final clicks column size: 2688028752
-Total Clicks: 23881713
-Click Distribution per rating: [       0 10118411 10288745  2463721  1010836]
+18600000 clicks column size: 2694881248
+18700000 clicks column size: 2708481248
+18800000 clicks column size: 2722081248
+18900000 clicks column size: 2735681248
+19000000 clicks column size: 2749281248
+19100000 clicks column size: 2762881248
+19200000 clicks column size: 2776481248
+19300000 clicks column size: 2790081248
+19400000 clicks column size: 2803681248
+19500000 clicks column size: 2817281248
+19600000 clicks column size: 2830881248
+19700000 clicks column size: 2844481248
+19800000 clicks column size: 2858081248
+19900000 clicks column size: 2871681248
+20000000 clicks column size: 2885281248
+20100000 clicks column size: 2898881248
+20200000 clicks column size: 2912481248
+20300000 clicks column size: 2926081248
+20400000 clicks column size: 2939681248
+20500000 clicks column size: 2953281248
+20600000 clicks column size: 2966881248
+20700000 clicks column size: 3001141432
+20800000 clicks column size: 3014741432
+20900000 clicks column size: 3028341432
+21000000 clicks column size: 3041941432
+21100000 clicks column size: 3055541432
+21200000 clicks column size: 3069141432
+21300000 clicks column size: 3082741432
+21400000 clicks column size: 3096341432
+21500000 clicks column size: 3109941432
+21600000 clicks column size: 3123541432
+21700000 clicks column size: 3137141432
+21800000 clicks column size: 3150741432
+21900000 clicks column size: 3164341432
+22000000 clicks column size: 3177941432
+22100000 clicks column size: 3191541432
+22200000 clicks column size: 3205141432
+22300000 clicks column size: 3218741432
+22400000 clicks column size: 3232341432
+22500000 clicks column size: 3245941432
+22600000 clicks column size: 3259541432
+22700000 clicks column size: 3273141432
+22800000 clicks column size: 3286741432
+22900000 clicks column size: 3300341432
+23000000 clicks column size: 3313941432
+23100000 clicks column size: 3327541432
+23200000 clicks column size: 3341141432
+23300000 clicks column size: 3377984136
+23400000 clicks column size: 3391584136
+23500000 clicks column size: 3405184136
+23600000 clicks column size: 3418784136
+23700000 clicks column size: 3432384136
+23800000 clicks column size: 3445984136
+23900000 clicks column size: 3459584136
+24000000 clicks column size: 3473184136
+24100000 clicks column size: 3486784136
+24200000 clicks column size: 3500384136
+24300000 clicks column size: 3513984136
+24400000 clicks column size: 3527584136
+24500000 clicks column size: 3541184136
+24600000 clicks column size: 3554784136
+24700000 clicks column size: 3568384136
+24800000 clicks column size: 3581984136
+24900000 clicks column size: 3595584136
+25000000 clicks column size: 3609184136
+25100000 clicks column size: 3622784136
+25200000 clicks column size: 3636384136
+25300000 clicks column size: 3649984136
+25400000 clicks column size: 3663584136
+25500000 clicks column size: 3677184136
+25600000 clicks column size: 3690784136
+25700000 clicks column size: 3704384136
+25800000 clicks column size: 3717984136
+25900000 clicks column size: 3731584136
+26000000 clicks column size: 3745184136
+26100000 clicks column size: 3758784136
+26200000 clicks column size: 3798532184
+26300000 clicks column size: 3812132184
+26400000 clicks column size: 3825732184
+26500000 clicks column size: 3839332184
+26600000 clicks column size: 3852932184
+26700000 clicks column size: 3866532184
+26800000 clicks column size: 3880132184
+26900000 clicks column size: 3893732184
+27000000 clicks column size: 3907332184
+27100000 clicks column size: 3920932184
+27200000 clicks column size: 3934532184
+27300000 clicks column size: 3948132184
+27400000 clicks column size: 3961732184
+27500000 clicks column size: 3975332184
+27600000 clicks column size: 3988932184
+27700000 clicks column size: 4002532184
+27800000 clicks column size: 4016132184
+27900000 clicks column size: 4029732184
+28000000 clicks column size: 4043332184
+28100000 clicks column size: 4056932184
+28200000 clicks column size: 4070532184
+28300000 clicks column size: 4084132184
+28400000 clicks column size: 4097732184
+28500000 clicks column size: 4111332184
+28600000 clicks column size: 4124932184
+28700000 clicks column size: 4138532184
+28800000 clicks column size: 4152132184
+28900000 clicks column size: 4165732184
+29000000 clicks column size: 4179332184
+29100000 clicks column size: 4192932184
+29200000 clicks column size: 4206532184
+29300000 clicks column size: 4220132184
+29400000 clicks column size: 4233732184
+29500000 clicks column size: 4276748736
+29600000 clicks column size: 4290348736
+29700000 clicks column size: 4303948736
+29800000 clicks column size: 4317548736
+29900000 clicks column size: 4331148736
+30000000 clicks column size: 4344748736
+30100000 clicks column size: 4358348736
+30200000 clicks column size: 4371948736
+30300000 clicks column size: 4385548736
+30400000 clicks column size: 4399148736
+30500000 clicks column size: 4412748736
+30600000 clicks column size: 4426348736
+30700000 clicks column size: 4439948736
+30800000 clicks column size: 4453548736
+30900000 clicks column size: 4467148736
+31000000 clicks column size: 4480748736
+31100000 clicks column size: 4494348736
+31200000 clicks column size: 4507948736
+31300000 clicks column size: 4521548736
+31400000 clicks column size: 4535148736
+31500000 clicks column size: 4548748736
+31600000 clicks column size: 4562348736
+31700000 clicks column size: 4575948736
+31800000 clicks column size: 4589548736
+31900000 clicks column size: 4603148736
+32000000 clicks column size: 4616748736
+32100000 clicks column size: 4630348736
+32200000 clicks column size: 4643948736
+32300000 clicks column size: 4657548736
+32400000 clicks column size: 4671148736
+32500000 clicks column size: 4684748736
+32600000 clicks column size: 4698348736
+32700000 clicks column size: 4711948736
+32800000 clicks column size: 4725548736
+32900000 clicks column size: 4739148736
+33000000 clicks column size: 4752748736
+33100000 clicks column size: 4799442352
+33200000 clicks column size: 4813042352
+33300000 clicks column size: 4826642352
+33400000 clicks column size: 4840242352
+33500000 clicks column size: 4853842352
+33600000 clicks column size: 4867442352
+33700000 clicks column size: 4881042352
+33800000 clicks column size: 4894642352
+33900000 clicks column size: 4908242352
+34000000 clicks column size: 4921842352
+34100000 clicks column size: 4935442352
+34200000 clicks column size: 4949042352
+34300000 clicks column size: 4962642352
+34400000 clicks column size: 4976242352
+34500000 clicks column size: 4989842352
+34600000 clicks column size: 5003442352
+34700000 clicks column size: 5017042352
+34800000 clicks column size: 5030642352
+34900000 clicks column size: 5044242352
+35000000 clicks column size: 5057842352
+35100000 clicks column size: 5071442352
+35200000 clicks column size: 5085042352
+35300000 clicks column size: 5098642352
+35400000 clicks column size: 5112242352
+35500000 clicks column size: 5125842352
+35600000 clicks column size: 5139442352
+35700000 clicks column size: 5153042352
+35800000 clicks column size: 5166642352
+35900000 clicks column size: 5180242352
+36000000 clicks column size: 5193842352
+36100000 clicks column size: 5207442352
+36200000 clicks column size: 5221042352
+36300000 clicks column size: 5234642352
+36400000 clicks column size: 5248242352
+36500000 clicks column size: 5261842352
+36600000 clicks column size: 5275442352
+36700000 clicks column size: 5289042352
+36800000 clicks column size: 5302642352
+36900000 clicks column size: 5316242352
+37000000 clicks column size: 5329842352
+37100000 clicks column size: 5343442352
+37200000 clicks column size: 5357042352
+37300000 clicks column size: 5407872672
+37400000 clicks column size: 5421472672
+37500000 clicks column size: 5435072672
+37600000 clicks column size: 5448672672
+37700000 clicks column size: 5462272672
+37800000 clicks column size: 5475872672
+37900000 clicks column size: 5489472672
+38000000 clicks column size: 5503072672
+38100000 clicks column size: 5516672672
+38200000 clicks column size: 5530272672
+38300000 clicks column size: 5543872672
+38400000 clicks column size: 5557472672
+38500000 clicks column size: 5571072672
+38600000 clicks column size: 5584672672
+38700000 clicks column size: 5598272672
+38800000 clicks column size: 5611872672
+38900000 clicks column size: 5625472672
+39000000 clicks column size: 5639072672
+39100000 clicks column size: 5652672672
+39200000 clicks column size: 5666272672
+39300000 clicks column size: 5679872672
+39400000 clicks column size: 5693472672
+39500000 clicks column size: 5707072672
+39600000 clicks column size: 5720672672
+39700000 clicks column size: 5734272672
+39800000 clicks column size: 5747872672
+39900000 clicks column size: 5761472672
+40000000 clicks column size: 5775072672
+40100000 clicks column size: 5788672672
+40200000 clicks column size: 5802272672
+40300000 clicks column size: 5815872672
+40400000 clicks column size: 5829472672
+40500000 clicks column size: 5843072672
+40600000 clicks column size: 5856672672
+40700000 clicks column size: 5870272672
+40800000 clicks column size: 5883872672
+40900000 clicks column size: 5897472672
+41000000 clicks column size: 5911072672
+41100000 clicks column size: 5924672672
+41200000 clicks column size: 5938272672
+41300000 clicks column size: 5951872672
+41400000 clicks column size: 5965472672
+41500000 clicks column size: 5979072672
+41600000 clicks column size: 5992672672
+41700000 clicks column size: 6006272672
+41800000 clicks column size: 6019872672
+41900000 clicks column size: 6075356784
+42000000 clicks column size: 6088956784
+42100000 clicks column size: 6102556784
+42200000 clicks column size: 6116156784
+42300000 clicks column size: 6129756784
+42400000 clicks column size: 6143356784
+42500000 clicks column size: 6156956784
+42600000 clicks column size: 6170556784
+42700000 clicks column size: 6184156784
+42800000 clicks column size: 6197756784
+42900000 clicks column size: 6211356784
+43000000 clicks column size: 6224956784
+43100000 clicks column size: 6238556784
+43200000 clicks column size: 6252156784
+43300000 clicks column size: 6265756784
+43400000 clicks column size: 6279356784
+43500000 clicks column size: 6292956784
+43600000 clicks column size: 6306556784
+43700000 clicks column size: 6320156784
+43800000 clicks column size: 6333756784
+43900000 clicks column size: 6347356784
+44000000 clicks column size: 6360956784
+44100000 clicks column size: 6374556784
+44200000 clicks column size: 6388156784
+44300000 clicks column size: 6401756784
+44400000 clicks column size: 6415356784
+44500000 clicks column size: 6428956784
+44600000 clicks column size: 6442556784
+44700000 clicks column size: 6456156784
+44800000 clicks column size: 6469756784
+44900000 clicks column size: 6483356784
+45000000 clicks column size: 6496956784
+45100000 clicks column size: 6510556784
+45200000 clicks column size: 6524156784
+45300000 clicks column size: 6537756784
+45400000 clicks column size: 6551356784
+45500000 clicks column size: 6564956784
+45600000 clicks column size: 6578556784
+45700000 clicks column size: 6592156784
+45800000 clicks column size: 6605756784
+45900000 clicks column size: 6619356784
+46000000 clicks column size: 6632956784
+46100000 clicks column size: 6646556784
+46200000 clicks column size: 6660156784
+46300000 clicks column size: 6673756784
+46400000 clicks column size: 6687356784
+46500000 clicks column size: 6700956784
+46600000 clicks column size: 6714556784
+46700000 clicks column size: 6728156784
+46800000 clicks column size: 6741756784
+46900000 clicks column size: 6755356784
+47000000 clicks column size: 6768956784
+47100000 clicks column size: 6782556784
+47200000 clicks column size: 6843276408
+47300000 clicks column size: 6856876408
+47400000 clicks column size: 6870476408
+47500000 clicks column size: 6884076408
+47600000 clicks column size: 6897676408
+47700000 clicks column size: 6911276408
+47800000 clicks column size: 6924876408
+47900000 clicks column size: 6938476408
+48000000 clicks column size: 6952076408
+48100000 clicks column size: 6965676408
+48200000 clicks column size: 6979276408
+48300000 clicks column size: 6992876408
+48400000 clicks column size: 7006476408
+48500000 clicks column size: 7020076408
+48600000 clicks column size: 7033676408
+48700000 clicks column size: 7047276408
+48800000 clicks column size: 7060876408
+48900000 clicks column size: 7074476408
+49000000 clicks column size: 7088076408
+49100000 clicks column size: 7101676408
+49200000 clicks column size: 7115276408
+49300000 clicks column size: 7128876408
+49400000 clicks column size: 7142476408
+49500000 clicks column size: 7156076408
+49600000 clicks column size: 7169676408
+49700000 clicks column size: 7183276408
+49800000 clicks column size: 7196876408
+49900000 clicks column size: 7210476408
+50000000 clicks column size: 7224076408
+50100000 clicks column size: 7237676408
+50200000 clicks column size: 7251276408
+50300000 clicks column size: 7264876408
+50400000 clicks column size: 7278476408
+50500000 clicks column size: 7292076408
+50600000 clicks column size: 7305676408
+50700000 clicks column size: 7319276408
+50800000 clicks column size: 7332876408
+50900000 clicks column size: 7346476408
+51000000 clicks column size: 7360076408
+51100000 clicks column size: 7373676408
+51200000 clicks column size: 7387276408
+51300000 clicks column size: 7400876408
+51400000 clicks column size: 7414476408
+51500000 clicks column size: 7428076408
+51600000 clicks column size: 7441676408
+51700000 clicks column size: 7455276408
+51800000 clicks column size: 7468876408
+51900000 clicks column size: 7482476408
+52000000 clicks column size: 7496076408
+52100000 clicks column size: 7509676408
+52200000 clicks column size: 7523276408
+52300000 clicks column size: 7536876408
+52400000 clicks column size: 7550476408
+52500000 clicks column size: 7564076408
+52600000 clicks column size: 7577676408
+52700000 clicks column size: 7591276408
+52800000 clicks column size: 7604876408
+52900000 clicks column size: 7618476408
+53000000 clicks column size: 7632076408
+53100000 clicks column size: 7698685984
+53200000 clicks column size: 7712285984
+53300000 clicks column size: 7725885984
+53400000 clicks column size: 7739485984
+53500000 clicks column size: 7753085984
+53600000 clicks column size: 7766685984
+53700000 clicks column size: 7780285984
+53800000 clicks column size: 7793885984
+53900000 clicks column size: 7807485984
+54000000 clicks column size: 7821085984
+54100000 clicks column size: 7834685984
+54200000 clicks column size: 7848285984
+54300000 clicks column size: 7861885984
+54400000 clicks column size: 7875485984
+54500000 clicks column size: 7889085984
+54600000 clicks column size: 7902685984
+54700000 clicks column size: 7916285984
+54800000 clicks column size: 7929885984
+54900000 clicks column size: 7943485984
+55000000 clicks column size: 7957085984
+55100000 clicks column size: 7970685984
+55200000 clicks column size: 7984285984
+55300000 clicks column size: 7997885984
+55400000 clicks column size: 8011485984
+55500000 clicks column size: 8025085984
+55600000 clicks column size: 8038685984
+55700000 clicks column size: 8052285984
+55800000 clicks column size: 8065885984
+55900000 clicks column size: 8079485984
+56000000 clicks column size: 8093085984
+56100000 clicks column size: 8106685984
+56200000 clicks column size: 8120285984
+56300000 clicks column size: 8133885984
+56400000 clicks column size: 8147485984
+56500000 clicks column size: 8161085984
+56600000 clicks column size: 8174685984
+56700000 clicks column size: 8188285984
+56800000 clicks column size: 8201885984
+56900000 clicks column size: 8215485984
+57000000 clicks column size: 8229085984
+57100000 clicks column size: 8242685984
+57200000 clicks column size: 8256285984
+57300000 clicks column size: 8269885984
+57400000 clicks column size: 8283485984
+57500000 clicks column size: 8297085984
+57600000 clicks column size: 8310685984
+57700000 clicks column size: 8324285984
+57800000 clicks column size: 8337885984
+57900000 clicks column size: 8351485984
+58000000 clicks column size: 8365085984
+58100000 clicks column size: 8378685984
+58200000 clicks column size: 8392285984
+58300000 clicks column size: 8405885984
+58400000 clicks column size: 8419485984
+58500000 clicks column size: 8433085984
+58600000 clicks column size: 8446685984
+58700000 clicks column size: 8460285984
+58800000 clicks column size: 8473885984
+58900000 clicks column size: 8487485984
+59000000 clicks column size: 8501085984
+59100000 clicks column size: 8514685984
+59200000 clicks column size: 8528285984
+59300000 clicks column size: 8541885984
+59400000 clicks column size: 8555485984
+59500000 clicks column size: 8569085984
+59600000 clicks column size: 8582685984
+59700000 clicks column size: 8655921760
+59800000 clicks column size: 8669521760
+59900000 clicks column size: 8683121760
+60000000 clicks column size: 8696721760
+60100000 clicks column size: 8710321760
+60200000 clicks column size: 8723921760
+60300000 clicks column size: 8737521760
+60400000 clicks column size: 8751121760
+60500000 clicks column size: 8764721760
+60600000 clicks column size: 8778321760
+60700000 clicks column size: 8791921760
+60800000 clicks column size: 8805521760
+60900000 clicks column size: 8819121760
+61000000 clicks column size: 8832721760
+61100000 clicks column size: 8846321760
+61200000 clicks column size: 8859921760
+61300000 clicks column size: 8873521760
+61400000 clicks column size: 8887121760
+61500000 clicks column size: 8900721760
+61600000 clicks column size: 8914321760
+61700000 clicks column size: 8927921760
+61800000 clicks column size: 8941521760
+61900000 clicks column size: 8955121760
+62000000 clicks column size: 8968721760
+62100000 clicks column size: 8982321760
+62200000 clicks column size: 8995921760
+62300000 clicks column size: 9009521760
+62400000 clicks column size: 9023121760
+62500000 clicks column size: 9036721760
+62600000 clicks column size: 9050321760
+62700000 clicks column size: 9063921760
+62800000 clicks column size: 9077521760
+62900000 clicks column size: 9091121760
+63000000 clicks column size: 9104721760
+63100000 clicks column size: 9118321760
+63200000 clicks column size: 9131921760
+63300000 clicks column size: 9145521760
+63400000 clicks column size: 9159121760
+63500000 clicks column size: 9172721760
+63600000 clicks column size: 9186321760
+63700000 clicks column size: 9199921760
+63800000 clicks column size: 9213521760
+63900000 clicks column size: 9227121760
+64000000 clicks column size: 9240721760
+64100000 clicks column size: 9254321760
+64200000 clicks column size: 9267921760
+64300000 clicks column size: 9281521760
+64400000 clicks column size: 9295121760
+64500000 clicks column size: 9308721760
+64600000 clicks column size: 9322321760
+64700000 clicks column size: 9335921760
+64800000 clicks column size: 9349521760
+64900000 clicks column size: 9363121760
+65000000 clicks column size: 9376721760
+65100000 clicks column size: 9390321760
+65200000 clicks column size: 9403921760
+65300000 clicks column size: 9417521760
+65400000 clicks column size: 9431121760
+65500000 clicks column size: 9444721760
+65600000 clicks column size: 9458321760
+65700000 clicks column size: 9471921760
+65800000 clicks column size: 9485521760
+65900000 clicks column size: 9499121760
+66000000 clicks column size: 9512721760
+66100000 clicks column size: 9526321760
+66200000 clicks column size: 9539921760
+66300000 clicks column size: 9553521760
+66400000 clicks column size: 9567121760
+66500000 clicks column size: 9580721760
+66600000 clicks column size: 9594321760
+66700000 clicks column size: 9607921760
+66800000 clicks column size: 9621521760
+66900000 clicks column size: 9635121760
+67000000 clicks column size: 9648721760
+67100000 clicks column size: 9729412008
+67200000 clicks column size: 9743012008
+67300000 clicks column size: 9756612008
+67400000 clicks column size: 9770212008
+67500000 clicks column size: 9783812008
+67600000 clicks column size: 9797412008
+67700000 clicks column size: 9811012008
+67800000 clicks column size: 9824612008
+67900000 clicks column size: 9838212008
+68000000 clicks column size: 9851812008
+68100000 clicks column size: 9865412008
+68200000 clicks column size: 9879012008
+68300000 clicks column size: 9892612008
+68400000 clicks column size: 9906212008
+68500000 clicks column size: 9919812008
+68600000 clicks column size: 9933412008
+68700000 clicks column size: 9947012008
+68800000 clicks column size: 9960612008
+68900000 clicks column size: 9974212008
+69000000 clicks column size: 9987812008
+69100000 clicks column size: 10001412008
+69200000 clicks column size: 10015012008
+69300000 clicks column size: 10028612008
+69400000 clicks column size: 10042212008
+69500000 clicks column size: 10055812008
+69600000 clicks column size: 10069412008
+69700000 clicks column size: 10083012008
+69800000 clicks column size: 10096612008
+69900000 clicks column size: 10110212008
+70000000 clicks column size: 10123812008
+70100000 clicks column size: 10137412008
+70200000 clicks column size: 10151012008
+70300000 clicks column size: 10164612008
+70400000 clicks column size: 10178212008
+70500000 clicks column size: 10191812008
+final clicks column size: 10193386752
+Total Clicks: 94202901
+Click Distribution per rating: [       0 39395814 40925368  9971546  3910173]
 Relevance 0: 0.0
-Relevance 1: 0.4236886608594618
-Relevance 2: 0.4308210637988992
-Relevance 3: 0.10316349585140731
-Relevance 4: 0.04232677949023171
-Time for generating clicks: 8244.78828883171
-Current memory for the DataFrame: 1929170560
+Relevance 1: 0.4182017069729095
+Relevance 2: 0.43443851055075255
+Relevance 3: 0.10585179324785338
+Relevance 4: 0.04150798922848459
+Time for generating clicks: 81987.50925779343
+Current memory for the DataFrame: 7333214920
 <class 'pandas.core.frame.DataFrame'>
-RangeIndex: 18549615 entries, 0 to 18549614
+RangeIndex: 70511580 entries, 0 to 70511579
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
 dtypes: int64(4)
-memory usage: 566.1 MB
+memory usage: 2.1 GB
 None
 
 Computing per query sum of clicks
-final clicks column size: 111297824
-Current memory for the DataFrame: 2263069408
+final clicks column size: 423069608
+Current memory for the DataFrame: 8602429120
 <class 'pandas.core.frame.DataFrame'>
-RangeIndex: 18549615 entries, 0 to 18549614
+RangeIndex: 70511580 entries, 0 to 70511579
 Columns: 7 entries, rankerA_id to interleaving_total_clicks
 dtypes: int64(4), uint16(3)
-memory usage: 672.2 MB
+memory usage: 2.5 GB
 None
-Time for computing per query winning model: 326.44738698005676
-Ranker combinations:2415
+Time for computing per query winning model: 1110.6587495803833
+Ranker combinations:9180
 
 After the removal of queries that didn't show any click
-Ranker combinations:2390
+Ranker combinations:9150
 
 Calculate Winner
 
 Pruning
-Time for pruning: 0.363741397857666
+Time for pruning: 1.341217279434204
 Only stat relevant rows
 <class 'pandas.core.frame.DataFrame'>
-Int64Index: 231816 entries, 124 to 966289
+Int64Index: 901076 entries, 75 to 3735423
 Columns: 7 entries, rankerA_id to interleaving_winner
 dtypes: int64(5), uint16(2)
-memory usage: 11.5 MB
+memory usage: 44.7 MB
 None
 
 Computing standard AB score
-Time for ab score: 2.4048876762390137
+Time for ab score: 7.882356405258179
 
 Computing Statistical Weighted AB score
-Time for ab stat score: 2.668443202972412
+Time for ab stat score: 8.89705753326416
 
-The CONTROL approach got: 2147/2390 pairs right!
+The CONTROL approach got: 8164/9150 pairs right!
 
-Accuracy of CONTROL approach: 0.898326359832636
+Accuracy of CONTROL approach: 0.8922404371584699
 
-The STAT WEIGHT approach got: 2159/2390 pairs right!
+The STAT WEIGHT approach got: 8272/9150 pairs right!
 
-Accuracy of STAT WEIGHT approach: 0.903347280334728
+Accuracy of STAT WEIGHT approach: 0.9040437158469945
 
 Computing standard AB score on pruned dataset
-Time for ab score pruning: 2.313199281692505
+Time for ab score pruning: 7.752475261688232
 
-STAT PRUNING approach got: 2180/2390 pairs right!
+STAT PRUNING approach got: 8232/9150 pairs right!
 
-Accuracy of STAT PRUNING approach: 0.9121338912133892
+Accuracy of STAT PRUNING approach: 0.899672131147541
 
-Experiment ended at: 18:54:58
-Total experiment time: 34943.62305641174
+Experiment ended at: 14:20:34
+Total experiment time: 227141.33353233337
