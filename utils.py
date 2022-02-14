@@ -375,8 +375,9 @@ def statistical_significance_pruning(experiment_results_dataframe):
     statistical_significance_computation(experiment_results_dataframe, zero_hypothesis_probability)
 
     # Remove queries with significance higher than 5% threshold
+    alpha = 0.05
     only_statistical_significant_queries = experiment_results_dataframe[
-        experiment_results_dataframe.statistical_significance < 0.05]
+        experiment_results_dataframe.statistical_significance < alpha]
     only_statistical_significant_queries = only_statistical_significant_queries.drop(columns='statistical_significance')
 
     return only_statistical_significant_queries
