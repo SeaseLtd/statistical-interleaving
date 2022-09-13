@@ -30,7 +30,7 @@ The detailed output of each run is in the runs_output folder.
 
 1:
 ```
-python3 -u ./main.py -p ./train.txt -s 234 -q 1000 -m 136 -e 1 -c 10 > runs_output/run-1.txt
+python3 -u ./main.py -p data/MSLR-WEB30k/Fold1/train.txt -s 234 -q 1000 -m 136 -e 1 -c 10 > runs_output/run-1.txt
 ```
 
 2:
