@@ -1,5 +1,6 @@
 # README #
 To replicate this work just install the requirements.txt in your python environment.
+python==3.8.0 is required.
 
 e.g.
 
@@ -10,8 +11,14 @@ pip install -r requirements.txt
 
 using Conda
 ```
-conda create --name <env_name> --file requirements.txt
+conda create --name <env_name> --file requirements.txt python=3.8.0
 ```
+
+### References ###
+The relevant papers for this experiment are:
+* A probabilistic method for inferring preferences from clicks: https://dl.acm.org/doi/10.1145/2063576.2063618
+* Comparing the Sensitivity of Information Retrieval Metrics: https://dl.acm.org/doi/10.1145/1835449.1835560
+
 ### Datasets ###
 
 * The <query,document> judgements dataset used in this paper is /MSLR-WEB30k/Fold1/train.txt
@@ -21,7 +28,7 @@ conda create --name <env_name> --file requirements.txt
 
 * The long tail distribution is extracted for real-world query logs and stored here: data/long_tail/query_click_user.json
 * To reproduce the experiments in this paper please use the provided long tail distribution and pass it as 'long_tail_dataset_path' parameter
-* if you want to run the experiments with a custom long tail distribution, feel free to use the same json structure(Apache Solr JSON facets response)
+* If you want to run the experiments with a custom long tail distribution, feel free to use the same json structure (Apache Solr JSON facets response)
 
 ### Runs ###
 Run 9 and 10 have been executed on  Amazon Ec2 machines Z1d 2Xlarge.
