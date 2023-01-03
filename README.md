@@ -1,6 +1,7 @@
 # README #
 To replicate this work just install the requirements.txt in your python environment.
-python==3.8.0 is required.
+
+`python==3.8.0` is required.
 
 e.g.
 
