@@ -1,0 +1,586 @@
+dataset_path= data/MSLR-WEB30k/Fold1/train.txt
+seed= 777
+queries_to_evaluate_count= 100
+rankers_to_evaluate_count= 136
+-experiment 1
+click_generation_top_k= 10
+long_tail_scaling_factor= 10
+Experiment started at: 10:34:40
+
+Loading dataframe
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 2270296 entries, 0 to 2270295
+Columns: 138 entries, 1 to query_id
+dtypes: float32(136), int32(2)
+memory usage: 1.2 GB
+None
+
+Time for loading dataframe: 91.1538257598877
+Query-Document Pairs: 2269598
+Unique Queries: 18919
+Avg judged documents per query: 119.96395158306464
+Relevance label distribution: relevance
+0    1169685
+1     736899
+2     303445
+3      41361
+4      18208
+dtype: int64
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 2269598 entries, 0 to 2270295
+Columns: 138 entries, 1 to query_id
+dtypes: float32(136), int32(2)
+memory usage: 1.2 GB
+None
+Selecting queries
+
+Each ranker is evaluated on queries: 1000
+
+Computing experiment results dataframe
+136
+Time for computing experiment results dataframe: 8.775935888290405
+
+Computing ranked lists and NDCG
+
+Ranker[1] AVG NDCG:0.52729
+
+Ranker[2] AVG NDCG:0.5519399999999993
+
+Ranker[3] AVG NDCG:0.5879100000000002
+
+Ranker[4] AVG NDCG:0.5588599999999997
+
+Ranker[5] AVG NDCG:0.5297200000000002
+
+Ranker[6] AVG NDCG:0.52729
+
+Ranker[7] AVG NDCG:0.5519399999999993
+
+Ranker[8] AVG NDCG:0.5879100000000002
+
+Ranker[9] AVG NDCG:0.5588599999999997
+
+Ranker[10] AVG NDCG:0.5297200000000002
+
+Ranker[11] AVG NDCG:0.4741000000000014
+
+Ranker[12] AVG NDCG:0.5284200000000011
+
+Ranker[13] AVG NDCG:0.5021199999999991
+
+Ranker[14] AVG NDCG:0.5158199999999956
+
+Ranker[15] AVG NDCG:0.47378999999999993
+
+Ranker[16] AVG NDCG:0.5150700000000006
+
+Ranker[17] AVG NDCG:0.5150700000000006
+
+Ranker[18] AVG NDCG:0.5150700000000006
+
+Ranker[19] AVG NDCG:0.5150700000000006
+
+Ranker[20] AVG NDCG:0.5150700000000006
+
+Ranker[21] AVG NDCG:0.5350900000000001
+
+Ranker[22] AVG NDCG:0.5589799999999976
+
+Ranker[23] AVG NDCG:0.5729599999999995
+
+Ranker[24] AVG NDCG:0.5530400000000016
+
+Ranker[25] AVG NDCG:0.5391399999999998
+
+Ranker[26] AVG NDCG:0.5663000000000011
+
+Ranker[27] AVG NDCG:0.5483900000000009
+
+Ranker[28] AVG NDCG:0.5642200000000005
+
+Ranker[29] AVG NDCG:0.5338699999999993
+
+Ranker[30] AVG NDCG:0.5744700000000004
+
+Ranker[31] AVG NDCG:0.5241200000000025
+
+Ranker[32] AVG NDCG:0.5509599999999987
+
+Ranker[33] AVG NDCG:0.543000000000001
+
+Ranker[34] AVG NDCG:0.5351600000000006
+
+Ranker[35] AVG NDCG:0.526329999999999
+
+Ranker[36] AVG NDCG:0.5350900000000001
+
+Ranker[37] AVG NDCG:0.5589799999999976
+
+Ranker[38] AVG NDCG:0.5729599999999995
+
+Ranker[39] AVG NDCG:0.5530400000000016
+
+Ranker[40] AVG NDCG:0.5391399999999998
+
+Ranker[41] AVG NDCG:0.509209999999998
+
+Ranker[42] AVG NDCG:0.5306699999999992
+
+Ranker[43] AVG NDCG:0.5206700000000001
+
+Ranker[44] AVG NDCG:0.5315399999999985
+
+Ranker[45] AVG NDCG:0.5092599999999996
+
+Ranker[46] AVG NDCG:0.553319999999998
+
+Ranker[47] AVG NDCG:0.5513800000000012
+
+Ranker[48] AVG NDCG:0.58644
+
+Ranker[49] AVG NDCG:0.569750000000002
+
+Ranker[50] AVG NDCG:0.5700299999999975
+
+Ranker[51] AVG NDCG:0.5802299999999988
+
+Ranker[52] AVG NDCG:0.5405600000000009
+
+Ranker[53] AVG NDCG:0.5766499999999994
+
+Ranker[54] AVG NDCG:0.5488699999999992
+
+Ranker[55] AVG NDCG:0.5935099999999994
+
+Ranker[56] AVG NDCG:0.5402199999999985
+
+Ranker[57] AVG NDCG:0.5449700000000008
+
+Ranker[58] AVG NDCG:0.5632300000000005
+
+Ranker[59] AVG NDCG:0.5503000000000013
+
+Ranker[60] AVG NDCG:0.5519799999999999
+
+Ranker[61] AVG NDCG:0.553319999999998
+
+Ranker[62] AVG NDCG:0.5513800000000012
+
+Ranker[63] AVG NDCG:0.58644
+
+Ranker[64] AVG NDCG:0.569750000000002
+
+Ranker[65] AVG NDCG:0.5700299999999975
+
+Ranker[66] AVG NDCG:0.5238899999999975
+
+Ranker[67] AVG NDCG:0.5314100000000006
+
+Ranker[68] AVG NDCG:0.539910000000001
+
+Ranker[69] AVG NDCG:0.5349000000000025
+
+Ranker[70] AVG NDCG:0.5277600000000009
+
+Ranker[71] AVG NDCG:0.5353500000000002
+
+Ranker[72] AVG NDCG:0.5599399999999983
+
+Ranker[73] AVG NDCG:0.5691499999999999
+
+Ranker[74] AVG NDCG:0.5514099999999978
+
+Ranker[75] AVG NDCG:0.5387200000000022
+
+Ranker[76] AVG NDCG:0.5685800000000016
+
+Ranker[77] AVG NDCG:0.5492700000000009
+
+Ranker[78] AVG NDCG:0.5689199999999996
+
+Ranker[79] AVG NDCG:0.5340099999999997
+
+Ranker[80] AVG NDCG:0.5738999999999999
+
+Ranker[81] AVG NDCG:0.525699999999999
+
+Ranker[82] AVG NDCG:0.555309999999998
+
+Ranker[83] AVG NDCG:0.5490800000000006
+
+Ranker[84] AVG NDCG:0.541550000000002
+
+Ranker[85] AVG NDCG:0.5277100000000005
+
+Ranker[86] AVG NDCG:0.5353500000000002
+
+Ranker[87] AVG NDCG:0.5599399999999983
+
+Ranker[88] AVG NDCG:0.5691499999999999
+
+Ranker[89] AVG NDCG:0.5514099999999978
+
+Ranker[90] AVG NDCG:0.5387200000000022
+
+Ranker[91] AVG NDCG:0.5139199999999996
+
+Ranker[92] AVG NDCG:0.5407999999999998
+
+Ranker[93] AVG NDCG:0.5258900000000011
+
+Ranker[94] AVG NDCG:0.5293300000000012
+
+Ranker[95] AVG NDCG:0.51504
+
+Ranker[96] AVG NDCG:0.525270000000001
+
+Ranker[97] AVG NDCG:0.5399899999999991
+
+Ranker[98] AVG NDCG:0.5645899999999997
+
+Ranker[99] AVG NDCG:0.5360399999999998
+
+Ranker[100] AVG NDCG:0.528340000000001
+
+Ranker[101] AVG NDCG:0.5547500000000007
+
+Ranker[102] AVG NDCG:0.5522100000000022
+
+Ranker[103] AVG NDCG:0.5923199999999995
+
+Ranker[104] AVG NDCG:0.5577200000000012
+
+Ranker[105] AVG NDCG:0.5561999999999991
+
+Ranker[106] AVG NDCG:0.5833600000000011
+
+Ranker[107] AVG NDCG:0.5614999999999991
+
+Ranker[108] AVG NDCG:0.6023199999999973
+
+Ranker[109] AVG NDCG:0.5711699999999993
+
+Ranker[110] AVG NDCG:0.5955400000000001
+
+Ranker[111] AVG NDCG:0.5848400000000008
+
+Ranker[112] AVG NDCG:0.5664999999999999
+
+Ranker[113] AVG NDCG:0.5974500000000003
+
+Ranker[114] AVG NDCG:0.5624599999999987
+
+Ranker[115] AVG NDCG:0.6018899999999988
+
+Ranker[116] AVG NDCG:0.575600000000001
+
+Ranker[117] AVG NDCG:0.5601400000000004
+
+Ranker[118] AVG NDCG:0.5883400000000033
+
+Ranker[119] AVG NDCG:0.5612500000000008
+
+Ranker[120] AVG NDCG:0.5820400000000012
+
+Ranker[121] AVG NDCG:0.5830000000000009
+
+Ranker[122] AVG NDCG:0.5546399999999975
+
+Ranker[123] AVG NDCG:0.6025900000000017
+
+Ranker[124] AVG NDCG:0.5651499999999979
+
+Ranker[125] AVG NDCG:0.5998599999999985
+
+Ranker[126] AVG NDCG:0.51408
+
+Ranker[127] AVG NDCG:0.5191600000000007
+
+Ranker[128] AVG NDCG:0.5359600000000014
+
+Ranker[129] AVG NDCG:0.5372999999999983
+
+Ranker[130] AVG NDCG:0.5368299999999987
+
+Ranker[131] AVG NDCG:0.5205500000000012
+
+Ranker[132] AVG NDCG:0.5122500000000001
+
+Ranker[133] AVG NDCG:0.49884000000000317
+
+Ranker[134] AVG NDCG:0.5855999999999999
+
+Ranker[135] AVG NDCG:0.54853
+
+Ranker[136] AVG NDCG:0.5292599999999978
+Time to calculate Ranked Lists and NDCG: 154.91773796081543
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 9180000 entries, 0 to 9179999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 280.2 MB
+None
+
+Computing Interleaving
+0 interleaving column size: 400
+100000 interleaving column size: 35312768
+200000 interleaving column size: 70648096
+300000 interleaving column size: 106142400
+400000 interleaving column size: 141341864
+500000 interleaving column size: 176730320
+600000 interleaving column size: 211754616
+700000 interleaving column size: 247524704
+800000 interleaving column size: 282776296
+900000 interleaving column size: 318123344
+1000000 interleaving column size: 353577768
+1100000 interleaving column size: 389153000
+1200000 interleaving column size: 423641000
+1300000 interleaving column size: 459352136
+1400000 interleaving column size: 495216160
+1500000 interleaving column size: 529704160
+1600000 interleaving column size: 565740184
+1700000 interleaving column size: 600228184
+1800000 interleaving column size: 636457712
+1900000 interleaving column size: 670945712
+2000000 interleaving column size: 707392936
+2100000 interleaving column size: 741880936
+2200000 interleaving column size: 776368936
+2300000 interleaving column size: 813061064
+2400000 interleaving column size: 847549064
+2500000 interleaving column size: 884516704
+2600000 interleaving column size: 919004704
+2700000 interleaving column size: 953492704
+2800000 interleaving column size: 990770296
+2900000 interleaving column size: 1025258296
+3000000 interleaving column size: 1059746296
+3100000 interleaving column size: 1094234296
+3200000 interleaving column size: 1131860592
+3300000 interleaving column size: 1166348592
+3400000 interleaving column size: 1200836592
+3500000 interleaving column size: 1235324592
+3600000 interleaving column size: 1273343176
+3700000 interleaving column size: 1307831176
+3800000 interleaving column size: 1342319176
+3900000 interleaving column size: 1376807176
+4000000 interleaving column size: 1415267080
+4100000 interleaving column size: 1449755080
+4200000 interleaving column size: 1484243080
+4300000 interleaving column size: 1518731080
+4400000 interleaving column size: 1553219080
+4500000 interleaving column size: 1592175472
+4600000 interleaving column size: 1626663472
+4700000 interleaving column size: 1661151472
+4800000 interleaving column size: 1695639472
+4900000 interleaving column size: 1730127472
+5000000 interleaving column size: 1764615472
+5100000 interleaving column size: 1804130416
+5200000 interleaving column size: 1838618416
+5300000 interleaving column size: 1873106416
+5400000 interleaving column size: 1907594416
+5500000 interleaving column size: 1942082416
+5600000 interleaving column size: 1976570416
+5700000 interleaving column size: 2016713728
+5800000 interleaving column size: 2051201728
+5900000 interleaving column size: 2085689728
+6000000 interleaving column size: 2120177728
+6100000 interleaving column size: 2154665728
+6200000 interleaving column size: 2189153728
+6300000 interleaving column size: 2223641728
+6400000 interleaving column size: 2264491952
+6500000 interleaving column size: 2298979952
+6600000 interleaving column size: 2333467952
+6700000 interleaving column size: 2367955952
+6800000 interleaving column size: 2402443952
+6900000 interleaving column size: 2436931952
+7000000 interleaving column size: 2471419952
+7100000 interleaving column size: 2505907952
+7200000 interleaving column size: 2547553456
+7300000 interleaving column size: 2582041456
+7400000 interleaving column size: 2616529456
+7500000 interleaving column size: 2651017456
+7600000 interleaving column size: 2685505456
+7700000 interleaving column size: 2719993456
+7800000 interleaving column size: 2754481456
+7900000 interleaving column size: 2788969456
+8000000 interleaving column size: 2823457456
+8100000 interleaving column size: 2865997648
+8200000 interleaving column size: 2900485648
+8300000 interleaving column size: 2934973648
+8400000 interleaving column size: 2969461648
+8500000 interleaving column size: 3003949648
+8600000 interleaving column size: 3038437648
+8700000 interleaving column size: 3072925648
+8800000 interleaving column size: 3107413648
+8900000 interleaving column size: 3141901648
+9000000 interleaving column size: 3176389648
+9100000 interleaving column size: 3219936360
+final interleaving column size: 3247526472
+Time for interleaving: 10318.245725631714
+
+Generating Clicks
+Current memory for the DataFrame: 954732688
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 9180000 entries, 0 to 9179999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 280.2 MB
+None
+0 clicks column size: 248
+100000 clicks column size: 14424616
+200000 clicks column size: 28871944
+300000 clicks column size: 43478248
+400000 clicks column size: 57789712
+500000 clicks column size: 72290168
+600000 clicks column size: 86426464
+700000 clicks column size: 101308552
+800000 clicks column size: 115672144
+900000 clicks column size: 130131192
+1000000 clicks column size: 144697616
+1100000 clicks column size: 159384848
+1200000 clicks column size: 172984848
+1300000 clicks column size: 187807984
+1400000 clicks column size: 202784008
+1500000 clicks column size: 216384008
+1600000 clicks column size: 231532032
+1700000 clicks column size: 245132032
+1800000 clicks column size: 260473560
+1900000 clicks column size: 274073560
+2000000 clicks column size: 289632784
+2100000 clicks column size: 303232784
+2200000 clicks column size: 316832784
+2300000 clicks column size: 332636912
+2400000 clicks column size: 346236912
+2500000 clicks column size: 362316552
+2600000 clicks column size: 375916552
+2700000 clicks column size: 389516552
+2800000 clicks column size: 405906144
+2900000 clicks column size: 419506144
+3000000 clicks column size: 433106144
+3100000 clicks column size: 446706144
+3200000 clicks column size: 463444440
+3300000 clicks column size: 477044440
+3400000 clicks column size: 490644440
+3500000 clicks column size: 504244440
+3600000 clicks column size: 521375024
+3700000 clicks column size: 534975024
+3800000 clicks column size: 548575024
+3900000 clicks column size: 562175024
+4000000 clicks column size: 579746928
+4100000 clicks column size: 593346928
+4200000 clicks column size: 606946928
+4300000 clicks column size: 620546928
+4400000 clicks column size: 634146928
+4500000 clicks column size: 652215320
+4600000 clicks column size: 665815320
+4700000 clicks column size: 679415320
+4800000 clicks column size: 693015320
+4900000 clicks column size: 706615320
+5000000 clicks column size: 720215320
+5100000 clicks column size: 738842264
+5200000 clicks column size: 752442264
+5300000 clicks column size: 766042264
+5400000 clicks column size: 779642264
+5500000 clicks column size: 793242264
+5600000 clicks column size: 806842264
+5700000 clicks column size: 826097576
+5800000 clicks column size: 839697576
+5900000 clicks column size: 853297576
+6000000 clicks column size: 866897576
+6100000 clicks column size: 880497576
+6200000 clicks column size: 894097576
+6300000 clicks column size: 907697576
+6400000 clicks column size: 927659800
+6500000 clicks column size: 941259800
+6600000 clicks column size: 954859800
+6700000 clicks column size: 968459800
+6800000 clicks column size: 982059800
+6900000 clicks column size: 995659800
+7000000 clicks column size: 1009259800
+7100000 clicks column size: 1022859800
+7200000 clicks column size: 1043617304
+7300000 clicks column size: 1057217304
+7400000 clicks column size: 1070817304
+7500000 clicks column size: 1084417304
+7600000 clicks column size: 1098017304
+7700000 clicks column size: 1111617304
+7800000 clicks column size: 1125217304
+7900000 clicks column size: 1138817304
+8000000 clicks column size: 1152417304
+8100000 clicks column size: 1174069496
+8200000 clicks column size: 1187669496
+8300000 clicks column size: 1201269496
+8400000 clicks column size: 1214869496
+8500000 clicks column size: 1228469496
+8600000 clicks column size: 1242069496
+8700000 clicks column size: 1255669496
+8800000 clicks column size: 1269269496
+8900000 clicks column size: 1282869496
+9000000 clicks column size: 1296469496
+9100000 clicks column size: 1319128208
+final clicks column size: 1330008072
+Total Clicks: 12089485
+Click Distribution per rating: [      0 4735087 5288531 1287657  778210]
+Relevance 0: 0.0
+Relevance 1: 0.39166986848488583
+Relevance 2: 0.43744882432957233
+Relevance 3: 0.10651049238242985
+Relevance 4: 0.06437081480311196
+Time for generating clicks: 2532.322310447693
+Current memory for the DataFrame: 954732688
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 9180000 entries, 0 to 9179999
+Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
+dtypes: int64(4)
+memory usage: 280.2 MB
+None
+
+Computing per query sum of clicks
+final clicks column size: 55080128
+Current memory for the DataFrame: 1119979816
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 9180000 entries, 0 to 9179999
+Columns: 7 entries, rankerA_id to interleaving_total_clicks
+dtypes: int64(4), uint16(3)
+memory usage: 332.7 MB
+None
+Time for computing per query winning model: 192.37436413764954
+Ranker combinations:9180
+
+After the removal of queries that didn't show any click
+Ranker combinations:9150
+
+Calculate Winner
+
+Pruning
+Time for pruning: 0.3219568729400635
+Only stat relevant rows
+<class 'pandas.core.frame.DataFrame'>
+Int64Index: 203299 entries, 0 to 795224
+Columns: 7 entries, rankerA_id to interleaving_winner
+dtypes: int64(5), uint16(2)
+memory usage: 10.1 MB
+None
+
+Computing standard AB score
+Time for ab score: 6.681812763214111
+
+Computing Statistical Weighted AB score
+Time for ab stat score: 7.532166481018066
+
+The CONTROL approach got: 7578/9150 pairs right!
+
+Accuracy of CONTROL approach: 0.8281967213114754
+
+The STAT WEIGHT approach got: 7845/9150 pairs right!
+
+Accuracy of STAT WEIGHT approach: 0.8573770491803279
+
+Computing standard AB score on pruned dataset
+Time for ab score pruning: 6.613560676574707
+
+STAT PRUNING approach got: 7677/9150 pairs right!
+
+Accuracy of STAT PRUNING approach: 0.8390163934426229
+
+Experiment ended at: 14:17:00
+Total experiment time: 13339.935181856155

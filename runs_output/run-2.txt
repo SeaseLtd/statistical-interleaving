@@ -3,7 +3,7 @@ seed= 347
 queries_to_evaluate_count= 1000
 rankers_to_evaluate_count= 136
 -experiment 1
-Experiment started at: 19:10:14
+Experiment started at: 09:01:48
 
 Loading dataframe
 <class 'pandas.core.frame.DataFrame'>
@@ -13,7 +13,7 @@ dtypes: float32(136), int32(2)
 memory usage: 1.2 GB
 None
 
-Time for loading dataframe: 156.4679663181305
+Time for loading dataframe: 157.259122133255
 Query-Document Pairs: 2269598
 Unique Queries: 18919
 Avg judged documents per query: 119.96395158306464
@@ -36,7 +36,7 @@ Each ranker is evaluated on queries: 1000
 
 Computing experiment results dataframe
 136
-Time for computing experiment results dataframe: 14.792531251907349
+Time for computing experiment results dataframe: 14.953893423080444
 
 Computing ranked lists and NDCG
 
@@ -311,7 +311,7 @@ Ranker[134] AVG NDCG:0.6145959999999998
 Ranker[135] AVG NDCG:0.5709069999999996
 
 Ranker[136] AVG NDCG:0.5558400000000006
-Time to calculate Ranked Lists and NDCG: 356.47898960113525
+Time to calculate Ranked Lists and NDCG: 358.2607202529907
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 9180000 entries, 0 to 9179999
 Columns: 4 entries, rankerA_id to avg_NDCG_winning_ranker
@@ -413,7 +413,7 @@ Computing Interleaving
 9000000 interleaving column size: 3111517640
 9100000 interleaving column size: 3154343552
 final interleaving column size: 3181357024
-Time for interleaving: 16831.721354961395
+Time for interleaving: 17879.420480012894
 
 Generating Clicks
 Current memory for the DataFrame: 954730600
@@ -516,14 +516,14 @@ None
 9000000 clicks column size: 3111517640
 9100000 clicks column size: 3154343552
 final clicks column size: 3181357024
-Total Clicks: 115203225
-Click Distribution per rating: [       0 52642771 47300420 10445156  4814878]
+Total Clicks: 115200523
+Click Distribution per rating: [       0 52640094 47303402 10442349  4814678]
 Relevance 0: 0.0
-Relevance 1: 0.4569557058841018
-Relevance 2: 0.4105824294415369
-Relevance 3: 0.09066721873454497
-Relevance 4: 0.041794645939816355
-Time for generating clicks: 23472.301695346832
+Relevance 1: 0.4569431859263347
+Relevance 2: 0.4106179448508233
+Relevance 3: 0.09064497910308966
+Relevance 4: 0.04179389011975232
+Time for generating clicks: 25281.556101560593
 Current memory for the DataFrame: 954730600
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 9180000 entries, 0 to 9179999
@@ -541,7 +541,7 @@ Columns: 7 entries, rankerA_id to interleaving_total_clicks
 dtypes: int64(4), uint16(3)
 memory usage: 332.7 MB
 None
-Time for computing per query winning model: 1915.1612238883972
+Time for computing per query winning model: 2057.1484904289246
 Ranker combinations:9180
 
 After the removal of queries that didn't show any click
@@ -550,35 +550,35 @@ Ranker combinations:9152
 Calculate Winner
 
 Pruning
-Time for pruning: 4.752563238143921
+Time for pruning: 4.750739097595215
 Only stat relevant rows
 <class 'pandas.core.frame.DataFrame'>
-Int64Index: 225594 entries, 19 to 9179937
+Int64Index: 229639 entries, 19 to 9179937
 Columns: 7 entries, rankerA_id to interleaving_winner
 dtypes: int64(5), uint16(2)
-memory usage: 11.2 MB
+memory usage: 11.4 MB
 None
 
 Computing standard AB score
-Time for ab score: 15.457276344299316
+Time for ab score: 15.383720874786377
 
 Computing Statistical Weighted AB score
-Time for ab stat score: 16.87618398666382
+Time for ab stat score: 17.04711627960205
 
-The CONTROL approach got: 7544/9152 pairs right!
+The CONTROL approach got: 7555/9152 pairs right!
 
-Accuracy of CONTROL approach: 0.8243006993006993
+Accuracy of CONTROL approach: 0.8255026223776224
 
-The STAT WEIGHT approach got: 7591/9152 pairs right!
+The STAT WEIGHT approach got: 7588/9152 pairs right!
 
-Accuracy of STAT WEIGHT approach: 0.8294361888111889
+Accuracy of STAT WEIGHT approach: 0.8291083916083916
 
 Computing standard AB score on pruned dataset
-Time for ab score pruning: 14.305034637451172
+Time for ab score pruning: 14.680975914001465
 
-STAT PRUNING approach got: 7315/9152 pairs right!
+STAT PRUNING approach got: 7324/9152 pairs right!
 
-Accuracy of STAT PRUNING approach: 0.7992788461538461
+Accuracy of STAT PRUNING approach: 0.8002622377622378
 
-Experiment ended at: 07:04:23
-Total experiment time: 42848.85129737854
+Experiment ended at: 21:45:59
+Total experiment time: 45850.76943445206
